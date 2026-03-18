@@ -1,0 +1,267 @@
+<!-- templates/events/session_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Session - {{ event.title }} - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-clock me-2"></i>{{ action }} Session
+        </h1>
+        <a href="{% url 'events:event_detail' event.id %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Event
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Session Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-clock me-1"></i>Session Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="sessionForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Session Name -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-tag me-1"></i>Session Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                e.g., Day 1 Morning Session, Workshop Part 1, etc.
+                            </div>
+                        </div>
+
+                        <!-- Session Type -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-clock me-1"></i>Session Type <span class="text-danger">*</span>
+                            </label>
+                            {{ form.session_type }}
+                            {% if form.session_type.errors %}
+                                <div class="text-danger small mt-1">{{ form.session_type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Date and Time -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-calendar me-1"></i>Start Date & Time <span class="text-danger">*</span>
+                                </label>
+                                {{ form.start_time }}
+                                {% if form.start_time.errors %}
+                                    <div class="text-danger small mt-1">{{ form.start_time.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-calendar me-1"></i>End Date & Time <span class="text-danger">*</span>
+                                </label>
+                                {{ form.end_time }}
+                                {% if form.end_time.errors %}
+                                    <div class="text-danger small mt-1">{{ form.end_time.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Venue -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-map-marker-alt me-1"></i>Venue
+                            </label>
+                            {{ form.venue }}
+                            {% if form.venue.errors %}
+                                <div class="text-danger small mt-1">{{ form.venue.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                Leave blank to use main event venue: <strong>{{ event.venue }}</strong>
+                            </div>
+                        </div>
+
+                        <!-- Active Status -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    <i class="fas fa-check-circle text-success me-1"></i>
+                                    Session is active
+                                </label>
+                            </div>
+                            <div class="form-text text-muted">
+                                Uncheck to temporarily disable this session
+                            </div>
+                        </div>
+
+                        <!-- Time Validation Summary -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Event Timeframe:</strong>
+                            {{ event.start_date|date:"M d, Y h:i A" }} - {{ event.end_date|date:"M d, Y h:i A" }}
+                        </div>
+
+                        <hr>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'events:event_detail' event.id %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>{{ action }} Session
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Event Info -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Event Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h6 class="fw-bold">{{ event.title }}</h6>
+                    
+                    <div class="mb-2 small">
+                        <i class="fas fa-calendar text-primary me-2"></i>
+                        {{ event.start_date|date:"M d, Y" }}
+                    </div>
+                    <div class="mb-2 small">
+                        <i class="fas fa-clock text-success me-2"></i>
+                        {{ event.start_date|date:"h:i A" }} - {{ event.end_date|date:"h:i A" }}
+                    </div>
+                    <div class="mb-2 small">
+                        <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                        {{ event.venue }}
+                    </div>
+                    
+                    <hr>
+                    
+                    <p class="small text-muted mb-0">
+                        <i class="fas fa-info-circle me-1"></i>
+                        All session times must be within the event timeframe.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-lightbulb me-1"></i>Session Tips
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0 small">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Create sessions for multi-day events
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Use different session types for workshops, breaks, etc.
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Each session generates a unique QR code for check-in
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            You can track attendance per session
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+#id_start_time, #id_end_time {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #2c3e50;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #d1d3e2;
+    border-radius: 0.35rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#id_start_time:focus, #id_end_time:focus {
+    border-color: #4e73df;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startTime = document.getElementById('id_start_time');
+    const endTime = document.getElementById('id_end_time');
+    const eventStart = new Date('{{ event.start_date|date:"Y-m-d H:i:s" }}');
+    const eventEnd = new Date('{{ event.end_date|date:"Y-m-d H:i:s" }}');
+    
+    function validateTimes() {
+        if (startTime.value && endTime.value) {
+            const start = new Date(startTime.value);
+            const end = new Date(endTime.value);
+            
+            if (start < eventStart || start > eventEnd) {
+                startTime.setCustomValidity('Start time must be within event timeframe');
+            } else {
+                startTime.setCustomValidity('');
+            }
+            
+            if (end < eventStart || end > eventEnd) {
+                endTime.setCustomValidity('End time must be within event timeframe');
+            } else if (end <= start) {
+                endTime.setCustomValidity('End time must be after start time');
+            } else {
+                endTime.setCustomValidity('');
+            }
+        }
+    }
+    
+    startTime.addEventListener('change', validateTimes);
+    endTime.addEventListener('change', validateTimes);
+    
+    // Form validation
+    document.getElementById('sessionForm').addEventListener('submit', function(e) {
+        if (!startTime.value || !endTime.value) {
+            e.preventDefault();
+            alert('Please fill in both start and end times.');
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Privacy Policy - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-shield-alt me-2"></i>Privacy Policy
+        </h1>
+        <div>
+            {% if request.user.user_type == 'admin' %}
+                <a href="{% url 'core:privacy_policy_edit' %}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit me-1"></i>Edit Policy
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Last Updated -->
+            <div class="alert alert-info mb-4">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Last Updated:</strong> {{ privacy_policy.effective_date|date:"F d, Y" }}
+                <span class="mx-2">|</span>
+                <strong>Version:</strong> {{ privacy_policy.version }}
+            </div>
+
+            <!-- Privacy Policy Content -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-file-alt me-1"></i>{{ privacy_policy.title }}
+                    </h6>
+                </div>
+                <div class="card-body policy-content">
+                    {{ privacy_policy.content|safe }}
+                </div>
+            </div>
+
+            <!-- Version History (Admin Only) -->
+            {% if request.user.user_type == 'admin' and all_versions.count > 1 %}
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-history me-1"></i>Version History
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for version in all_versions %}
+                            {% if version != privacy_policy %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Version {{ version.version }}</strong>
+                                        <small class="text-muted d-block">Effective: {{ version.effective_date|date:"M d, Y" }}</small>
+                                    </div>
+                                    <a href="#" class="btn btn-sm btn-outline-secondary" onclick="alert('Viewing old versions coming soon!')">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.policy-content h1,
+.policy-content h2,
+.policy-content h3 {
+    color: #1e3c72;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.policy-content h1 {
+    font-size: 2rem;
+    border-bottom: 2px solid #4e73df;
+    padding-bottom: 0.5rem;
+}
+
+.policy-content h2 {
+    font-size: 1.5rem;
+    border-bottom: 1px solid #e3e6f0;
+    padding-bottom: 0.3rem;
+}
+
+.policy-content h3 {
+    font-size: 1.2rem;
+}
+
+.policy-content p {
+    line-height: 1.8;
+    margin-bottom: 1rem;
+}
+
+.policy-content ul,
+.policy-content ol {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+}
+
+.policy-content li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+.policy-content strong {
+    color: #1e3c72;
+}
+</style>
+{% endblock %}

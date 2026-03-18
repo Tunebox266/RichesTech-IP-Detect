@@ -1,0 +1,479 @@
+<!-- templates/accounts/executive/meeting_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load core_tags %}
+
+{% block title %}{{ meeting.title }} - Meeting Details - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-users-cog me-2"></i>{{ meeting.title }}
+        </h1>
+        <div>
+            <a href="{% url 'accounts:executive_meeting_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to Meetings
+            </a>
+            {% if is_organizer %}
+                <a href="{% url 'accounts:executive_meeting_edit' meeting.id %}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </a>
+                <a href="{% url 'accounts:executive_meeting_attendance' meeting.id %}" class="btn btn-info btn-sm">
+                    <i class="fas fa-clipboard-list me-1"></i>Attendance
+                </a>
+                <button class="btn btn-danger btn-sm" onclick="confirmDelete({{ meeting.id }})">
+                    <i class="fas fa-trash me-1"></i>Delete
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Meeting Info Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Meeting Information
+                    </h6>
+                    <span class="badge bg-{{ meeting.status|meeting_status_color }} p-2">
+                        {{ meeting.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-calendar fa-2x text-primary mb-2"></i>
+                                <span class="d-block h6 mb-0">{{ meeting.date|date:"M d, Y" }}</span>
+                                <small class="text-muted">Date</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-clock fa-2x text-success mb-2"></i>
+                                <span class="d-block h6 mb-0">{{ meeting.start_time|time:"h:i A" }}</span>
+                                <small class="text-muted">Start Time</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-clock fa-2x text-danger mb-2"></i>
+                                <span class="d-block h6 mb-0">{{ meeting.end_time|time:"h:i A" }}</span>
+                                <small class="text-muted">End Time</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-map-marker-alt fa-2x text-info mb-2"></i>
+                                <span class="d-block h6 mb-0">
+                                    {% if meeting.is_virtual %}
+                                        Virtual
+                                    {% else %}
+                                        {{ meeting.venue }}
+                                    {% endif %}
+                                </span>
+                                <small class="text-muted">Venue</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if meeting.is_virtual and meeting.meeting_link %}
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-video me-2"></i>
+                        <strong>Virtual Meeting Link:</strong>
+                        <a href="{{ meeting.meeting_link }}" target="_blank" class="alert-link">{{ meeting.meeting_link }}</a>
+                    </div>
+                    {% endif %}
+
+                    <h6 class="fw-bold">Description</h6>
+                    <p class="mb-4">{{ meeting.description|linebreaks }}</p>
+
+                    <h6 class="fw-bold">Meeting Type</h6>
+                    <p class="mb-2">
+                        <span class="badge bg-{{ meeting.meeting_type|meeting_type_color }} p-2">
+                            {{ meeting.get_meeting_type_display }}
+                        </span>
+                    </p>
+
+                    <h6 class="fw-bold">Agenda</h6>
+                    <div class="mb-4">
+                        {{ meeting.agenda|linebreaks }}
+                    </div>
+
+                    <!-- Attachments -->
+                    {% if meeting.attachments %}
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Attachments</h6>
+                        <a href="{{ meeting.attachments.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                            <i class="fas fa-download me-1"></i>Download Attachment
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <!-- QR Code -->
+                    {% if meeting.qr_code %}
+                    <div class="mb-4 text-center">
+                        <h6 class="fw-bold">Check-in QR Code</h6>
+                        <img src="{{ meeting.qr_code.url }}" alt="Meeting QR Code" style="max-width: 150px;">
+                        <p class="small text-muted mt-2">Code: <strong>{{ meeting.meeting_code }}</strong></p>
+                    </div>
+                    {% endif %}
+
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-user me-1"></i>Organized by: {{ meeting.organized_by.user.get_full_name }}
+                        on {{ meeting.created_at|date:"M d, Y H:i" }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Participants Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-users me-1"></i>Participants ({{ meeting.participants.count }})
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Position</th>
+                                    <th>Status</th>
+                                    <th>Check-in Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for participant in meeting.participants.all %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if participant.user.profile_image %}
+                                                <img src="{{ participant.user.profile_image.url }}" class="rounded-circle me-2" width="30" height="30">
+                                            {% else %}
+                                                <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
+                                                    <i class="fas fa-user text-white"></i>
+                                                </div>
+                                            {% endif %}
+                                            {{ participant.user.get_full_name }}
+                                        </div>
+                                    </td>
+                                    <td>{{ participant.get_position_display }}</td>
+                                    <td>
+                                        {% if participant.id in attendance %}
+                                            <span class="badge bg-success">Checked In</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if participant.id in attendance %}
+                                            {% with record=attendance_dict|get_item:participant.id %}
+                                                {{ record.check_in_time|date:"h:i A" }}
+                                            {% endwith %}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discussions Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-comments me-1"></i>Discussions ({{ discussions.count }})
+                    </h6>
+                    <a href="{% url 'accounts:executive_discussion_create' %}?meeting={{ meeting.id }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-1"></i>New Discussion
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for discussion in discussions %}
+                        <a href="{% url 'accounts:executive_discussion_detail' discussion.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">
+                                        {% if discussion.is_pinned %}
+                                            <i class="fas fa-thumbtack text-danger me-1"></i>
+                                        {% endif %}
+                                        {{ discussion.title }}
+                                    </h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>{{ discussion.created_by.user.get_full_name }} |
+                                        <i class="fas fa-clock me-1"></i>{{ discussion.created_at|timesince }} ago |
+                                        <i class="fas fa-comment me-1"></i>{{ discussion.comments.count }} comments
+                                    </small>
+                                </div>
+                                <span class="badge bg-info">{{ discussion.comments.count }}</span>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <div class="list-group-item text-center py-4">
+                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No discussions yet</p>
+                            <a href="{% url 'accounts:executive_discussion_create' %}?meeting={{ meeting.id }}" class="btn btn-sm btn-primary mt-3">
+                                Start a Discussion
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Card -->
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-tasks me-1"></i>Action Items ({{ tasks.count }})
+                    </h6>
+                    <a href="{% url 'accounts:executive_task_create' %}?meeting={{ meeting.id }}" class="btn btn-sm btn-success">
+                        <i class="fas fa-plus me-1"></i>Add Task
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for task in tasks %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">
+                                        {% if task.priority == 'high' %}
+                                            <i class="fas fa-exclamation-circle text-danger me-1"></i>
+                                        {% elif task.priority == 'medium' %}
+                                            <i class="fas fa-exclamation-circle text-warning me-1"></i>
+                                        {% endif %}
+                                        {{ task.title }}
+                                    </h6>
+                                    <small class="text-muted">
+                                        Assigned to: {{ task.assigned_to.user.get_full_name }} |
+                                        Due: {{ task.due_date|date:"M d, Y" }}
+                                    </small>
+                                    <br>
+                                    <span class="badge bg-{{ task.priority|task_priority_color }} me-1">
+                                        {{ task.get_priority_display }}
+                                    </span>
+                                    <span class="badge bg-{{ task.status|task_status_color }}">
+                                        {{ task.get_status_display }}
+                                    </span>
+                                </div>
+                                <a href="{% url 'accounts:executive_task_detail' task.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center py-4">
+                            <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No action items yet</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Check-in Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-qrcode me-1"></i>Check-in
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if meeting.date == today %}
+                        {% if has_checked_in %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle me-2"></i>
+                                You have checked in at {{ user_check_in_time|date:"h:i A" }}
+                            </div>
+                        {% else %}
+                            <button class="btn btn-success btn-lg w-100 mb-3" onclick="checkIn({{ meeting.id }})">
+                                <i class="fas fa-qrcode me-2"></i>Check In Now
+                            </button>
+                            <p class="small text-muted text-center">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Use the QR code or meeting code to check in
+                            </p>
+                        {% endif %}
+                    {% elif meeting.date > today %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-clock me-2"></i>
+                            Meeting starts on {{ meeting.date|date:"M d, Y" }}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-secondary">
+                            <i class="fas fa-history me-2"></i>
+                            This meeting has ended
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar me-1"></i>Attendance Stats
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Checked In:</span>
+                            <span class="fw-bold">{{ checked_in_count }}/{{ total_participants }}</span>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-success" style="width: {{ attendance_rate }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <h3 class="text-primary mb-0">{{ total_participants }}</h3>
+                                <small>Total</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <h3 class="text-success mb-0">{{ checked_in_count }}</h3>
+                                <small>Present</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if is_organizer %}
+                    <hr>
+                    <a href="{% url 'accounts:executive_meeting_attendance' meeting.id %}" class="btn btn-primary w-100">
+                        <i class="fas fa-clipboard-list me-1"></i>Manage Attendance
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bolt me-1"></i>Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'accounts:executive_discussion_create' %}?meeting={{ meeting.id }}" class="btn btn-outline-primary">
+                            <i class="fas fa-comment me-1"></i>Start Discussion
+                        </a>
+                        <a href="{% url 'accounts:executive_task_create' %}?meeting={{ meeting.id }}" class="btn btn-outline-success">
+                            <i class="fas fa-tasks me-1"></i>Create Task
+                        </a>
+                        <button class="btn btn-outline-info" onclick="downloadQR()">
+                            <i class="fas fa-qrcode me-1"></i>Download QR
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="sendReminders()">
+                            <i class="fas fa-bell me-1"></i>Send Reminders
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="exportAttendance()">
+                            <i class="fas fa-download me-1"></i>Export Attendance
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Delete Meeting
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>"{{ meeting.title }}"</strong>?</p>
+                <p class="small text-muted">This action cannot be undone. All attendance records and related discussions will be lost.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Delete Meeting</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(meetingId) {
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    document.getElementById('confirmDeleteBtn').href = `/accounts/executive/meetings/${meetingId}/delete/`;
+    modal.show();
+}
+
+function checkIn(meetingId) {
+    fetch(`/accounts/executive/meetings/${meetingId}/check-in/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Check-in failed');
+        }
+    });
+}
+
+function downloadQR() {
+    window.location.href = '/accounts/executive/meetings/{{ meeting.id }}/qr/download/';
+}
+
+function sendReminders() {
+    if (confirm('Send reminders to all participants?')) {
+        fetch(`/accounts/executive/meetings/{{ meeting.id }}/send-reminders/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Reminders sent successfully!');
+            } else {
+                alert(data.error || 'Failed to send reminders');
+            }
+        });
+    }
+}
+
+function exportAttendance() {
+    window.location.href = `/accounts/executive/meetings/{{ meeting.id }}/export-attendance/`;
+}
+
+// Auto-refresh attendance every 30 seconds for organizers
+{% if is_organizer %}
+setTimeout(function() {
+    location.reload();
+}, 30000);
+{% endif %}
+</script>
+{% endblock %}

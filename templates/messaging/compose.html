@@ -1,0 +1,582 @@
+<!-- templates/messaging/compose.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Compose Message - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-pen me-2"></i>Compose Message
+        </h1>
+        <div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="saveDraft()">
+                <i class="fas fa-save me-1"></i>Save Draft
+            </button>
+            <a href="{% url 'messaging:inbox' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to Inbox
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Compose Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-edit me-1"></i>New Message
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'messaging:compose' %}" enctype="multipart/form-data" id="composeForm">
+                        {% csrf_token %}
+                        
+                        <!-- Recipient Selection with Search -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-user me-1"></i>To: <span class="text-danger">*</span>
+                            </label>
+                            
+                            <!-- Search Input -->
+                            <div class="input-group mb-2">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control" id="recipientSearch" 
+                                       placeholder="Search by name, email, or ID..." autocomplete="off">
+                            </div>
+                            
+                            <!-- Search Results Dropdown -->
+                            <div id="searchResults" class="list-group mt-1" style="display: none; max-height: 250px; overflow-y: auto; position: absolute; z-index: 1000; width: 95%;"></div>
+                            
+                            <!-- Recipient Select Dropdown -->
+                            <select name="recipient" class="form-select mt-2" id="recipientSelect" required>
+                                <option value="">-- Select Recipient --</option>
+                                {% for user in users %}
+                                    <option value="{{ user.id }}" 
+                                            data-name="{{ user.get_full_name }}"
+                                            data-email="{{ user.email }}"
+                                            data-id="{{ user.student_id|default:user.staff_id|default:'' }}"
+                                            data-type="{{ user.user_type }}">
+                                        {{ user.get_full_name }} ({{ user.user_type|title }}) - {{ user.email }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Type to search or select from dropdown
+                            </div>
+                        </div>
+
+                        <!-- Subject -->
+                        <div class="mb-3">
+                            <label for="subject" class="form-label fw-bold">
+                                <i class="fas fa-heading me-1"></i>Subject: <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="subject" name="subject" 
+                                   placeholder="Enter message subject" required value="{{ subject|default:'' }}">
+                        </div>
+
+                        <!-- Message Body -->
+                        <div class="mb-3">
+                            <label for="body" class="form-label fw-bold">
+                                <i class="fas fa-align-left me-1"></i>Message: <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control" id="body" name="body" rows="8" 
+                                      placeholder="Write your message here..." required>{{ body|default:'' }}</textarea>
+                            <div class="d-flex justify-content-between mt-1">
+                                <small class="text-muted">
+                                    <span id="charCount">0</span>/5000 characters
+                                </small>
+                                <small class="text-muted">
+                                    <span id="wordCount">0</span> words
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Attachments -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-paperclip me-1"></i>Attachments:
+                            </label>
+                            <input type="file" class="form-control" id="attachments" name="attachments" 
+                                   multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+                            <small class="text-muted">
+                                Allowed: PDF, DOC, DOCX, JPG, PNG, TXT (Max 10MB each)
+                            </small>
+                            <div id="attachmentPreview" class="mt-2"></div>
+                        </div>
+
+                        <!-- Options -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="urgent" name="urgent">
+                                    <label class="form-check-label" for="urgent">
+                                        <i class="fas fa-exclamation-triangle text-danger me-1"></i>
+                                        Mark as Urgent
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="requestReadReceipt" name="request_read_receipt">
+                                    <label class="form-check-label" for="requestReadReceipt">
+                                        <i class="fas fa-check-double text-info me-1"></i>
+                                        Request Read Receipt
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <button type="submit" name="action" value="send" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-1"></i>Send Message
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="saveDraft()">
+                                    <i class="fas fa-save me-1"></i>Save Draft
+                                </button>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-outline-danger" onclick="discardMessage()">
+                                    <i class="fas fa-trash me-1"></i>Discard
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Templates -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-file-alt me-1"></i>Quick Templates
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <button type="button" class="list-group-item list-group-item-action" onclick="useTemplate('academic')">
+                            <i class="fas fa-graduation-cap me-2 text-primary"></i>
+                            Academic Inquiry
+                        </button>
+                        <button type="button" class="list-group-item list-group-item-action" onclick="useTemplate('payment')">
+                            <i class="fas fa-credit-card me-2 text-success"></i>
+                            Payment Question
+                        </button>
+                        <button type="button" class="list-group-item list-group-item-action" onclick="useTemplate('event')">
+                            <i class="fas fa-calendar me-2 text-info"></i>
+                            Event Query
+                        </button>
+                        <button type="button" class="list-group-item list-group-item-action" onclick="useTemplate('general')">
+                            <i class="fas fa-question-circle me-2 text-warning"></i>
+                            General Inquiry
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Recipients -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-clock me-1"></i>Recent Recipients
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% if recent_recipients %}
+                            {% for recipient in recent_recipients %}
+                            <a href="#" class="list-group-item list-group-item-action" onclick="selectRecipient({{ recipient.id }}, '{{ recipient.get_full_name|escapejs }}')">
+                                <div class="d-flex align-items-center">
+                                    {% if recipient.profile_image %}
+                                        <img src="{{ recipient.profile_image.url }}" class="rounded-circle me-2" width="30" height="30">
+                                    {% else %}
+                                        <div class="bg-secondary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                             style="width:30px;height:30px;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ recipient.get_full_name }}</strong>
+                                        <small class="text-muted d-block">{{ recipient.user_type|title }}</small>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        {% else %}
+                            <div class="list-group-item text-muted text-center py-3">
+                                <i class="fas fa-users me-2"></i>
+                                No recent recipients
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Stats -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar me-1"></i>Message Stats
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Characters:</span>
+                            <span class="fw-bold" id="charCount">0</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Words:</span>
+                            <span class="fw-bold" id="wordCount">0</span>
+                        </div>
+                        <div class="progress mt-2" style="height: 8px;">
+                            <div id="charProgress" class="progress-bar" style="width: 0%;"></div>
+                        </div>
+                        <small class="text-muted">Max: 5000 characters</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Discard Confirmation Modal -->
+<div class="modal fade" id="discardModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Discard Message
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to discard this message?</p>
+                <p class="small text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="{% url 'messaging:inbox' %}" class="btn btn-danger">Discard</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+#searchResults {
+    position: absolute;
+    z-index: 1000;
+    width: 95%;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+[data-bs-theme="dark"] #searchResults {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+#searchResults .list-group-item {
+    cursor: pointer;
+    border-left: none;
+    border-right: none;
+}
+
+#searchResults .list-group-item:hover {
+    background-color: var(--hover-bg);
+}
+
+.attachment-preview {
+    display: inline-block;
+    margin: 5px;
+    padding: 5px 10px;
+    background: #f8f9fc;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+[data-bs-theme="dark"] .attachment-preview {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.attachment-preview i {
+    margin-right: 5px;
+}
+
+.attachment-preview .remove {
+    margin-left: 5px;
+    cursor: pointer;
+    color: #dc3545;
+}
+
+.attachment-preview .remove:hover {
+    color: #c82333;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Character counter
+    const bodyTextarea = document.getElementById('body');
+    const charCountElements = document.querySelectorAll('#charCount');
+    const wordCountElements = document.querySelectorAll('#wordCount');
+    const charProgress = document.getElementById('charProgress');
+    
+    if (bodyTextarea) {
+        bodyTextarea.addEventListener('input', function() {
+            const text = this.value;
+            const charLength = text.length;
+            const wordLength = text.trim() ? text.trim().split(/\s+/).length : 0;
+            
+            // Update all instances of charCount and wordCount
+            charCountElements.forEach(el => el.textContent = charLength);
+            wordCountElements.forEach(el => el.textContent = wordLength);
+            
+            const progress = Math.min((charLength / 5000) * 100, 100);
+            if (charProgress) {
+                charProgress.style.width = progress + '%';
+                
+                if (progress > 90) {
+                    charProgress.className = 'progress-bar bg-danger';
+                } else if (progress > 75) {
+                    charProgress.className = 'progress-bar bg-warning';
+                } else {
+                    charProgress.className = 'progress-bar bg-success';
+                }
+            }
+        });
+    }
+
+    // Attachment preview
+    const attachments = document.getElementById('attachments');
+    if (attachments) {
+        attachments.addEventListener('change', function(e) {
+            const preview = document.getElementById('attachmentPreview');
+            if (!preview) return;
+            
+            preview.innerHTML = '';
+            
+            Array.from(this.files).forEach((file, index) => {
+                const size = (file.size / 1024 / 1024).toFixed(2);
+                const div = document.createElement('div');
+                div.className = 'attachment-preview';
+                div.innerHTML = `
+                    <i class="fas fa-file"></i>
+                    <span>${file.name} (${size} MB)</span>
+                    <i class="fas fa-times remove" onclick="removeAttachment(${index})"></i>
+                `;
+                preview.appendChild(div);
+            });
+        });
+    }
+
+    // Recipient search
+    const searchInput = document.getElementById('recipientSearch');
+    const searchResults = document.getElementById('searchResults');
+    const recipientSelect = document.getElementById('recipientSelect');
+    
+    if (searchInput && searchResults && recipientSelect) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            
+            if (query.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            
+            const results = [];
+            Array.from(recipientSelect.options).forEach(option => {
+                if (!option.value) return; // Skip placeholder option
+                
+                const searchText = (
+                    option.getAttribute('data-name') + ' ' + 
+                    option.getAttribute('data-email') + ' ' + 
+                    option.getAttribute('data-id') + ' ' + 
+                    option.getAttribute('data-type')
+                ).toLowerCase();
+                
+                if (searchText.includes(query)) {
+                    results.push(option);
+                }
+            });
+            
+            if (results.length > 0) {
+                searchResults.innerHTML = '';
+                results.slice(0, 5).forEach(option => {
+                    const name = option.getAttribute('data-name');
+                    const email = option.getAttribute('data-email');
+                    const type = option.getAttribute('data-type');
+                    
+                    const item = document.createElement('a');
+                    item.href = '#';
+                    item.className = 'list-group-item list-group-item-action';
+                    item.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <div class="me-2">
+                                <i class="fas fa-user-circle fa-2x text-primary"></i>
+                            </div>
+                            <div>
+                                <strong>${name}</strong>
+                                <br>
+                                <small>${email} (${type})</small>
+                            </div>
+                        </div>
+                    `;
+                    item.onclick = (e) => {
+                        e.preventDefault();
+                        recipientSelect.value = option.value;
+                        searchInput.value = '';
+                        searchResults.style.display = 'none';
+                        
+                        // Highlight selected
+                        recipientSelect.classList.add('border-success');
+                        setTimeout(() => {
+                            recipientSelect.classList.remove('border-success');
+                        }, 1000);
+                    };
+                    searchResults.appendChild(item);
+                });
+                searchResults.style.display = 'block';
+            } else {
+                searchResults.innerHTML = '<div class="list-group-item text-muted">No users found</div>';
+                searchResults.style.display = 'block';
+            }
+        });
+    }
+
+    // Hide search results when clicking outside
+    document.addEventListener('click', function(e) {
+        if (searchInput && searchResults && 
+            !searchInput.contains(e.target) && 
+            !searchResults.contains(e.target)) {
+            searchResults.style.display = 'none';
+        }
+    });
+
+    // Auto-select if URL has recipient parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const recipientId = urlParams.get('to');
+    if (recipientId && recipientSelect) {
+        recipientSelect.value = recipientId;
+    }
+});
+
+function removeAttachment(index) {
+    const input = document.getElementById('attachments');
+    if (!input) return;
+    
+    const dt = new DataTransfer();
+    
+    Array.from(input.files).forEach((file, i) => {
+        if (i !== index) {
+            dt.items.add(file);
+        }
+    });
+    
+    input.files = dt.files;
+    
+    // Trigger change event to refresh preview
+    const event = new Event('change', { bubbles: true });
+    input.dispatchEvent(event);
+}
+
+function saveDraft() {
+    const form = document.getElementById('composeForm');
+    if (!form) return;
+    
+    const formData = new FormData(form);
+    formData.append('action', 'draft');
+    
+    fetch('/messaging/save-draft/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Draft saved successfully!', 'success');
+        } else {
+            showToast('Failed to save draft', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving draft:', error);
+        showToast('Network error', 'error');
+    });
+}
+
+function discardMessage() {
+    new bootstrap.Modal(document.getElementById('discardModal')).show();
+}
+
+function selectRecipient(userId, userName) {
+    const select = document.getElementById('recipientSelect');
+    if (select) {
+        select.value = userId;
+        // Highlight selection
+        select.classList.add('border-success');
+        setTimeout(() => {
+            select.classList.remove('border-success');
+        }, 1000);
+    }
+}
+
+function useTemplate(type) {
+    const subject = document.getElementById('subject');
+    const body = document.getElementById('body');
+    
+    const templates = {
+        academic: {
+            subject: 'Academic Inquiry',
+            body: 'Dear Sir/Madam,\n\nI am writing to inquire about the academic program requirements for the upcoming semester. Specifically, I would like to know more about the course registration process and any prerequisites that may apply.\n\nThank you for your assistance.\n\nRegards,\n[Your Name]'
+        },
+        payment: {
+            subject: 'Payment Related Question',
+            body: 'Dear Sir/Madam,\n\nI have a question regarding my payment for the association dues. I would like to confirm the payment deadline and the accepted payment methods.\n\nThank you for your help.\n\nRegards,\n[Your Name]'
+        },
+        event: {
+            subject: 'Event Query',
+            body: 'Dear Sir/Madam,\n\nI would like to know more about the upcoming event. Could you please provide details about the date, venue, and registration process?\n\nThank you.\n\nRegards,\n[Your Name]'
+        },
+        general: {
+            subject: 'General Inquiry',
+            body: 'Dear Sir/Madam,\n\nI would like to inquire about the following:\n\n- \n- \n- \n\nI look forward to your response.\n\nRegards,\n[Your Name]'
+        }
+    };
+    
+    const template = templates[type];
+    if (template && subject && body) {
+        subject.value = template.subject;
+        body.value = template.body;
+        
+        // Trigger input event to update counters
+        body.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+}
+
+function showToast(message, type = 'info') {
+    if (typeof window.showToast === 'function') {
+        window.showToast(message, type);
+    } else {
+        alert(message);
+    }
+}
+</script>
+{% endblock %}

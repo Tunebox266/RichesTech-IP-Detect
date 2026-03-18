@@ -1,0 +1,801 @@
+<!-- templates/core/notifications.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load core_tags %}
+
+{% block title %}Notifications - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-bell me-2"></i>Notifications
+        </h1>
+        <div>
+            <span class="badge bg-primary me-2">
+                <i class="fas fa-bell me-1"></i>Total: {{ notifications.paginator.count }}
+            </span>
+            <span class="badge bg-warning me-2" id="unread-badge">
+                <i class="fas fa-bell me-1"></i>Unread: {{ unread_count }}
+            </span>
+            <button class="btn btn-sm btn-success" onclick="markAllAsRead()">
+                <i class="fas fa-check-double me-1"></i>Mark All Read
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Tabs -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {% if filter == 'all' %}active{% endif %}" 
+                       href="?filter=all">
+                        <i class="fas fa-list me-1"></i>All
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if filter == 'unread' %}active{% endif %}" 
+                       href="?filter=unread">
+                        <i class="fas fa-envelope me-1"></i>Unread
+                        <span class="badge bg-danger ms-1" id="unread-tab-count">{{ unread_count }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if filter == 'messages' %}active{% endif %}" 
+                       href="?filter=messages">
+                        <i class="fas fa-comment me-1"></i>Messages
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if filter == 'events' %}active{% endif %}" 
+                       href="?filter=events">
+                        <i class="fas fa-calendar me-1"></i>Events
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if filter == 'payments' %}active{% endif %}" 
+                       href="?filter=payments">
+                        <i class="fas fa-credit-card me-1"></i>Payments
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card-body border-bottom">
+            <form method="GET" action="{% url 'core:notifications' %}" id="filterForm">
+                <input type="hidden" name="filter" value="{{ filter }}">
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" name="search" class="form-control" 
+                                   placeholder="Search notifications..." value="{{ request.GET.search|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select name="type" class="form-select">
+                            <option value="">All Types</option>
+                            {% for type_code, type_name in notification_types %}
+                                <option value="{{ type_code }}" {% if request.GET.type == type_code %}selected{% endif %}>
+                                    {{ type_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select name="date" class="form-select">
+                            <option value="">Any Date</option>
+                            <option value="today" {% if request.GET.date == 'today' %}selected{% endif %}>Today</option>
+                            <option value="week" {% if request.GET.date == 'week' %}selected{% endif %}>This Week</option>
+                            <option value="month" {% if request.GET.date == 'month' %}selected{% endif %}>This Month</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i>Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Notification List -->
+        <div class="card-body p-0">
+            <div class="list-group list-group-flush" id="notifications-list">
+                {% for notification in notifications %}
+                <div class="list-group-item notification-item {% if not notification.is_read %}unread{% endif %}"
+                     data-notification-id="{{ notification.id }}" id="notification-{{ notification.id }}">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <input type="checkbox" class="form-check-input notification-checkbox" value="{{ notification.id }}">
+                        </div>
+                        <div class="col-auto">
+                            <div class="notification-icon bg-{{ notification.notification_type|notification_color }} text-white rounded-circle p-3">
+                                <i class="fas fa-{{ notification.notification_type|notification_icon }} fa-lg"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <strong>{{ notification.title }}</strong>
+                                    <span class="badge bg-secondary ms-2">{{ notification.get_notification_type_display }}</span>
+                                </h6>
+                                <small class="text-muted" title="{{ notification.created_at|date:'F d, Y H:i' }}">
+                                    <i class="fas fa-clock me-1"></i>{{ notification.created_at|timesince }} ago
+                                </small>
+                            </div>
+                            <p class="mb-1 notification-content-preview">{{ notification.content|truncatechars:120 }}</p>
+                            
+                            <!-- Read More Button -->
+                            <button class="btn btn-link btn-sm p-0 read-more-btn" onclick="showNotificationDetails({{ notification.id }})">
+                                <i class="fas fa-chevron-circle-down me-1"></i>Read More
+                            </button>
+                            
+                            <small class="text-muted d-block mt-1">
+                                {% if notification.related_message %}
+                                    <i class="fas fa-envelope me-1"></i>Message from: {{ notification.related_message.sender.get_full_name }}
+                                {% elif notification.related_broadcast %}
+                                    <i class="fas fa-bullhorn me-1"></i>Broadcast: {{ notification.related_broadcast.title }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="col-auto">
+                            {% if not notification.is_read %}
+                                <button class="btn btn-sm btn-outline-primary mark-read-btn" onclick="markAsRead({{ notification.id }})">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            {% endif %}
+                            <button class="btn btn-sm btn-outline-info" onclick="showNotificationDetails({{ notification.id }})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteNotification({{ notification.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="list-group-item text-center py-5">
+                    <i class="fas fa-bell-slash fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Notifications</h5>
+                    <p class="text-muted mb-0">You're all caught up!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        {% if notifications %}
+        <div class="card-footer">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <input type="checkbox" class="form-check-input" id="selectAll">
+                </div>
+                <div class="col-auto">
+                    <label class="form-check-label" for="selectAll">Select All</label>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-success" onclick="markSelectedRead()">
+                        <i class="fas fa-check-double me-1"></i>Mark Read
+                    </button>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-danger" onclick="deleteSelected()">
+                        <i class="fas fa-trash me-1"></i>Delete
+                    </button>
+                </div>
+                <div class="col-auto ms-auto">
+                    <span class="text-muted" id="selectedCount">0 selected</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if notifications.has_other_pages %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Notifications pagination">
+                <ul class="pagination justify-content-center">
+                    {% if notifications.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ notifications.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                        </li>
+                    {% endif %}
+
+                    {% for i in notifications.paginator.page_range %}
+                        {% if notifications.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% elif i > notifications.number|add:'-3' and i < notifications.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if notifications.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ notifications.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Notification Details Modal -->
+<div class="modal fade" id="notificationDetailModal" tabindex="-1" aria-labelledby="notificationDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="notificationDetailModalLabel">
+                    <i class="fas fa-bell me-2"></i>Notification Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="notificationDetailContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading notification details...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="markReadFromModal" onclick="markReadFromModal()">
+                    <i class="fas fa-check me-1"></i>Mark as Read
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;"></div>
+
+<style>
+.notification-item {
+    transition: background-color 0.2s ease;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+}
+.notification-item:hover {
+    background-color: #f8f9fc;
+}
+.notification-item.unread {
+    background-color: #f0f7ff;
+    border-left-color: #4e73df;
+    font-weight: 500;
+}
+.notification-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.read-more-btn {
+    text-decoration: none;
+    font-size: 0.8rem;
+}
+.read-more-btn:hover {
+    text-decoration: underline;
+}
+.notification-detail-section {
+    margin-bottom: 1.5rem;
+}
+.notification-detail-label {
+    font-weight: 600;
+    color: #4e73df;
+    margin-bottom: 0.3rem;
+}
+.notification-detail-content {
+    background: #f8f9fc;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    white-space: pre-wrap;
+}
+</style>
+
+<script>
+let currentNotificationId = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.notification-checkbox');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => {
+                cb.checked = this.checked;
+            });
+            updateSelectedCount();
+        });
+    }
+    
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateSelectedCount);
+    });
+    
+    function updateSelectedCount() {
+        const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+        if (selectedCount) {
+            if (checked === 0) {
+                selectedCount.textContent = '0 selected';
+            } else {
+                selectedCount.textContent = checked + ' selected';
+            }
+        }
+    }
+});
+
+// Toast notification function
+function showToast(message, type = 'success') {
+    const toastContainer = document.querySelector('.toast-container');
+    const toastId = 'toast-' + Date.now();
+    const icon = type === 'success' ? 'check-circle' : (type === 'error' ? 'exclamation-circle' : 'info-circle');
+    const bgColor = type === 'success' ? 'bg-success' : (type === 'error' ? 'bg-danger' : 'bg-info');
+    
+    const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center text-white ${bgColor} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-${icon} me-2"></i>${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    toast.show();
+    
+    toastElement.addEventListener('hidden.bs.toast', function() {
+        this.remove();
+    });
+}
+
+function showNotificationDetails(notificationId) {
+    currentNotificationId = notificationId;
+    
+    // Show modal with loading spinner
+    const modal = new bootstrap.Modal(document.getElementById('notificationDetailModal'));
+    modal.show();
+    
+    // Fetch notification details
+    fetch(`/messaging/notifications/${notificationId}/`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayNotificationDetails(data.notification);
+            
+            // If notification is unread, mark it as read when viewed
+            if (!data.notification.is_read) {
+                markAsRead(notificationId, true); // silent mark
+            }
+        } else {
+            showToast('Failed to load notification details', 'error');
+            modal.hide();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Network error occurred', 'error');
+        modal.hide();
+    });
+}
+
+function displayNotificationDetails(notification) {
+    const contentDiv = document.getElementById('notificationDetailContent');
+    
+    // Format date
+    const date = new Date(notification.created_at);
+    const formattedDate = date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // Get icon based on type
+    const icon = getNotificationIcon(notification.notification_type);
+    const color = getNotificationColor(notification.notification_type);
+    
+    let relatedInfo = '';
+    if (notification.related_message) {
+        relatedInfo = `
+            <div class="notification-detail-section">
+                <div class="notification-detail-label">Related Message</div>
+                <div class="notification-detail-content">
+                    <p><strong>From:</strong> ${notification.related_message.sender_name}</p>
+                    <p><strong>Subject:</strong> ${notification.related_message.subject}</p>
+                    <a href="/messaging/${notification.related_message.id}/" class="btn btn-sm btn-outline-primary mt-2">
+                        <i class="fas fa-eye me-1"></i>View Message
+                    </a>
+                </div>
+            </div>
+        `;
+    } else if (notification.related_broadcast) {
+        relatedInfo = `
+            <div class="notification-detail-section">
+                <div class="notification-detail-label">Related Broadcast</div>
+                <div class="notification-detail-content">
+                    <p><strong>Title:</strong> ${notification.related_broadcast.title}</p>
+                    <p><strong>From:</strong> ${notification.related_broadcast.created_by_name}</p>
+                </div>
+            </div>
+        `;
+    }
+    
+    const html = `
+        <div class="notification-detail-section">
+            <div class="d-flex align-items-center mb-3">
+                <div class="notification-icon bg-${color} text-white rounded-circle p-3 me-3">
+                    <i class="fas fa-${icon} fa-lg"></i>
+                </div>
+                <div>
+                    <h4 class="mb-1">${notification.title}</h4>
+                    <span class="badge bg-${color}">${notification.type_display}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="notification-detail-section">
+            <div class="notification-detail-label">Date & Time</div>
+            <div class="notification-detail-content">
+                <i class="fas fa-calendar me-2"></i>${formattedDate}
+                ${notification.is_read ? 
+                    '<br><small class="text-success"><i class="fas fa-check-circle me-1"></i>Read</small>' : 
+                    '<br><small class="text-warning"><i class="fas fa-clock me-1"></i>Unread</small>'}
+            </div>
+        </div>
+        
+        <div class="notification-detail-section">
+            <div class="notification-detail-label">Message</div>
+            <div class="notification-detail-content">
+                ${notification.content.replace(/\n/g, '<br>')}
+            </div>
+        </div>
+        
+        ${relatedInfo}
+    `;
+    
+    contentDiv.innerHTML = html;
+    
+    // Update modal title
+    document.getElementById('notificationDetailModalLabel').innerHTML = 
+        `<i class="fas fa-bell me-2"></i>${notification.title}`;
+    
+    // Update mark as read button state
+    const markReadBtn = document.getElementById('markReadFromModal');
+    if (notification.is_read) {
+        markReadBtn.disabled = true;
+        markReadBtn.innerHTML = '<i class="fas fa-check me-1"></i>Already Read';
+    } else {
+        markReadBtn.disabled = false;
+        markReadBtn.innerHTML = '<i class="fas fa-check me-1"></i>Mark as Read';
+    }
+}
+
+function getNotificationIcon(type) {
+    const icons = {
+        'message': 'envelope',
+        'broadcast': 'bullhorn',
+        'reply': 'reply',
+        'event': 'calendar-alt',
+        'payment': 'credit-card',
+        'due': 'clock',
+        'system': 'cog'
+    };
+    return icons[type] || 'bell';
+}
+
+function getNotificationColor(type) {
+    const colors = {
+        'message': 'primary',
+        'broadcast': 'info',
+        'reply': 'success',
+        'event': 'warning',
+        'payment': 'success',
+        'due': 'danger',
+        'system': 'secondary'
+    };
+    return colors[type] || 'info';
+}
+
+function markReadFromModal() {
+    if (currentNotificationId) {
+        markAsRead(currentNotificationId);
+        
+        // Update button state
+        const btn = document.getElementById('markReadFromModal');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-check me-1"></i>Marked as Read';
+    }
+}
+
+function markAsRead(notificationId, silent = false) {
+    fetch(`/messaging/notifications/${notificationId}/read/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const item = document.getElementById(`notification-${notificationId}`);
+            if (item) {
+                item.classList.remove('unread');
+                
+                // Remove the mark as read button
+                const btn = item.querySelector('.mark-read-btn');
+                if (btn) btn.remove();
+            }
+            
+            // Update counts
+            updateUnreadCount();
+            
+            if (!silent) {
+                showToast('Notification marked as read', 'success');
+            }
+        } else {
+            if (!silent) showToast('Failed to mark as read', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (!silent) showToast('Network error occurred', 'error');
+    });
+}
+
+function markAllAsRead() {
+    fetch('/messaging/notifications/mark-all-read/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove unread class from all notifications
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.classList.remove('unread');
+            });
+            
+            // Remove all mark as read buttons
+            document.querySelectorAll('.mark-read-btn').forEach(btn => btn.remove());
+            
+            // Update counts
+            updateUnreadCount();
+            
+            showToast(data.message || 'All notifications marked as read', 'success');
+        } else {
+            showToast('Failed to mark all as read', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Network error occurred', 'error');
+    });
+}
+
+function deleteNotification(notificationId) {
+    if (confirm('Delete this notification?')) {
+        fetch(`/messaging/notifications/${notificationId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const item = document.getElementById(`notification-${notificationId}`);
+                if (item) {
+                    item.remove();
+                    
+                    showToast('Notification deleted successfully', 'success');
+                    
+                    // Update counts
+                    updateUnreadCount();
+                    updateTotalCount();
+                    
+                    // Check if no notifications left
+                    if (document.querySelectorAll('.notification-item').length === 0) {
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                }
+            } else {
+                showToast(data.error || 'Failed to delete notification', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Network error occurred', 'error');
+        });
+    }
+}
+
+function markSelectedRead() {
+    const selected = Array.from(document.querySelectorAll('.notification-checkbox:checked'))
+        .map(cb => cb.value);
+    
+    if (selected.length === 0) {
+        showToast('Please select notifications to mark as read', 'warning');
+        return;
+    }
+    
+    // Show loading state
+    const originalText = event.target.innerText;
+    event.target.disabled = true;
+    event.target.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+    
+    // Create array of promises
+    const promises = selected.map(id => 
+        fetch(`/messaging/notifications/${id}/read/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(res => res.json())
+    );
+    
+    Promise.all(promises)
+        .then(results => {
+            const allSuccess = results.every(r => r.success);
+            if (allSuccess) {
+                // Reload to update all states
+                location.reload();
+            } else {
+                showToast('Some notifications could not be marked as read', 'warning');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Network error occurred', 'error');
+        })
+        .finally(() => {
+            event.target.disabled = false;
+            event.target.innerHTML = originalText;
+        });
+}
+
+function deleteSelected() {
+    const selected = Array.from(document.querySelectorAll('.notification-checkbox:checked'))
+        .map(cb => cb.value);
+    
+    if (selected.length === 0) {
+        showToast('Please select notifications to delete', 'warning');
+        return;
+    }
+    
+    if (confirm(`Delete ${selected.length} notification(s)?`)) {
+        // Show loading state
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
+        
+        // Create array of promises
+        const promises = selected.map(id => 
+            fetch(`/messaging/notifications/${id}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(res => res.json())
+        );
+        
+        Promise.all(promises)
+            .then(results => {
+                const allSuccess = results.every(r => r.success);
+                if (allSuccess) {
+                    showToast(`${selected.length} notification(s) deleted successfully`, 'success');
+                    // Reload to update list
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('Some notifications could not be deleted', 'warning');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Network error occurred', 'error');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            });
+    }
+}
+
+function updateUnreadCount() {
+    fetch('/messaging/notifications/unread-count/')
+        .then(response => response.json())
+        .then(data => {
+            const unreadCount = data.count || 0;
+            
+            // Update header badge
+            const headerBadge = document.querySelector('.badge.bg-warning');
+            if (headerBadge) {
+                headerBadge.innerHTML = `<i class="fas fa-bell me-1"></i>Unread: ${unreadCount}`;
+            }
+            
+            // Update tab badge
+            const tabBadge = document.getElementById('unread-tab-count');
+            if (tabBadge) {
+                tabBadge.textContent = unreadCount;
+                if (unreadCount === 0) {
+                    tabBadge.style.display = 'none';
+                } else {
+                    tabBadge.style.display = 'inline-block';
+                }
+            }
+            
+            // Update navbar badge if exists
+            const navBadge = document.getElementById('notification-badge');
+            if (navBadge) {
+                if (unreadCount > 0) {
+                    navBadge.textContent = unreadCount;
+                    navBadge.classList.remove('d-none');
+                } else {
+                    navBadge.classList.add('d-none');
+                }
+            }
+        })
+        .catch(error => console.error('Error fetching unread count:', error));
+}
+
+function updateTotalCount() {
+    const count = document.querySelectorAll('.notification-item').length;
+    const badge = document.querySelector('.badge.bg-primary');
+    if (badge) {
+        badge.innerHTML = `<i class="fas fa-bell me-1"></i>Total: ${count}`;
+    }
+}
+
+// Auto-refresh unread count every 30 seconds
+setInterval(updateUnreadCount, 30000);
+</script>
+{% endblock %}

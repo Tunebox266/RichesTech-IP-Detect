@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load core_tags %}
+
+{% block title %}{{ action }} Event - Academic Calendar - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-calendar-alt me-2"></i>{{ action }} Event
+        </h1>
+        <a href="{% url 'directory:academic_calendar_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Calendar
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Event Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-edit me-1"></i>Event Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Title -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Title <span class="text-danger">*</span></label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Event Type -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Event Type <span class="text-danger">*</span></label>
+                            {{ form.event_type }}
+                            {% if form.event_type.errors %}
+                                <div class="text-danger small mt-1">{{ form.event_type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Date Range -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Start Date <span class="text-danger">*</span></label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <div class="text-danger small mt-1">{{ form.start_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">End Date</label>
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                    <div class="text-danger small mt-1">{{ form.end_date.errors }}</div>
+                                {% endif %}
+                                <div class="form-text">Leave blank for single-day events</div>
+                            </div>
+                        </div>
+
+                        <!-- All Day Toggle -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_all_day }}
+                                <label class="form-check-label" for="{{ form.is_all_day.id_for_label }}">
+                                    All day event
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Time (if not all day) -->
+                        <div id="timeFields" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Start Time</label>
+                                    {{ form.start_time }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">End Time</label>
+                                    {{ form.end_time }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Academic Context -->
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Academic Year</label>
+                                {{ form.academic_year }}
+                                <div class="form-text">e.g., 2024/2025</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Semester</label>
+                                {{ form.semester }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Target Level</label>
+                                {{ form.level }}
+                            </div>
+                        </div>
+
+                        <!-- Venue -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Venue</label>
+                            {{ form.venue }}
+                            {% if form.venue.errors %}
+                                <div class="text-danger small mt-1">{{ form.venue.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Important Flag -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_important }}
+                                <label class="form-check-label" for="{{ form.is_important.id_for_label }}">
+                                    <i class="fas fa-exclamation-triangle text-danger me-1"></i>
+                                    Mark as important
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <hr>
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'directory:academic_calendar_list' %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>{{ action }} Event
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="col-lg-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Use clear, descriptive titles
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            End date must be after start date
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            All-day events don't require times
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Academic year format: YYYY/YYYY
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const allDayCheckbox = document.getElementById('id_is_all_day');
+    const timeFields = document.getElementById('timeFields');
+    const startDate = document.getElementById('id_start_date');
+    const endDate = document.getElementById('id_end_date');
+
+    function toggleTimeFields() {
+        if (allDayCheckbox.checked) {
+            timeFields.style.display = 'none';
+        } else {
+            timeFields.style.display = 'flex';
+        }
+    }
+
+    allDayCheckbox.addEventListener('change', toggleTimeFields);
+    toggleTimeFields();
+
+    // Validate end date >= start date
+    function validateDates() {
+        if (endDate.value && startDate.value) {
+            const start = new Date(startDate.value);
+            const end = new Date(endDate.value);
+            
+            if (end < start) {
+                endDate.setCustomValidity('End date must be after start date');
+            } else {
+                endDate.setCustomValidity('');
+            }
+        }
+    }
+
+    startDate.addEventListener('change', validateDates);
+    endDate.addEventListener('change', validateDates);
+});
+</script>
+{% endblock %}

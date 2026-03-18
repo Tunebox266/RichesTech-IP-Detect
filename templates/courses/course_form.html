@@ -1,0 +1,286 @@
+<!-- templates/courses/course_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Course - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-book me-2"></i>{{ action }} Course
+        </h1>
+        <a href="{% url 'courses:course_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Courses
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Course Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-edit me-1"></i>Course Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="courseForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Course Code -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-code me-1"></i>Course Code <span class="text-danger">*</span>
+                            </label>
+                            {{ form.code }}
+                            {% if form.code.errors %}
+                                <div class="text-danger small mt-1">{{ form.code.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                e.g., BTML201, MLS301, ANAT101
+                            </div>
+                        </div>
+
+                        <!-- Course Title -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-heading me-1"></i>Course Title <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Level and Semester -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-layer-group me-1"></i>Level <span class="text-danger">*</span>
+                                </label>
+                                {{ form.level }}
+                                {% if form.level.errors %}
+                                    <div class="text-danger small mt-1">{{ form.level.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-clock me-1"></i>Semester <span class="text-danger">*</span>
+                                </label>
+                                {{ form.semester }}
+                                {% if form.semester.errors %}
+                                    <div class="text-danger small mt-1">{{ form.semester.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Credit Hours -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-star me-1"></i>Credit Hours <span class="text-danger">*</span>
+                            </label>
+                            {{ form.credit_hours }}
+                            {% if form.credit_hours.errors %}
+                                <div class="text-danger small mt-1">{{ form.credit_hours.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                Number of credit hours for this course (usually 2-4)
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-align-left me-1"></i>Description
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                Detailed description of the course content and objectives
+                            </div>
+                        </div>
+
+                        <!-- Lecturer (Optional) -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-chalkboard-teacher me-1"></i>Lecturer
+                            </label>
+                            <select name="staff" class="form-select">
+                                <option value="">Select Lecturer (Optional)</option>
+                                {% for staff in staffs %}
+                                <option value="{{ staff.id }}" {% if course.staff.id == staff.id %}selected{% endif %}>
+                                    {{ staff.get_full_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text text-muted">
+                                Assign a lecturer to this course (optional)
+                            </div>
+                        </div>
+
+                        <!-- Prerequisites -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-link me-1"></i>Prerequisites
+                            </label>
+                            <select name="prerequisites" class="form-select" multiple size="4">
+                                {% for prereq in all_courses %}
+                                <option value="{{ prereq.id }}" {% if prereq.id in course.prerequisites.all %}selected{% endif %}>
+                                    {{ prereq.code }} - {{ prereq.title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text text-muted">
+                                Hold Ctrl/Cmd to select multiple prerequisites
+                            </div>
+                        </div>
+
+                        <!-- Active Status -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    <i class="fas fa-check-circle text-success me-1"></i>
+                                    Course is active
+                                </label>
+                            </div>
+                            <div class="form-text text-muted">
+                                Inactive courses won't appear in registration
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <hr>
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'courses:course_list' %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>{{ action }} Course
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Guidelines Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h6 class="fw-bold">Course Code Format:</h6>
+                    <p class="small text-muted mb-3">
+                        Course codes should follow the format: 
+                        <br><strong>BTML201</strong> (BTML + Level + Number)
+                    </p>
+                    
+                    <h6 class="fw-bold">Credit Hours:</h6>
+                    <ul class="small text-muted mb-3">
+                        <li>Lecture: Usually 2-3 credits</li>
+                        <li>Lab/Practical: Usually 1-2 credits</li>
+                        <li>Studio/Project: Usually 2-4 credits</li>
+                    </ul>
+                    
+                    <h6 class="fw-bold">Important Notes:</h6>
+                    <ul class="small text-muted mb-0">
+                        <li>Course codes must be unique</li>
+                        <li>Level determines student eligibility</li>
+                        <li>Semester determines when course is offered</li>
+                        <li>Set prerequisites to enforce course sequencing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Quick Stats (for edit mode) -->
+            {% if action == 'Edit' and course %}
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar me-1"></i>Course Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <span class="text-muted">Registered Students:</span>
+                        <span class="fw-bold float-end">{{ course.registrations.count }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">Materials:</span>
+                        <span class="fw-bold float-end">{{ course.materials.count }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">Total Downloads:</span>
+                        <span class="fw-bold float-end">{{ course.total_downloads }}</span>
+                    </div>
+                    <hr>
+                    <a href="{% url 'courses:course_students' course.id %}" class="btn btn-sm btn-info w-100">
+                        <i class="fas fa-users me-1"></i>View Registered Students
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+#id_code {
+    text-transform: uppercase;
+}
+#id_description {
+    min-height: 120px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const codeInput = document.getElementById('id_code');
+    
+    // Auto-uppercase course code
+    if (codeInput) {
+        codeInput.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    }
+    
+    // Credit hours validation
+    const creditInput = document.getElementById('id_credit_hours');
+    if (creditInput) {
+        creditInput.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            if (value < 1) this.value = 1;
+            if (value > 6) this.value = 6;
+        });
+    }
+    
+    // Form validation
+    document.getElementById('courseForm').addEventListener('submit', function(e) {
+        const code = codeInput.value.trim();
+        const codePattern = /^[A-Z]{2,4}\d{3,4}$/;
+        
+        if (!codePattern.test(code)) {
+            e.preventDefault();
+            alert('Please enter a valid course code (e.g., BTML201)');
+        }
+    });
+});
+</script>
+{% endblock %}

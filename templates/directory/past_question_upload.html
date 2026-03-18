@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Upload Past Question - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-upload me-2"></i>Upload Past Question
+        </h1>
+        <a href="{% url 'directory:past_question_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Upload Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-edit me-1"></i>Past Question Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Title -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Title</label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Course Code and Name -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Course Code <span class="text-danger">*</span></label>
+                                {{ form.course_code }}
+                                {% if form.course_code.errors %}
+                                    <div class="text-danger small mt-1">{{ form.course_code.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Course Name</label>
+                                {{ form.course_name }}
+                                {% if form.course_name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.course_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Level and Semester -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Level <span class="text-danger">*</span></label>
+                                {{ form.level }}
+                                {% if form.level.errors %}
+                                    <div class="text-danger small mt-1">{{ form.level.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Semester <span class="text-danger">*</span></label>
+                                {{ form.semester }}
+                                {% if form.semester.errors %}
+                                    <div class="text-danger small mt-1">{{ form.semester.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Academic Year and Exam Year -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Academic Year <span class="text-danger">*</span></label>
+                                {{ form.academic_year }}
+                                {% if form.academic_year.errors %}
+                                    <div class="text-danger small mt-1">{{ form.academic_year.errors }}</div>
+                                {% endif %}
+                                <div class="form-text text-muted">e.g., 2024/2025</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Exam Year <span class="text-danger">*</span></label>
+                                {{ form.exam_year }}
+                                {% if form.exam_year.errors %}
+                                    <div class="text-danger small mt-1">{{ form.exam_year.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">File <span class="text-danger">*</span></label>
+                            <div class="upload-area" id="dropArea">
+                                {{ form.file }}
+                                <div class="text-center p-4">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                    <h6>Drag and drop your file here or <a href="#" id="browseLink">browse</a></h6>
+                                    <p class="text-muted small mb-0">
+                                        Supported formats: PDF (Max 20MB)
+                                    </p>
+                                </div>
+                            </div>
+                            <div id="filePreview" class="mt-3" style="display: none;">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-file-pdf me-2"></i>
+                                    <span id="fileName"></span> (<span id="fileSize"></span>)
+                                    <button type="button" class="btn-close float-end" onclick="removeFile()"></button>
+                                </div>
+                            </div>
+                            {% if form.file.errors %}
+                                <div class="text-danger small mt-1">{{ form.file.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Auto-approve for admin/staff -->
+                        {% if request.user.user_type in 'admin,staff' %}
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_approved }}
+                                <label class="form-check-label" for="{{ form.is_approved.id_for_label }}">
+                                    <i class="fas fa-check-circle text-success me-1"></i>
+                                    Mark as approved (visible to students immediately)
+                                </label>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Submit Buttons -->
+                        <hr>
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'directory:past_question_list' %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload me-1"></i>Upload Past Question
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Upload PDF files only
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Maximum file size: 20MB
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Use clear, descriptive titles
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Include course code and year
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Executives' uploads require approval
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.upload-area:hover {
+    border-color: #4361ee;
+    background-color: #e8f0fe;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('id_file');
+    const browseLink = document.getElementById('browseLink');
+    const filePreview = document.getElementById('filePreview');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+
+    if (browseLink) {
+        browseLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            fileInput.click();
+        });
+    }
+
+    if (dropArea) {
+        dropArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        // Drag and drop events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => {
+                dropArea.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => {
+                dropArea.classList.remove('dragover');
+            });
+        });
+
+        dropArea.addEventListener('drop', function(e) {
+            const file = e.dataTransfer.files[0];
+            handleFile(file);
+        });
+    }
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            handleFile(file);
+        });
+    }
+
+    function handleFile(file) {
+        if (file) {
+            if (file.type !== 'application/pdf') {
+                alert('Please upload a PDF file');
+                fileInput.value = '';
+                return;
+            }
+
+            if (file.size > 20 * 1024 * 1024) {
+                alert('File size exceeds 20MB limit');
+                fileInput.value = '';
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+            filePreview.style.display = 'block';
+            dropArea.style.display = 'none';
+        }
+    }
+});
+
+function removeFile() {
+    document.getElementById('id_file').value = '';
+    document.getElementById('filePreview').style.display = 'none';
+    document.getElementById('dropArea').style.display = 'block';
+}
+</script>
+{% endblock %}

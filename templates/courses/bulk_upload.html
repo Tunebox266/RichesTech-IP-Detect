@@ -1,0 +1,492 @@
+<!-- templates/courses/bulk_upload.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bulk Upload Courses - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-upload me-2"></i>Bulk Upload Courses
+        </h1>
+        <a href="{% url 'courses:course_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Courses
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Upload Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-file-excel me-1"></i>Upload CSV File
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="bulkUploadForm">
+                        {% csrf_token %}
+                        
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <!-- File Upload Area -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-file-csv me-1"></i>CSV File <span class="text-danger">*</span>
+                            </label>
+                            <div class="upload-area" id="dropArea">
+                                <input type="file" name="file" id="fileInput" class="d-none" accept=".csv">
+                                <div class="text-center p-5">
+                                    <i class="fas fa-cloud-upload-alt fa-4x text-primary mb-3"></i>
+                                    <h6>Drag and drop your CSV file here or <a href="#" id="browseLink">browse</a></h6>
+                                    <p class="text-muted small mb-0">
+                                        Supported format: CSV (Comma Separated Values) - Max 5MB
+                                    </p>
+                                </div>
+                            </div>
+                            <div id="filePreview" class="mt-3" style="display: none;">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-file-csv me-2"></i>
+                                    <span id="fileName"></span> 
+                                    (<span id="fileSize"></span>)
+                                    <button type="button" class="btn-close float-end" onclick="removeFile()"></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Template Download -->
+                        <div class="mb-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="fw-bold mb-2">
+                                        <i class="fas fa-download me-1"></i>Download Template
+                                    </h6>
+                                    <p class="small text-muted mb-2">
+                                        Use this template to format your course data correctly:
+                                    </p>
+                                    <a href="{% static 'templates/courses_template.csv' %}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-file-csv me-1"></i>courses_template.csv
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- File Format Instructions -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-2">
+                                <i class="fas fa-info-circle me-1"></i>File Format Instructions
+                            </h6>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Column</th>
+                                            <th>Required</th>
+                                            <th>Description</th>
+                                            <th>Example</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><code>code</code></td>
+                                            <td><span class="badge bg-danger">Yes</span></td>
+                                            <td>Unique course code</td>
+                                            <td>BTML201</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>title</code></td>
+                                            <td><span class="badge bg-danger">Yes</span></td>
+                                            <td>Full course title</td>
+                                            <td>Introduction to Medical Laboratory Science</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>level</code></td>
+                                            <td><span class="badge bg-danger">Yes</span></td>
+                                            <td>Course level (100,200,300,400)</td>
+                                            <td>200</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>semester</code></td>
+                                            <td><span class="badge bg-danger">Yes</span></td>
+                                            <td>Semester (1 or 2)</td>
+                                            <td>1</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>credit_hours</code></td>
+                                            <td><span class="badge bg-warning">Optional</span></td>
+                                            <td>Credit hours (default: 3)</td>
+                                            <td>3</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>description</code></td>
+                                            <td><span class="badge bg-warning">Optional</span></td>
+                                            <td>Course description</td>
+                                            <td>This course covers...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Sample Data -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-2">
+                                <i class="fas fa-eye me-1"></i>Sample CSV Content
+                            </h6>
+                            <pre class="bg-light p-3 rounded small"><code>code,title,level,semester,credit_hours,description
+BTML201,Haematology I,200,1,3,Introduction to haematology principles
+BTML202,Clinical Chemistry I,200,2,3,Basic clinical chemistry concepts
+BTML301,Immunology,300,1,3,Study of immune system
+BTML302,Microbiology,300,2,4,Medical microbiology and parasitology</code></pre>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted small">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    You can upload up to 100 courses at once
+                                </span>
+                            </div>
+                            <div>
+                                <a href="{% url 'courses:course_list' %}" class="btn btn-secondary me-2">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                                    <i class="fas fa-upload me-1"></i>Upload Courses
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Instructions Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-list-ol me-1"></i>Upload Instructions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0">
+                        <li class="mb-2">Download the CSV template</li>
+                        <li class="mb-2">Fill in your course data</li>
+                        <li class="mb-2">Save the file as CSV</li>
+                        <li class="mb-2">Upload the file using the form</li>
+                        <li class="mb-2">Review the results</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Validation Rules -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-check-circle me-1"></i>Validation Rules
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Course codes must be unique
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Level must be 100,200,300, or 400
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Semester must be 1 or 2
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Credit hours between 1-6
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            No duplicate entries
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Previous Uploads -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-history me-1"></i>Recent Bulk Uploads
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for upload in recent_uploads %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted d-block">{{ upload.created_at|date:"M d, Y H:i" }}</small>
+                                    <small>
+                                        <span class="text-success">{{ upload.success_count }} created</span>
+                                        {% if upload.error_count %}
+                                            <span class="text-danger ms-2">{{ upload.error_count }} errors</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <a href="{% url 'courses:upload_report' upload.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center py-3">
+                            <p class="text-muted mb-0">No previous uploads</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Modal -->
+    <div class="modal fade" id="progressModal" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-spinner fa-spin me-2"></i>Processing Upload
+                    </h5>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div class="progress mb-3" style="height: 20px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             id="uploadProgress" style="width: 0%"></div>
+                    </div>
+                    <p id="progressMessage">Validating file...</p>
+                    <p class="small text-muted" id="progressDetails"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="modal fade" id="resultsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-check-circle me-2"></i>Upload Complete
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div id="uploadResults"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a href="{% url 'courses:course_list' %}" class="btn btn-primary">View Courses</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.upload-area {
+    border: 2px dashed #4e73df;
+    border-radius: 10px;
+    background-color: #f8f9fc;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.upload-area:hover {
+    border-color: #224abe;
+    background-color: #eaecf4;
+}
+.upload-area.dragover {
+    border-color: #1cc88a;
+    background-color: #d4edda;
+}
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 200px;
+    overflow-y: auto;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('fileInput');
+    const browseLink = document.getElementById('browseLink');
+    const filePreview = document.getElementById('filePreview');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const submitBtn = document.getElementById('submitBtn');
+    const form = document.getElementById('bulkUploadForm');
+    const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
+
+    // Browse file
+    browseLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        fileInput.click();
+    });
+
+    dropArea.addEventListener('click', function() {
+        fileInput.click();
+    });
+
+    // Drag and drop events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => {
+            dropArea.classList.add('dragover');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => {
+            dropArea.classList.remove('dragover');
+        });
+    });
+
+    dropArea.addEventListener('drop', function(e) {
+        const file = e.dataTransfer.files[0];
+        handleFile(file);
+    });
+
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        handleFile(file);
+    });
+
+    function handleFile(file) {
+        if (file) {
+            // Validate file type
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file');
+                fileInput.value = '';
+                return;
+            }
+
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size exceeds 5MB limit');
+                fileInput.value = '';
+                return;
+            }
+
+            // Display file preview
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.style.display = 'block';
+            dropArea.style.display = 'none';
+            submitBtn.disabled = false;
+        }
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const file = fileInput.files[0];
+        if (!file) {
+            alert('Please select a file to upload');
+            return;
+        }
+
+        // Show progress modal
+        progressModal.show();
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '{% url "courses:bulk_upload_courses" %}', true);
+        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+
+        xhr.upload.onprogress = function(e) {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                document.getElementById('uploadProgress').style.width = percentComplete + '%';
+                document.getElementById('progressMessage').textContent = `Uploading... ${Math.round(percentComplete)}%`;
+            }
+        };
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                progressModal.hide();
+                
+                if (response.success) {
+                    showResults(response);
+                } else {
+                    alert('Upload failed: ' + response.error);
+                }
+            } else {
+                alert('Upload failed. Please try again.');
+                progressModal.hide();
+            }
+        };
+
+        xhr.send(formData);
+    });
+
+    function showResults(data) {
+        const resultsDiv = document.getElementById('uploadResults');
+        resultsDiv.innerHTML = `
+            <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+            <h5>Upload Complete!</h5>
+            <p class="mb-2">Successfully created: <strong>${data.created}</strong> courses</p>
+            ${data.errors ? `
+                <div class="alert alert-warning mt-3">
+                    <strong>${data.errors.length} errors:</strong>
+                    <ul class="mb-0 mt-2 text-start">
+                        ${data.errors.map(err => `<li class="small">${err}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+        `;
+        new bootstrap.Modal(document.getElementById('resultsModal')).show();
+    }
+});
+
+function removeFile() {
+    document.getElementById('fileInput').value = '';
+    document.getElementById('filePreview').style.display = 'none';
+    document.getElementById('dropArea').style.display = 'block';
+    document.getElementById('submitBtn').disabled = true;
+}
+</script>
+{% endblock %}

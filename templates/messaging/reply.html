@@ -1,0 +1,323 @@
+<!-- templates/messaging/reply.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reply to {{ original.subject }} - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-reply me-2"></i>Reply to Message
+        </h1>
+        <div>
+            <a href="{% url 'messaging:message_detail' original.id %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to Message
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Reply Form Card -->
+            <div class="card glass-card shadow mb-4">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-reply me-1"></i>Compose Reply
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="replyForm">
+                        {% csrf_token %}
+                        
+                        <!-- Recipient Info (Read-only) -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">To:</label>
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                {% if original.sender.profile_image %}
+                                    <img src="{{ original.sender.profile_image.url }}" class="rounded-circle me-3" width="40" height="40">
+                                {% else %}
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <strong>{{ original.sender.get_full_name|default:original.sender.username }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ original.sender.email }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Subject -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Subject:</label>
+                            <input type="text" class="form-control" value="Re: {{ original.subject }}" readonly>
+                        </div>
+                        
+                        <!-- Original Message Preview -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Original Message:</label>
+                            <div class="bg-light p-3 rounded small">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <strong>{{ original.sender.get_full_name }} wrote:</strong>
+                                    <small class="text-muted">{{ original.sent_at|date:"M d, Y H:i" }}</small>
+                                </div>
+                                <div class="original-message-preview border-start border-primary ps-3">
+                                    {{ original.body|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Reply Content -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Your Reply <span class="text-danger">*</span></label>
+                            <textarea name="body" class="form-control" rows="8" id="replyBody" 
+                                      placeholder="Type your reply here..." required></textarea>
+                            <div class="form-text text-muted">
+                                <span id="charCount">0</span>/5000 characters
+                            </div>
+                        </div>
+                        
+                        <!-- Attachments -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-paperclip me-1"></i>Attachments (Optional)
+                            </label>
+                            <div class="upload-area" id="dropArea">
+                                <input type="file" name="attachments" class="d-none" multiple id="attachments" 
+                                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+                                <div class="text-center p-4">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                    <h6>Drag and drop files here or <a href="#" id="browseLink">browse</a></h6>
+                                    <p class="small text-muted mb-0">
+                                        Supported formats: PDF, DOC, DOCX, JPG, PNG, TXT (Max 10MB each)
+                                    </p>
+                                </div>
+                            </div>
+                            <div id="attachmentPreview" class="mt-3"></div>
+                        </div>
+                        
+                        <!-- Options -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="include_original" id="includeOriginal" checked>
+                                <label class="form-check-label" for="includeOriginal">
+                                    Include original message in reply
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_urgent" id="isUrgent">
+                                <label class="form-check-label" for="isUrgent">
+                                    <i class="fas fa-exclamation-triangle text-danger me-1"></i>
+                                    Mark as urgent
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <hr>
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'messaging:message_detail' original.id %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-1"></i>Send Reply
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-bs-theme="dark"] .glass-card {
+    background: rgba(30, 30, 47, 0.7);
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+    border-color: #4361ee;
+    background-color: #e8f0fe;
+}
+
+.upload-area.dragover {
+    border-color: #28a745;
+    background-color: #d4edda;
+}
+
+.original-message-preview {
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+[data-bs-theme="dark"] .original-message-preview {
+    background-color: var(--card-bg);
+}
+
+.attachment-preview {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Character counter
+    const replyBody = document.getElementById('replyBody');
+    const charCount = document.getElementById('charCount');
+    
+    replyBody.addEventListener('input', function() {
+        const count = this.value.length;
+        charCount.textContent = count;
+        
+        if (count > 5000) {
+            this.value = this.value.substring(0, 5000);
+            charCount.textContent = 5000;
+        }
+    });
+
+    // Drag and drop file upload
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('attachments');
+    const browseLink = document.getElementById('browseLink');
+    const preview = document.getElementById('attachmentPreview');
+
+    if (browseLink) {
+        browseLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            fileInput.click();
+        });
+    }
+
+    if (dropArea) {
+        dropArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        // Drag and drop events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => {
+                dropArea.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => {
+                dropArea.classList.remove('dragover');
+            });
+        });
+
+        dropArea.addEventListener('drop', function(e) {
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+    }
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            handleFiles(this.files);
+        });
+    }
+
+    function handleFiles(files) {
+        Array.from(files).forEach((file, index) => {
+            if (file.size > 10 * 1024 * 1024) {
+                alert(`File ${file.name} exceeds 10MB limit`);
+                return;
+            }
+            
+            const div = document.createElement('div');
+            div.className = 'alert alert-info alert-dismissible fade show attachment-preview py-2 mb-2';
+            
+            const ext = file.name.split('.').pop().toLowerCase();
+            let iconClass = 'fa-file-alt';
+            let iconColor = 'text-secondary';
+            
+            if (ext === 'pdf') {
+                iconClass = 'fa-file-pdf';
+                iconColor = 'text-danger';
+            } else if (['doc', 'docx'].includes(ext)) {
+                iconClass = 'fa-file-word';
+                iconColor = 'text-primary';
+            } else if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) {
+                iconClass = 'fa-file-image';
+                iconColor = 'text-success';
+            }
+            
+            div.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas ${iconClass} ${iconColor} me-2 fa-lg"></i>
+                    <div class="flex-grow-1">
+                        <small><strong>${file.name}</strong> (${(file.size / 1024).toFixed(2)} KB)</small>
+                    </div>
+                    <button type="button" class="btn-close" onclick="removeAttachment(this)"></button>
+                </div>
+            `;
+            preview.appendChild(div);
+        });
+    }
+
+    // Form validation
+    document.getElementById('replyForm').addEventListener('submit', function(e) {
+        if (!replyBody.value.trim()) {
+            e.preventDefault();
+            alert('Please enter your reply message.');
+        }
+    });
+});
+
+function removeAttachment(btn) {
+    btn.closest('.alert').remove();
+}
+
+// Add mark as urgent functionality
+document.getElementById('isUrgent')?.addEventListener('change', function() {
+    const preview = document.querySelector('.preview-area');
+    if (preview) {
+        if (this.checked) {
+            preview.classList.add('border-danger');
+        } else {
+            preview.classList.remove('border-danger');
+        }
+    }
+});
+</script>
+{% endblock %}

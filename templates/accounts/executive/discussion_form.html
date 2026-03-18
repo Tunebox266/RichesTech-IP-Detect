@@ -1,0 +1,282 @@
+<!-- templates/accounts/executive/discussion_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Discussion - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-comments me-2"></i>{{ action }} Discussion
+        </h1>
+        <a href="{% url 'accounts:executive_discussion_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Discussions
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Discussion Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-edit me-1"></i>Discussion Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="discussionForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Title -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-heading me-1"></i>Title <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                Choose a descriptive title for your discussion
+                            </div>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-tag me-1"></i>Category
+                            </label>
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                                <div class="text-danger small mt-1">{{ form.category.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Content -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-align-left me-1"></i>Content <span class="text-danger">*</span>
+                            </label>
+                            {{ form.content }}
+                            {% if form.content.errors %}
+                                <div class="text-danger small mt-1">{{ form.content.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                Write your discussion content. You can use markdown formatting.
+                            </div>
+                        </div>
+
+                        <!-- Related Meeting -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-users-cog me-1"></i>Related Meeting
+                            </label>
+                            {{ form.meeting }}
+                            {% if form.meeting.errors %}
+                                <div class="text-danger small mt-1">{{ form.meeting.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                Optional: Link this discussion to a specific meeting
+                            </div>
+                        </div>
+
+                        <!-- Options -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    {{ form.is_announcement }}
+                                    <label class="form-check-label" for="{{ form.is_announcement.id_for_label }}">
+                                        <i class="fas fa-bullhorn text-info me-1"></i>
+                                        Mark as Announcement
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    {{ form.is_pinned }}
+                                    <label class="form-check-label" for="{{ form.is_pinned.id_for_label }}">
+                                        <i class="fas fa-thumbtack text-warning me-1"></i>
+                                        Pin this discussion
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Attachments -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-paperclip me-1"></i>Attachments
+                            </label>
+                            {% if action == 'Edit' and discussion.attachments %}
+                                <div class="current-file mb-2 p-2 bg-light rounded">
+                                    <i class="fas fa-file me-2"></i>
+                                    <a href="{{ discussion.attachments.url }}" target="_blank">Current Attachment</a>
+                                </div>
+                            {% endif %}
+                            <input type="file" name="attachments" class="form-control" id="attachments">
+                            <div id="attachmentPreview" class="mt-2"></div>
+                            <div class="form-text text-muted">
+                                Upload supporting documents (PDF, DOC, Images) - Max 10MB
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <hr>
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'accounts:executive_discussion_list' %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-1"></i>{{ action }} Discussion
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Guidelines Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Discussion Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Keep discussions professional and respectful
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Stay on topic and be concise
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Use categories to organize discussions
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Link to relevant meetings when applicable
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Pin important announcements for visibility
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Preview Card -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-eye me-1"></i>Live Preview
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div id="previewArea" class="border rounded p-3 bg-light">
+                        <h5 id="previewTitle">Discussion Title</h5>
+                        <p id="previewContent" class="text-muted small">Your discussion content will appear here...</p>
+                        <div id="previewBadges"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+#id_content {
+    min-height: 200px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const titleInput = document.getElementById('id_title');
+    const contentInput = document.getElementById('id_content');
+    const categorySelect = document.getElementById('id_category');
+    const announcementCheck = document.getElementById('id_is_announcement');
+    const pinnedCheck = document.getElementById('id_is_pinned');
+    const previewTitle = document.getElementById('previewTitle');
+    const previewContent = document.getElementById('previewContent');
+    const previewBadges = document.getElementById('previewBadges');
+
+    // Live preview updates
+    titleInput.addEventListener('input', function() {
+        previewTitle.textContent = this.value || 'Discussion Title';
+    });
+
+    contentInput.addEventListener('input', function() {
+        previewContent.textContent = this.value.substring(0, 150) + (this.value.length > 150 ? '...' : '');
+    });
+
+    function updateBadges() {
+        let badges = '';
+        if (announcementCheck.checked) {
+            badges += '<span class="badge bg-info me-1">Announcement</span>';
+        }
+        if (pinnedCheck.checked) {
+            badges += '<span class="badge bg-warning me-1">Pinned</span>';
+        }
+        if (categorySelect.value) {
+            badges += `<span class="badge bg-secondary me-1">${categorySelect.options[categorySelect.selectedIndex].text}</span>`;
+        }
+        previewBadges.innerHTML = badges;
+    }
+
+    announcementCheck.addEventListener('change', updateBadges);
+    pinnedCheck.addEventListener('change', updateBadges);
+    categorySelect.addEventListener('change', updateBadges);
+
+    // Attachment preview
+    const attachments = document.getElementById('attachments');
+    const preview = document.getElementById('attachmentPreview');
+
+    attachments.addEventListener('change', function(e) {
+        preview.innerHTML = '';
+        Array.from(this.files).forEach((file, index) => {
+            const div = document.createElement('div');
+            div.className = 'alert alert-info py-2 mb-1';
+            div.innerHTML = `
+                <i class="fas fa-file me-2"></i>
+                ${file.name} (${(file.size / 1024).toFixed(2)} KB)
+                <button type="button" class="btn-close float-end" onclick="removeAttachment(${index})"></button>
+            `;
+            preview.appendChild(div);
+        });
+    });
+});
+
+function removeAttachment(index) {
+    const input = document.getElementById('attachments');
+    const dt = new DataTransfer();
+    
+    Array.from(input.files).forEach((file, i) => {
+        if (i !== index) {
+            dt.items.add(file);
+        }
+    });
+    
+    input.files = dt.files;
+    
+    // Refresh preview
+    const event = new Event('change', { bubbles: true });
+    input.dispatchEvent(event);
+}
+</script>
+{% endblock %}

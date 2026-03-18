@@ -1,0 +1,410 @@
+<!-- templates/complaints/my_complaints.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load core_tags %}
+
+{% block title %}My Complaints - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-exclamation-circle me-2"></i>My Complaints & Suggestions
+        </h1>
+        <div>
+            <span class="badge bg-primary me-2">
+                <i class="fas fa-clock me-1"></i>Pending: {{ pending_count }}
+            </span>
+            <span class="badge bg-success me-2">
+                <i class="fas fa-check-circle me-1"></i>Resolved: {{ resolved_count }}
+            </span>
+            <a href="{% url 'complaints:submit_complaint' %}" class="btn btn-sm btn-primary shadow-sm">
+                <i class="fas fa-plus me-1"></i>New Complaint
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {% if filter == 'all' %}active{% endif %}" 
+                       href="?filter=all">
+                        <i class="fas fa-list me-1"></i>All
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if filter == 'pending' %}active{% endif %}" 
+                       href="?filter=pending">
+                        <i class="fas fa-clock me-1"></i>Pending
+                        {% if pending_count > 0 %}
+                            <span class="badge bg-warning ms-1">{{ pending_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if filter == 'under_review' %}active{% endif %}" 
+                       href="?filter=under_review">
+                        <i class="fas fa-search me-1"></i>Under Review
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if filter == 'resolved' %}active{% endif %}" 
+                       href="?filter=resolved">
+                        <i class="fas fa-check-circle me-1"></i>Resolved
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="card-body border-bottom">
+            <form method="GET" action="{% url 'complaints:my_complaints' %}" id="filterForm">
+                <input type="hidden" name="filter" value="{{ filter }}">
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" name="q" class="form-control" 
+                                   placeholder="Search complaints..." value="{{ request.GET.q|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select name="type" class="form-select">
+                            <option value="">All Types</option>
+                            {% for type_code, type_name in complaint_types %}
+                                <option value="{{ type_code }}" {% if request.GET.type == type_code %}selected{% endif %}>
+                                    {{ type_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select name="date" class="form-select">
+                            <option value="">Any Date</option>
+                            <option value="today" {% if request.GET.date == 'today' %}selected{% endif %}>Today</option>
+                            <option value="week" {% if request.GET.date == 'week' %}selected{% endif %}>This Week</option>
+                            <option value="month" {% if request.GET.date == 'month' %}selected{% endif %}>This Month</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i>Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Complaints List -->
+        <div class="card-body p-0">
+            {% for complaint in complaints %}
+            <div class="complaint-item {% if complaint.status == 'resolved' %}resolved{% endif %}" data-complaint-id="{{ complaint.id }}">
+                <div class="row p-4 border-bottom">
+                    <div class="col-md-8">
+                        <!-- Header -->
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="mb-0">
+                                {% if complaint.is_anonymous %}
+                                    <i class="fas fa-user-secret text-secondary me-2"></i>
+                                {% else %}
+                                    <i class="fas fa-user text-primary me-2"></i>
+                                {% endif %}
+                                {{ complaint.subject }}
+                            </h5>
+                            <span class="badge bg-{{ complaint.status|complaint_status_color }} p-2">
+                                {{ complaint.get_status_display }}
+                            </span>
+                        </div>
+
+                        <!-- Metadata -->
+                        <div class="mb-2">
+                            <span class="badge bg-info me-2">
+                                <i class="fas fa-tag me-1"></i>{{ complaint.get_complaint_type_display }}
+                            </span>
+                            {% if complaint.is_anonymous %}
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-user-secret me-1"></i>Anonymous
+                                </span>
+                            {% endif %}
+                            <small class="text-muted ms-2">
+                                <i class="fas fa-clock me-1"></i>Submitted {{ complaint.created_at|timesince }} ago
+                            </small>
+                        </div>
+
+                        <!-- Content -->
+                        <p class="mb-2">{{ complaint.description|truncatechars:200 }}</p>
+
+                        <!-- Attachments -->
+                        {% if complaint.attachments.count > 0 %}
+                        <div class="mb-2">
+                            <small class="text-muted">
+                                <i class="fas fa-paperclip me-1"></i>
+                                {{ complaint.attachments.count }} attachment(s)
+                            </small>
+                        </div>
+                        {% endif %}
+
+                        <!-- Assigned To -->
+                        {% if complaint.assigned_to %}
+                        <div class="mb-2">
+                            <small class="text-muted">
+                                <i class="fas fa-user-check me-1"></i>
+                                Assigned to: {{ complaint.assigned_to.get_full_name }}
+                            </small>
+                        </div>
+                        {% endif %}
+
+                        <!-- Response Count -->
+                        <div>
+                            <small class="text-primary">
+                                <i class="fas fa-comment me-1"></i>
+                                {{ complaint.response_count }} response(s)
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <!-- Timeline -->
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-badge bg-primary"></div>
+                                <div class="timeline-content">
+                                    <small class="text-muted">Submitted</small>
+                                    <p class="small mb-0">{{ complaint.created_at|date:"M d, Y H:i" }}</p>
+                                </div>
+                            </div>
+                            
+                            {% if complaint.under_review_at %}
+                            <div class="timeline-item">
+                                <div class="timeline-badge bg-info"></div>
+                                <div class="timeline-content">
+                                    <small class="text-muted">Under Review</small>
+                                    <p class="small mb-0">{{ complaint.under_review_at|date:"M d, Y H:i" }}</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if complaint.resolved_at %}
+                            <div class="timeline-item">
+                                <div class="timeline-badge bg-success"></div>
+                                <div class="timeline-content">
+                                    <small class="text-muted">Resolved</small>
+                                    <p class="small mb-0">{{ complaint.resolved_at|date:"M d, Y H:i" }}</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="mt-3 text-end">
+                            <a href="{% url 'complaints:detail' complaint.id %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </a>
+                            {% if complaint.status != 'resolved' %}
+                                <button class="btn btn-sm btn-outline-danger" onclick="cancelComplaint({{ complaint.id }})">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Latest Response Preview -->
+                {% with complaint.latest_response as response %}
+                    {% if response %}
+                    <div class="row bg-light p-3 mx-0">
+                        <div class="col-12">
+                            <div class="d-flex align-items-start">
+                                <div class="me-2">
+                                    <i class="fas fa-reply text-primary"></i>
+                                </div>
+                                <div>
+                                    <small>
+                                        <strong>{{ response.responder.get_full_name }} replied:</strong>
+                                        {{ response.content|truncatechars:150 }}
+                                    </small>
+                                    <br>
+                                    <small class="text-muted">{{ response.created_at|timesince }} ago</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+            {% empty %}
+            <div class="text-center py-5">
+                <i class="fas fa-exclamation-circle fa-4x text-muted mb-3"></i>
+                <h5 class="text-muted">No Complaints Found</h5>
+                <p class="text-muted mb-3">You haven't submitted any complaints or suggestions yet.</p>
+                <a href="{% url 'complaints:submit_complaint' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Submit a Complaint
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Summary Statistics -->
+        {% if complaints %}
+        <div class="card-footer">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <h5 class="text-primary">{{ total_complaints }}</h5>
+                    <small class="text-muted">Total Complaints</small>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="text-warning">{{ pending_count }}</h5>
+                    <small class="text-muted">Pending</small>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="text-info">{{ under_review_count }}</h5>
+                    <small class="text-muted">Under Review</small>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="text-success">{{ resolved_count }}</h5>
+                    <small class="text-muted">Resolved</small>
+                </div>
+            </div>
+            <div class="progress mt-3" style="height: 5px;">
+                {% if total_complaints > 0 %}
+                    <div class="progress-bar bg-warning" style="width: {{ pending_percentage }}%"></div>
+                    <div class="progress-bar bg-info" style="width: {{ under_review_percentage }}%"></div>
+                    <div class="progress-bar bg-success" style="width: {{ resolved_percentage }}%"></div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if complaints.has_other_pages %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Complaints pagination">
+                <ul class="pagination justify-content-center">
+                    {% if complaints.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ complaints.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                        </li>
+                    {% endif %}
+
+                    {% for i in complaints.paginator.page_range %}
+                        {% if complaints.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% elif i > complaints.number|add:'-3' and i < complaints.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if complaints.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ complaints.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Cancel Complaint Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Cancel Complaint
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this complaint?</p>
+                <p class="small text-muted mb-0">
+                    <i class="fas fa-info-circle me-1"></i>
+                    This action cannot be undone.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep It</button>
+                <a href="#" id="confirmCancelBtn" class="btn btn-danger">Yes, Cancel</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.complaint-item {
+    transition: background-color 0.2s ease;
+}
+.complaint-item:hover {
+    background-color: #f8f9fc;
+}
+.complaint-item.resolved {
+    opacity: 0.9;
+}
+.timeline {
+    position: relative;
+    padding-left: 20px;
+}
+.timeline-item {
+    position: relative;
+    padding-bottom: 15px;
+}
+.timeline-badge {
+    position: absolute;
+    left: -20px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    top: 4px;
+}
+.timeline-content {
+    padding-left: 15px;
+}
+.timeline-item:before {
+    content: '';
+    position: absolute;
+    left: -16px;
+    top: 14px;
+    bottom: -5px;
+    width: 2px;
+    background: #e3e6f0;
+}
+.timeline-item:last-child:before {
+    display: none;
+}
+</style>
+
+<script>
+function cancelComplaint(complaintId) {
+    const modal = new bootstrap.Modal(document.getElementById('cancelModal'));
+    document.getElementById('confirmCancelBtn').href = `/complaints/${complaintId}/cancel/`;
+    modal.show();
+}
+
+// Auto-refresh for new responses (every 30 seconds)
+setTimeout(function() {
+    location.reload();
+}, 30000);
+</script>
+{% endblock %}

@@ -1,0 +1,262 @@
+<!-- templates/courses/material_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load course_filters %}
+
+{% block title %}Course Materials - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-file-alt me-2"></i>Course Materials
+        </h1>
+        <div>
+            <span class="badge bg-info me-2">
+                <i class="fas fa-database me-1"></i>Total: {{ materials.paginator.count }}
+            </span>
+            {% if request.user.user_type in 'staff,admin' %}
+                <a href="{% url 'courses:upload_material' %}" class="btn btn-sm btn-primary shadow-sm">
+                    <i class="fas fa-upload fa-sm me-1"></i>Upload Material
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-search me-1"></i>Search & Filter Materials
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{% url 'courses:material_list' %}" id="filterForm">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Search</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" name="search" class="form-control" 
+                                   placeholder="Search by title, course..." value="{{ request.GET.search|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label fw-bold">Course</label>
+                        <select name="course" class="form-select">
+                            <option value="">All Courses</option>
+                            {% for course in courses %}
+                                <option value="{{ course.id }}" {% if request.GET.course == course.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ course.code }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label fw-bold">Material Type</label>
+                        <select name="type" class="form-select">
+                            <option value="">All Types</option>
+                            {% for type_code, type_name in material_types %}
+                                <option value="{{ type_code }}" {% if request.GET.type == type_code %}selected{% endif %}>
+                                    {{ type_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label fw-bold">Level</label>
+                        <select name="level" class="form-select">
+                            <option value="">All Levels</option>
+                            {% for level_code, level_name in levels %}
+                                <option value="{{ level_code }}" {% if request.GET.level == level_code|stringformat:"s" %}selected{% endif %}>
+                                    {{ level_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label fw-bold">Sort By</label>
+                        <select name="sort" class="form-select">
+                            <option value="-uploaded_at" {% if request.GET.sort == '-uploaded_at' %}selected{% endif %}>Newest First</option>
+                            <option value="uploaded_at" {% if request.GET.sort == 'uploaded_at' %}selected{% endif %}>Oldest First</option>
+                            <option value="title" {% if request.GET.sort == 'title' %}selected{% endif %}>Title A-Z</option>
+                            <option value="-title" {% if request.GET.sort == '-title' %}selected{% endif %}>Title Z-A</option>
+                            <option value="-downloads" {% if request.GET.sort == '-downloads' %}selected{% endif %}>Most Downloaded</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i>Apply Filters
+                        </button>
+                        <a href="{% url 'courses:material_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-redo me-1"></i>Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Materials Grid -->
+    <div class="row">
+        {% for material in materials %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow h-100 material-card">
+                <div class="card-header bg-light py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-{{ material.material_type|material_icon }} me-1"></i>
+                            {{ material.get_material_type_display }}
+                        </h6>
+                        <span class="badge bg-{{ material.course.level|level_color }}">
+                            Level {{ material.course.level }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-2">{{ material.title }}</h5>
+                    <p class="card-text text-muted small mb-2">
+                        <i class="fas fa-book me-1"></i>{{ material.course.code }} - {{ material.course.title }}
+                    </p>
+                    <p class="card-text text-muted small mb-2">
+                        <i class="fas fa-user me-1"></i>{{ material.uploaded_by.get_full_name }}
+                    </p>
+                    <p class="card-text text-muted small mb-2">
+                        <i class="fas fa-calendar me-1"></i>{{ material.uploaded_at|date:"M d, Y" }}
+                    </p>
+                    <p class="card-text text-muted small">
+                        <i class="fas fa-download me-1"></i>{{ material.downloads }} downloads
+                    </p>
+                    {% if material.description %}
+                        <p class="card-text small">{{ material.description|truncatechars:80 }}</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100">
+                        <a href="{% url 'courses:material_detail' material.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-info-circle me-1"></i>Details
+                        </a>
+                        <a href="{% url 'courses:download_material' material.id %}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-download me-1"></i>Download
+                        </a>
+                        {% if request.user.user_type in 'staff,admin' or request.user == material.uploaded_by %}
+                            <button type="button" class="btn btn-outline-danger btn-sm" 
+                                    onclick="confirmDelete({{ material.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-file-alt fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Materials Found</h5>
+                    <p class="text-muted mb-3">There are no course materials matching your criteria.</p>
+                    {% if request.user.user_type in 'staff,admin' %}
+                        <a href="{% url 'courses:upload_material' %}" class="btn btn-primary">
+                            <i class="fas fa-upload me-2"></i>Upload First Material
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if materials.has_other_pages %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Materials pagination">
+                <ul class="pagination justify-content-center">
+                    {% if materials.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ materials.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                        </li>
+                    {% endif %}
+
+                    {% for i in materials.paginator.page_range %}
+                        {% if materials.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% elif i > materials.number|add:'-3' and i < materials.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if materials.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ materials.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this material? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.material-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.material-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+.btn-group {
+    gap: 2px;
+}
+</style>
+
+<script>
+function confirmDelete(materialId) {
+    var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    document.getElementById('confirmDeleteBtn').href = "{% url 'courses:course_delete' 0 %}".replace('0', materialId);
+    modal.show();
+}
+</script>
+{% endblock %}

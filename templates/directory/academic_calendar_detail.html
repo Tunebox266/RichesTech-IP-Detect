@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load core_tags %}
+
+{% block title %}{{ event.title }} - Academic Calendar - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-calendar-alt me-2"></i>Event Details
+        </h1>
+        <div>
+            <a href="{% url 'directory:academic_calendar_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to Calendar
+            </a>
+            {% if request.user.user_type in 'admin,staff' %}
+                <a href="{% url 'directory:academic_calendar_edit' event.id %}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </a>
+                <button class="btn btn-danger btn-sm" onclick="confirmDelete({{ event.id }})">
+                    <i class="fas fa-trash me-1"></i>Delete
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Event Details -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Event Information
+                    </h6>
+                    {% if event.is_important %}
+                        <span class="badge bg-danger p-2">Important</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h4 class="fw-bold mb-3">{{ event.title }}</h4>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="35%">Event Type:</th>
+                                    <td>
+                                        <span class="badge bg-{{ event.event_type|event_color }} p-2">
+                                            {{ event.get_event_type_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Academic Year:</th>
+                                    <td>{{ event.academic_year }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Semester:</th>
+                                    <td>{{ event.get_semester_display|default:"N/A" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Target Level:</th>
+                                    <td>{{ event.get_level_display }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="35%">Start Date:</th>
+                                    <td>{{ event.start_date|date:"l, F d, Y" }}</td>
+                                </tr>
+                                {% if event.end_date %}
+                                <tr>
+                                    <th>End Date:</th>
+                                    <td>{{ event.end_date|date:"l, F d, Y" }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <th>All Day:</th>
+                                    <td>{% if event.is_all_day %}Yes{% else %}No{% endif %}</td>
+                                </tr>
+                                {% if not event.is_all_day and event.start_time %}
+                                <tr>
+                                    <th>Time:</th>
+                                    <td>{{ event.start_time|time:"h:i A" }} - {{ event.end_time|time:"h:i A" }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if event.venue %}
+                                <tr>
+                                    <th>Venue:</th>
+                                    <td>{{ event.venue }}</td>
+                                </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if event.description %}
+                    <h6 class="fw-bold">Description</h6>
+                    <p class="mb-4">{{ event.description|linebreaks }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Status Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-clock me-1"></i>Event Status
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    {% if event.is_past %}
+                        <div class="alert alert-secondary">
+                            <i class="fas fa-history me-2"></i>This event has passed
+                        </div>
+                    {% elif event.is_ongoing %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-play me-2"></i>Happening now
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-clock me-2"></i>Upcoming event
+                        </div>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'directory:academic_calendar_ical' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-calendar-plus me-1"></i>Add to Calendar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this event?</p>
+                <p class="small text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(eventId) {
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    document.getElementById('confirmDeleteBtn').href = `/directory/calendar/${eventId}/delete/`;
+    modal.show();
+}
+</script>
+{% endblock %}

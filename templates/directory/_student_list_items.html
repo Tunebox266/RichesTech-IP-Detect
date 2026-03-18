@@ -1,0 +1,217 @@
+<!-- templates/directory/_student_list_items.html -->
+{% load static %}
+
+<div class="student-list">
+    {% for student in students %}
+    <div class="student-item border-bottom hover-effect">
+        <div class="row p-3 align-items-center">
+            <!-- Photo and Basic Info -->
+            <div class="col-md-5">
+                <div class="d-flex align-items-center">
+                    <!-- Profile Photo -->
+                    <div class="flex-shrink-0">
+                        {% if student.profile_image %}
+                            <img src="{{ student.profile_image.url }}" 
+                                 class="rounded-circle" 
+                                 width="50" height="50" 
+                                 style="object-fit: cover;">
+                        {% else %}
+                            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                 style="width: 50px; height: 50px;">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Name and ID -->
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">
+                            <a href="{% url 'directory:student_detail' student.id %}" class="text-decoration-none text-dark">
+                                {{ student.get_full_name }}
+                            </a>
+                        </h6>
+                        <small class="text-muted">
+                            <i class="fas fa-id-card me-1"></i>{{ student.student_id }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Info -->
+            <div class="col-md-3">
+                <div class="d-flex flex-column">
+                    <span class="badge bg-info mb-1 align-self-start">
+                        <i class="fas fa-layer-group me-1"></i>Level {{ student.level }}
+                    </span>
+                    <span class="badge bg-success align-self-start">
+                        <i class="fas fa-clock me-1"></i>{{ student.get_program_type_display }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Year of Admission -->
+            <div class="col-md-2">
+                <small class="text-muted">
+                    <i class="fas fa-calendar-alt me-1"></i>
+                    {{ student.year_of_admission }}
+                </small>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="col-md-2 text-end">
+                <div class="btn-group">
+                    <a href="{% url 'directory:student_detail' student.id %}" 
+                       class="btn btn-sm btn-outline-primary" 
+                       title="View Profile">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    
+                    {% if student.is_online %}
+                    <span class="btn btn-sm btn-outline-success" title="Online">
+                        <i class="fas fa-circle"></i>
+                    </span>
+                    {% endif %}
+                    
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-info" 
+                            onclick="quickMessage({{ student.id }}, '{{ student.get_full_name|escapejs }}')"
+                            title="Send Message">
+                        <i class="fas fa-envelope"></i>
+                    </button>
+                    
+                    {% if student.id in executive_ids %}
+                    <span class="btn btn-sm btn-outline-warning" title="Student Executive">
+                        <i class="fas fa-star"></i>
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Info Row (visible on hover) -->
+        <div class="row quick-info bg-light p-2 mx-0" style="display: none;">
+            <div class="col-md-3">
+                <small class="text-muted">
+                    <i class="fas fa-envelope me-1"></i>{{ student.email }}
+                </small>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">
+                    <i class="fas fa-phone me-1"></i>{{ student.phone_number|default:"No phone" }}
+                </small>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">
+                    <i class="fas fa-calendar me-1"></i>Joined: {{ student.date_joined|date:"M Y" }}
+                </small>
+            </div>
+            <div class="col-md-3 text-end">
+                <a href="{% url 'directory:view_id_card' student.id %}" class="btn btn-sm btn-link">
+                    <i class="fas fa-id-card me-1"></i>View ID Card
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-5">
+        <i class="fas fa-users-slash fa-4x text-muted mb-3"></i>
+        <h5 class="text-muted">No Students Found</h5>
+        <p class="text-muted">Try adjusting your search filters.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Quick Message Modal (shared) -->
+<div class="modal fade" id="quickMessageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-envelope me-2"></i>Send Message
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'messaging:compose' %}">
+                {% csrf_token %}
+                <input type="hidden" name="recipient" id="modalRecipientId">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">To</label>
+                        <input type="text" class="form-control" id="modalRecipientName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Subject</label>
+                        <input type="text" name="subject" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Message</label>
+                        <textarea name="body" class="form-control" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i>Send
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.hover-effect {
+    transition: background-color 0.2s ease;
+}
+.hover-effect:hover {
+    background-color: #f8f9fc;
+}
+.hover-effect:hover .quick-info {
+    display: flex !important;
+}
+.quick-info {
+    border-top: 1px solid #dee2e6;
+    font-size: 0.85rem;
+}
+.btn-group .btn {
+    margin-right: 2px;
+}
+.student-item {
+    animation: fadeIn 0.5s ease;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<script>
+function quickMessage(studentId, studentName) {
+    document.getElementById('modalRecipientId').value = studentId;
+    document.getElementById('modalRecipientName').value = studentName;
+    new bootstrap.Modal(document.getElementById('quickMessageModal')).show();
+}
+
+// Lazy load images
+document.addEventListener('DOMContentLoaded', function() {
+    const images = document.querySelectorAll('.student-item img');
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src || img.src;
+                    observer.unobserve(img);
+                }
+            });
+        });
+        images.forEach(img => observer.observe(img));
+    }
+});
+</script>

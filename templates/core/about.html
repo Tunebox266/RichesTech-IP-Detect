@@ -1,0 +1,520 @@
+<!-- templates/core/about.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Hero Section -->
+    <div class="row g-0">
+        <div class="col-12">
+            <div class="hero-section position-relative overflow-hidden mb-5" 
+                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 350px;">
+                <div class="container px-4 h-100">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-lg-8 text-white py-5" data-aos="fade-right">
+                            <h1 class="display-3 fw-bold mb-4">{{ about.title|default:"About MELTSA-TaTU" }}</h1>
+                            {% if about.subtitle %}
+                                <p class="lead mb-4">{{ about.subtitle }}</p>
+                            {% endif %}
+                            <div class="d-flex gap-3 flex-wrap">
+                                <a href="{% url 'core:contact' %}" class="btn btn-light btn-lg">
+                                    <i class="fas fa-envelope me-2"></i>Contact Us
+                                </a>
+                                <a href="#mission" class="btn btn-outline-light btn-lg">
+                                    <i class="fas fa-arrow-down me-2"></i>Learn More
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 d-none d-lg-block" data-aos="fade-left">
+                            {% if about.featured_image %}
+                                <img src="{{ about.featured_image.url }}" alt="About MELTSA" class="img-fluid rounded-circle shadow-lg" style="border: 5px solid rgba(255,255,255,0.3); max-width: 300px;">
+                            {% else %}
+                                <div class="text-center">
+                                    <i class="fas fa-flask fa-8x text-white opacity-50"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <!-- Wave SVG -->
+                <svg class="position-absolute bottom-0 w-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
+                    <path fill="#ffffff" fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mission & Vision Section -->
+    <div class="container mb-5 px-4" id="mission">
+        <div class="row g-4">
+            <div class="col-md-6" data-aos="fade-up">
+                <div class="card glass-card h-100 border-0 shadow-lg">
+                    <div class="card-body p-4 p-lg-5">
+                        <div class="text-center mb-4">
+                            <div class="icon-circle bg-primary text-white mx-auto mb-3">
+                                <i class="fas fa-bullseye fa-3x"></i>
+                            </div>
+                            <h2 class="fw-bold">Our Mission</h2>
+                        </div>
+                        <div class="mission-content">
+                            {{ about.mission|safe }}
+                        </div>
+                        {% if about.mission_image %}
+                            <img src="{{ about.mission_image.url }}" alt="Mission" class="img-fluid rounded mt-4">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="card glass-card h-100 border-0 shadow-lg">
+                    <div class="card-body p-4 p-lg-5">
+                        <div class="text-center mb-4">
+                            <div class="icon-circle bg-success text-white mx-auto mb-3">
+                                <i class="fas fa-eye fa-3x"></i>
+                            </div>
+                            <h2 class="fw-bold">Our Vision</h2>
+                        </div>
+                        <div class="vision-content">
+                            {{ about.vision|safe }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="container-fluid bg-light py-5 mb-5">
+        <div class="container px-4">
+            <h2 class="text-center fw-bold mb-5" data-aos="fade-up">MELTSA by the Numbers</h2>
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-3 col-6" data-aos="zoom-in">
+                    <div class="stat-card text-center p-4">
+                        <i class="fas fa-calendar-alt fa-3x text-primary mb-3"></i>
+                        <h3 class="fw-bold display-6">{{ about.established_year|default:"2023" }}</h3>
+                        <p class="text-muted">Established</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="stat-card text-center p-4">
+                        <i class="fas fa-users fa-3x text-success mb-3"></i>
+                        <h3 class="fw-bold display-6">{{ about.total_members|default:"0" }}+</h3>
+                        <p class="text-muted">Members</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="stat-card text-center p-4">
+                        <i class="fas fa-user-tie fa-3x text-info mb-3"></i>
+                        <h3 class="fw-bold display-6">{{ about.total_executives|default:"0" }}</h3>
+                        <p class="text-muted">Executives</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="stat-card text-center p-4">
+                        <i class="fas fa-calendar-check fa-3x text-warning mb-3"></i>
+                        <h3 class="fw-bold display-6">{{ about.total_events|default:"0" }}+</h3>
+                        <p class="text-muted">Events</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Section -->
+    <div class="container mb-5 px-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6" data-aos="fade-right">
+                <h2 class="fw-bold mb-4">Our History</h2>
+                <div class="history-content lead">
+                    {{ about.history|safe }}
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="timeline position-relative ps-4">
+                    <div class="timeline-item mb-4">
+                        <div class="timeline-marker bg-primary"></div>
+                        <div class="timeline-content">
+                            <h5>2023</h5>
+                            <p>MELTSA was founded at Tamale Technical University</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item mb-4">
+                        <div class="timeline-marker bg-success"></div>
+                        <div class="timeline-content">
+                            <h5>2024</h5>
+                            <p>First national conference hosted</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item mb-4">
+                        <div class="timeline-marker bg-info"></div>
+                        <div class="timeline-content">
+                            <h5>2025</h5>
+                            <p>Reached 500+ active members</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-warning"></div>
+                        <div class="timeline-content">
+                            <h5>Present</h5>
+                            <p>Leading medical laboratory student association in Northern Ghana</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Values Section -->
+    {% if about.core_values %}
+    <div class="container-fluid bg-light py-5 mb-5">
+        <div class="container px-4">
+            <h2 class="text-center fw-bold mb-5" data-aos="fade-up">Our Core Values</h2>
+            <div class="row g-4 justify-content-center">
+                {% for value in about.core_values %}
+                <div class="col-md-4 col-sm-6" data-aos="flip-left" data-aos-delay="{{ forloop.counter|add:'100' }}">
+                    <div class="card glass-card h-100 border-0 text-center p-4">
+                        <div class="value-icon mb-3">
+                            <i class="fas fa-{% cycle 'heart' 'handshake' 'lightbulb' 'shield-alt' 'users' 'globe' %} fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="fw-bold">{{ value }}</h5>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Executive Team Section -->
+    {% if executive_team %}
+    <div class="container mb-5 px-4">
+        <h2 class="text-center fw-bold mb-5" data-aos="fade-up">Meet Our Executives</h2>
+        <div class="row g-4 justify-content-center">
+            {% for executive in executive_team %}
+            <div class="col-xl-3 col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:'100' }}">
+                <div class="card glass-card h-100 border-0 text-center">
+                    <div class="card-img-top-wrapper pt-4">
+                        {% if executive.image %}
+                            <img src="{{ executive.image.url }}" class="rounded-circle mx-auto" alt="{{ executive.name }}" 
+                                 style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #667eea;">
+                        {% else %}
+                            <div class="bg-gradient-primary text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                 style="width: 150px; height: 150px;">
+                                <i class="fas fa-user-tie fa-4x"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">{{ executive.name }}</h5>
+                        <p class="badge bg-primary mb-3">{{ executive.position_display }}</p>
+                        {% if executive.bio %}
+                            <p class="card-text small">{{ executive.bio|truncatechars:100 }}</p>
+                        {% endif %}
+                        
+                        <!-- Social Links - Updated with individual URL fields -->
+                        <div class="social-links mt-3">
+                            {% if executive.email %}
+                                <a href="mailto:{{ executive.email }}" class="btn btn-sm btn-outline-primary m-1" title="Email">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
+                            {% endif %}
+                            {% if executive.facebook_url %}
+                                <a href="{{ executive.facebook_url }}" target="_blank" class="btn btn-sm btn-outline-primary m-1" title="Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                            {% endif %}
+                            {% if executive.twitter_url %}
+                                <a href="{{ executive.twitter_url }}" target="_blank" class="btn btn-sm btn-outline-info m-1" title="Twitter/X">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                            {% endif %}
+                            {% if executive.instagram_url %}
+                                <a href="{{ executive.instagram_url }}" target="_blank" class="btn btn-sm btn-outline-danger m-1" title="Instagram">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                            {% endif %}
+                            {% if executive.linkedin_url %}
+                                <a href="{{ executive.linkedin_url }}" target="_blank" class="btn btn-sm btn-outline-primary m-1" title="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                            {% endif %}
+                            {% if executive.whatsapp_url %}
+                                <a href="{{ executive.whatsapp_url }}" target="_blank" class="btn btn-sm btn-outline-success m-1" title="WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            {% endif %}
+                            {% if executive.website_url %}
+                                <a href="{{ executive.website_url }}" target="_blank" class="btn btn-sm btn-outline-secondary m-1" title="Website">
+                                    <i class="fas fa-globe"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Testimonials Section -->
+    {% if testimonials %}
+    <div class="container-fluid bg-light py-5 mb-5">
+        <div class="container px-4">
+            <h2 class="text-center fw-bold mb-5" data-aos="fade-up">What Members Say</h2>
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for testimonial in testimonials %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <div class="card glass-card border-0 p-4 p-lg-5 text-center">
+                                    <div class="mb-3">
+                                        {% if testimonial.student_image %}
+                                            <img src="{{ testimonial.student_image.url }}" class="rounded-circle" alt="{{ testimonial.student_name }}" 
+                                                 style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #667eea;">
+                                        {% else %}
+                                            <div class="bg-gradient-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                                 style="width: 80px; height: 80px;">
+                                                <i class="fas fa-user-graduate fa-3x"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <p class="lead mb-3">"{{ testimonial.content }}"</p>
+                                    <div class="mb-2">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= testimonial.rating %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-warning"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <h5 class="fw-bold mb-0">{{ testimonial.student_name }}</h5>
+                                    {% if testimonial.student_level %}
+                                        <small class="text-muted">{{ testimonial.student_level }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon bg-primary rounded-circle p-3" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon bg-primary rounded-circle p-3" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Partners Section -->
+    {% if partners %}
+    <div class="container mb-5 px-4">
+        <h2 class="text-center fw-bold mb-5" data-aos="fade-up">Our Partners</h2>
+        <div class="row align-items-center justify-content-center g-4">
+            {% for partner in partners %}
+            <div class="col-lg-2 col-md-3 col-4" data-aos="zoom-in">
+                <a href="{{ partner.website }}" target="_blank" class="text-decoration-none">
+                    {% if partner.logo %}
+                        <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" class="img-fluid grayscale-hover" style="max-height: 60px; width: auto;">
+                    {% else %}
+                        <div class="card glass-card p-3 text-center">
+                            <h6 class="mb-0">{{ partner.name }}</h6>
+                        </div>
+                    {% endif %}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- FAQ Preview Section -->
+    {% if faqs %}
+    <div class="container-fluid bg-light py-5">
+        <div class="container px-4">
+            <h2 class="text-center fw-bold mb-5" data-aos="fade-up">Frequently Asked Questions</h2>
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="accordion" id="faqAccordion">
+                        {% for faq in faqs %}
+                        <div class="accordion-item glass-card mb-3 border-0" data-aos="fade-up">
+                            <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                                <button class="accordion-button collapsed bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false">
+                                    {{ faq.question }}
+                                </button>
+                            </h2>
+                            <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    {{ faq.answer|safe }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="{% url 'core:faq' %}" class="btn btn-primary">
+                            <i class="fas fa-question-circle me-2"></i>View All FAQs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+[data-bs-theme="dark"] .glass-card {
+    background: rgba(30, 30, 47, 0.7);
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+.icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-card {
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: scale(1.05);
+}
+
+.timeline {
+    border-left: 3px solid #667eea;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -9px;
+    top: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+.timeline-content {
+    padding-bottom: 20px;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.grayscale-hover {
+    filter: grayscale(100%);
+    transition: filter 0.3s ease;
+}
+
+.grayscale-hover:hover {
+    filter: grayscale(0%);
+}
+
+.accordion-button:not(.collapsed) {
+    color: inherit;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: transparent;
+}
+
+.hero-section svg {
+    pointer-events: none;
+}
+
+.social-links .btn {
+    width: 35px;
+    height: 35px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.social-links .btn:hover {
+    transform: translateY(-3px);
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 300px !important;
+    }
+    
+    .hero-section h1 {
+        font-size: 2.5rem;
+    }
+    
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .icon-circle i {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-card i {
+        font-size: 2rem;
+    }
+    
+    .stat-card h3 {
+        font-size: 1.5rem;
+    }
+}
+</style>
+
+<!-- AOS Animation -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init({
+        duration: 800,
+        once: true,
+        disable: window.innerWidth < 768 // Disable on mobile for better performance
+    });
+</script>
+{% endblock %}

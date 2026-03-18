@@ -1,0 +1,409 @@
+<!-- templates/messaging/sent.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sent Messages - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-paper-plane me-2"></i>Sent Messages
+        </h1>
+        <div>
+            <span class="badge bg-primary me-2">
+                <i class="fas fa-envelope me-1"></i>Total: {{ messages.paginator.count }}
+            </span>
+            <a href="{% url 'messaging:compose' %}" class="btn btn-sm btn-primary shadow-sm">
+                <i class="fas fa-pen me-1"></i>Compose New
+            </a>
+        </div>
+    </div>
+
+    <!-- Message Tabs -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'messaging:inbox' %}">
+                        <i class="fas fa-inbox me-1"></i>Inbox
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'messaging:sent' %}">
+                        <i class="fas fa-paper-plane me-1"></i>Sent
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'messaging:drafts' %}">
+                        <i class="fas fa-save me-1"></i>Drafts
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'messaging:archived' %}">
+                        <i class="fas fa-archive me-1"></i>Archived
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="card-body border-bottom">
+            <form method="GET" action="{% url 'messaging:sent' %}" id="filterForm">
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" name="q" class="form-control" 
+                                   placeholder="Search sent messages..." value="{{ request.GET.q|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select name="recipient" class="form-select">
+                            <option value="">All Recipients</option>
+                            {% for user in recent_recipients %}
+                                <option value="{{ user.id }}" {% if request.GET.recipient == user.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ user.get_full_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select name="date" class="form-select">
+                            <option value="">Any Date</option>
+                            <option value="today" {% if request.GET.date == 'today' %}selected{% endif %}>Today</option>
+                            <option value="week" {% if request.GET.date == 'week' %}selected{% endif %}>This Week</option>
+                            <option value="month" {% if request.GET.date == 'month' %}selected{% endif %}>This Month</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i>Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Messages List -->
+        <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+                {% for message in messages %}
+                <div class="list-group-item sent-message-item" data-message-id="{{ message.id }}">
+                    <div class="row align-items-center">
+                        <!-- Status Icon -->
+                        <div class="col-auto">
+                            {% if message.read_at %}
+                                <span class="text-success" title="Read at {{ message.read_at|date:'M d, Y H:i' }}">
+                                    <i class="fas fa-check-double"></i>
+                                </span>
+                            {% else %}
+                                <span class="text-secondary" title="Delivered">
+                                    <i class="fas fa-check"></i>
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Recipient -->
+                        <div class="col-md-2">
+                            <div class="d-flex align-items-center">
+                                {% if message.recipient.profile_image %}
+                                    <img src="{{ message.recipient.profile_image.url }}" 
+                                         class="rounded-circle me-2" width="32" height="32">
+                                {% else %}
+                                    <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                         style="width:32px;height:32px;">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <strong>{{ message.recipient.get_full_name|default:message.recipient.username }}</strong>
+                                    <small class="text-muted d-block">{{ message.recipient.user_type|title }}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Message Preview -->
+                        <div class="col-md-6">
+                            <a href="{% url 'messaging:detail' message.id %}" class="text-decoration-none text-dark">
+                                <div>
+                                    <strong>{{ message.subject }}</strong>
+                                    <small class="text-muted d-block">
+                                        {{ message.body|truncatechars:80 }}
+                                    </small>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Attachments -->
+                        <div class="col-auto">
+                            {% if message.attachments.count > 0 %}
+                                <span class="badge bg-info" title="Has attachments">
+                                    <i class="fas fa-paperclip me-1"></i>{{ message.attachments.count }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Date -->
+                        <div class="col-auto">
+                            <small class="text-muted" title="{{ message.sent_at|date:'F d, Y H:i' }}">
+                                {{ message.sent_at|timesince }} ago
+                            </small>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="col-auto">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-link" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'messaging:detail' message.id %}">
+                                            <i class="fas fa-eye me-2"></i>View
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'messaging:forward' message.id %}">
+                                            <i class="fas fa-share me-2"></i>Forward
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" onclick="resendMessage({{ message.id }})">
+                                            <i class="fas fa-redo me-2"></i>Resend
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="#" onclick="deleteMessage({{ message.id }})">
+                                            <i class="fas fa-trash me-2"></i>Delete
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Status (if available) -->
+                    {% if message.delivery_status %}
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Status: 
+                                {% if message.read_at %}
+                                    <span class="text-success">Read {{ message.read_at|timesince }} ago</span>
+                                {% elif message.delivered_at %}
+                                    <span class="text-info">Delivered {{ message.delivered_at|timesince }} ago</span>
+                                {% else %}
+                                    <span class="text-warning">Pending</span>
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div class="list-group-item text-center py-5">
+                    <i class="fas fa-paper-plane fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Sent Messages</h5>
+                    <p class="text-muted mb-3">You haven't sent any messages yet.</p>
+                    <a href="{% url 'messaging:compose' %}" class="btn btn-primary">
+                        <i class="fas fa-pen me-2"></i>Compose First Message
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        {% if messages %}
+        <div class="card-footer">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <input type="checkbox" class="form-check-input" id="selectAll">
+                </div>
+                <div class="col-auto">
+                    <label class="form-check-label" for="selectAll">Select All</label>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteSelected()">
+                        <i class="fas fa-trash me-1"></i>Delete Selected
+                    </button>
+                </div>
+                <div class="col-auto ms-auto">
+                    <span class="text-muted" id="selectedCount">0 selected</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if messages.has_other_pages %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Messages pagination">
+                <ul class="pagination justify-content-center">
+                    {% if messages.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ messages.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                        </li>
+                    {% endif %}
+
+                    {% for i in messages.paginator.page_range %}
+                        {% if messages.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% elif i > messages.number|add:'-3' and i < messages.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if messages.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ messages.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Resend Confirmation Modal -->
+<div class="modal fade" id="resendModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-redo me-2"></i>Resend Message
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to resend this message?</p>
+                <p class="small text-muted mb-0">
+                    <i class="fas fa-info-circle me-1"></i>
+                    The message will be sent again to the same recipient.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmResendBtn" class="btn btn-primary">Resend</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.sent-message-item {
+    transition: background-color 0.2s ease;
+    border-left: 3px solid transparent;
+}
+.sent-message-item:hover {
+    background-color: #f8f9fc;
+}
+.sent-message-item .fa-check {
+    font-size: 1.1rem;
+}
+.sent-message-item .fa-check-double {
+    font-size: 1.1rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.message-checkbox');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            document.querySelectorAll('.message-checkbox').forEach(cb => {
+                cb.checked = this.checked;
+            });
+            updateSelectedCount();
+        });
+    }
+    
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateSelectedCount);
+    });
+});
+
+function updateSelectedCount() {
+    const checked = Array.from(document.querySelectorAll('.message-checkbox:checked')).length;
+    if (selectedCount) {
+        selectedCount.textContent = checked + ' message(s) selected';
+    }
+}
+
+function deleteMessage(messageId) {
+    if (confirm('Are you sure you want to delete this message?')) {
+        fetch(`/messaging/${messageId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function deleteSelected() {
+    const selected = Array.from(document.querySelectorAll('.message-checkbox:checked'))
+        .map(cb => cb.value);
+    
+    if (selected.length === 0) {
+        alert('Please select messages to delete.');
+        return;
+    }
+    
+    if (confirm(`Are you sure you want to delete ${selected.length} message(s)?`)) {
+        fetch('{% url "messaging:bulk_delete" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message_ids: selected })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function resendMessage(messageId) {
+    const modal = new bootstrap.Modal(document.getElementById('resendModal'));
+    document.getElementById('confirmResendBtn').href = `/messaging/${messageId}/resend/`;
+    modal.show();
+}
+</script>
+{% endblock %}

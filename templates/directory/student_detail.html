@@ -1,0 +1,479 @@
+<!-- templates/directory/student_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load core_tags %}
+
+{% block title %}{{ student.get_full_name }} - Student Profile - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-user-graduate me-2"></i>Student Profile
+        </h1>
+        <div>
+            <a href="{% url 'directory:student_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to Directory
+            </a>
+            <button class="btn btn-primary btn-sm" onclick="sendMessage({{ student.id }})">
+                <i class="fas fa-envelope me-1"></i>Send Message
+            </button>
+        </div>
+    </div>
+
+    <!-- Profile Overview -->
+    <div class="row">
+        <!-- Profile Card -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body text-center">
+                    <!-- Profile Image -->
+                    <div class="mb-4">
+                        {% if student.profile_image %}
+                            <img src="{{ student.profile_image.url }}" class="rounded-circle img-thumbnail" 
+                                 width="150" height="150" style="object-fit: cover;">
+                        {% else %}
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" 
+                                 style="width: 150px; height: 150px; font-size: 3rem;">
+                                {{ student.first_name|first|upper }}{{ student.last_name|first|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <h4 class="mb-1">{{ student.get_full_name }}</h4>
+                    <p class="text-primary mb-2">
+                        <i class="fas fa-id-card me-1"></i>{{ student.student_id }}
+                    </p>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-info p-2">
+                            <i class="fas fa-layer-group me-1"></i>Level {{ student.level }}
+                        </span>
+                        <span class="badge bg-success p-2">
+                            <i class="fas fa-clock me-1"></i>{{ student.get_program_type_display }}
+                        </span>
+                    </div>
+                    
+                    <!-- Status -->
+                    <div class="mb-3">
+                        {% if student.is_active %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-check-circle me-1"></i>Active
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger">
+                                <i class="fas fa-times-circle me-1"></i>Inactive
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Contact Info -->
+                    <div class="text-start mt-4">
+                        <h6 class="fw-bold">Contact Information</h6>
+                        <hr>
+                        <p class="mb-2">
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <a href="mailto:{{ student.email }}">{{ student.email }}</a>
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            {{ student.phone_number|default:"Not provided" }}
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                            {{ student.address|default:"Not provided" }}
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-birthday-cake text-info me-2"></i>
+                            {{ student.date_of_birth|date:"F d, Y"|default:"Not provided" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details and Statistics -->
+        <div class="col-xl-8">
+            <!-- Academic Information -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-graduation-cap me-1"></i>Academic Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Program Type:</th>
+                                    <td>{{ student.get_program_type_display|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Current Level:</th>
+                                    <td>
+                                        {% if student.level %}
+                                            Level {{ student.level }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Year of Admission:</th>
+                                    <td>{{ student.year_of_admission|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Student Status:</th>
+                                    <td>
+                                        <span class="badge bg-success">Regular</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Department:</th>
+                                    <td>B-Tech Medical Laboratory Science</td>
+                                </tr>
+                                <tr>
+                                    <th>Faculty:</th>
+                                    <td>Allied Health and Pharmaceutical Science</td>
+                                </tr>
+                                <tr>
+                                    <th>Current Semester:</th>
+                                    <td>{{ current_academic.current_semester|default:"First" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Academic Year:</th>
+                                    <td>{{ current_academic.academic_year|default:"2024/2025" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row">
+                <!-- Registered Courses -->
+                <div class="col-md-4 mb-4">
+                    <div class="card bg-primary text-white shadow h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <div class="h5 mb-0">{{ stats.registered_courses|default:"0" }}</div>
+                                    <div class="small">Registered Courses</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-book-open fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-0">
+                            <a href="{% url 'courses:course_d
+                            list' student.id %}" class="text-white text-decoration-none small">
+                                View Courses <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Payments -->
+                <div class="col-md-4 mb-4">
+                    <div class="card bg-success text-white shadow h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <div class="h5 mb-0">GHS {{ stats.total_paid|floatformat:2|default:"0.00" }}</div>
+                                    <div class="small">Total Paid</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-credit-card fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-0">
+                            <a href="{% url 'payments:student_payment' student.id %}" class="text-white text-decoration-none small">
+                                Payment History <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Events Attended -->
+                <div class="col-md-4 mb-4">
+                    <div class="card bg-info text-white shadow h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <div class="h5 mb-0">{{ stats.events_attended|default:"0" }}</div>
+                                    <div class="small">Events Attended</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar-check fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-0">
+                            <a href="{% url 'events:student_events' student.id %}" class="text-white text-decoration-none small">
+                                View Events <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Courses -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-book-open me-1"></i>Current Courses ({{ current_courses|length }})
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for registration in current_courses %}
+                        <div class="list-group-item">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="badge bg-primary">{{ registration.course.code }}</span>
+                                </div>
+                                <div class="col">
+                                    <h6 class="mb-1">{{ registration.course.title }}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>{{ registration.course.credit_hours }} Credits |
+                                        <i class="fas fa-calendar me-1"></i>{{ registration.course.get_semester_display }}
+                                    </small>
+                                </div>
+                                <div class="col-auto">
+                                    <a href="{% url 'courses:course_detail' registration.course.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center py-3">
+                            <p class="text-muted mb-0">No courses registered for current semester.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Events -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-calendar-alt me-1"></i>Recent Events Attended
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for attendance in recent_events %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ attendance.event.title }}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>{{ attendance.event.start_date|date:"M d, Y" }} |
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ attendance.event.venue }}
+                                    </small>
+                                </div>
+                                <div>
+                                    {% if attendance.attended %}
+                                        <span class="badge bg-success">Attended</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Registered</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center py-3">
+                            <p class="text-muted mb-0">No events attended yet.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Executive Role (if applicable) -->
+            {% if executive_profile %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        <i class="fas fa-user-tie me-1"></i>Executive Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Position:</th>
+                                    <td><span class="badge bg-warning p-2">{{ executive_profile.get_position_display }}</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Executive Level:</th>
+                                    <td>{{ executive_profile.get_executive_level_display }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Tenure Start:</th>
+                                    <td>{{ executive_profile.tenure_start_date|date:"M d, Y" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Tenure End:</th>
+                                    <td>{{ executive_profile.tenure_end_date|date:"M d, Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Status:</th>
+                                    <td>
+                                        <span class="badge bg-{% if executive_profile.tenure_status == 'active' %}success{% else %}secondary{% endif %}">
+                                            {{ executive_profile.get_tenure_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Remaining Days:</th>
+                                    <td>{{ executive_profile.remaining_tenure_days }} days</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    {% if executive_profile.manifesto %}
+                    <div class="mt-3">
+                        <h6 class="fw-bold">Manifesto</h6>
+                        <p class="small">{{ executive_profile.manifesto }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if executive_profile.achievements %}
+                    <div class="mt-3">
+                        <h6 class="fw-bold">Achievements</h6>
+                        <p class="small">{{ executive_profile.achievements }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Recent Activity -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-history me-1"></i>Recent Activity
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for activity in recent_activity %}
+                        <div class="list-group-item">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <div class="activity-icon bg-{{ activity.action_type|activity_color }} text-white rounded-circle p-2">
+                                        <i class="fas fa-{{ activity.action_type|activity_icon }}"></i>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ activity.get_action_type_display }}</h6>
+                                        <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                                    </div>
+                                    <p class="mb-1 small">{{ activity.details|default:"" }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ activity.ip_address }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center py-4">
+                            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No recent activity</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Send Message Modal -->
+<div class="modal fade" id="messageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-envelope me-2"></i>Send Message to {{ student.get_full_name }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'messaging:compose' %}">
+                {% csrf_token %}
+                <input type="hidden" name="recipient" value="{{ student.id }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Subject</label>
+                        <input type="text" name="subject" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Message</label>
+                        <textarea name="body" class="form-control" rows="5" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i>Send
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+</style>
+
+<script>
+function sendMessage(studentId) {
+    new bootstrap.Modal(document.getElementById('messageModal')).show();
+}
+
+// Load more activities (optional)
+let activityPage = 1;
+function loadMoreActivities() {
+    activityPage++;
+    fetch(`/directory/api/student/{{ student.id }}/activities/?page=${activityPage}`)
+        .then(response => response.json())
+        .then(data => {
+            // Append more activities
+            console.log(data);
+        });
+}
+</script>
+{% endblock %}

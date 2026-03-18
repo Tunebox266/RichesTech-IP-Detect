@@ -1,0 +1,241 @@
+<!-- templates/payments/payment_receipt.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Receipt - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-receipt me-2"></i>Payment Receipt
+        </h1>
+        <div>
+            <button class="btn btn-primary btn-sm" onclick="window.print()">
+                <i class="fas fa-print me-1"></i>Print Receipt
+            </button>
+            <a href="{% url 'payments:payment_history' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to History
+            </a>
+        </div>
+    </div>
+
+    <!-- Receipt Card -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4" id="receiptCard">
+                <!-- Receipt Header -->
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h4 class="mb-0">
+                        <i class="fas fa-university me-2"></i>MELTSA-TaTU
+                    </h4>
+                    <small>Payment Receipt</small>
+                </div>
+                
+                <div class="card-body p-4">
+                    <!-- Receipt Number and Date -->
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <h6 class="text-muted mb-1">Receipt No:</h6>
+                            <p class="fw-bold">{{ payment.reference }}</p>
+                        </div>
+                        <div class="col-6 text-end">
+                            <h6 class="text-muted mb-1">Date:</h6>
+                            <p class="fw-bold">{{ payment.created_at|date:"F d, Y H:i" }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Student Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-muted mb-3">Student Information</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td width="40%">Name:</td>
+                                            <td class="fw-bold">{{ payment.student.get_full_name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Student ID:</td>
+                                            <td class="fw-bold">{{ payment.student.student_id }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Level:</td>
+                                            <td>Level {{ payment.student.level }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td width="40%">Program:</td>
+                                            <td>{{ payment.student.get_program_type_display }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Email:</td>
+                                            <td>{{ payment.student.email }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Phone:</td>
+                                            <td>{{ payment.student.phone_number|default:"-" }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Details -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-muted mb-3">Payment Details</h6>
+                            <table class="table table-bordered">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <strong>{{ payment.due.title }}</strong><br>
+                                            <small class="text-muted">{{ payment.due.description|truncatechars:100 }}</small>
+                                        </td>
+                                        <td class="fw-bold text-primary">GHS {{ payment.amount|floatformat:2 }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if payment.status == 'success' %}success{% elif payment.status == 'pending' %}warning{% else %}danger{% endif %} p-2">
+                                                {{ payment.get_status_display }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot class="bg-light">
+                                    <tr>
+                                        <th colspan="2" class="text-end">Total Amount:</th>
+                                        <th class="text-primary">GHS {{ payment.amount|floatformat:2 }}</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Payment Transaction Details -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-muted mb-3">Transaction Details</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td>Transaction Reference:</td>
+                                            <td class="fw-bold">{{ payment.paystack_reference|default:payment.reference }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Payment Method:</td>
+                                            <td>Paystack (Card/Mobile Money)</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td>Payment Date:</td>
+                                            <td>{{ payment.paid_at|default:payment.created_at|date:"F d, Y H:i:s" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Academic Year:</td>
+                                            <td>{{ payment.due.academic_setting.academic_year }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Official Stamp -->
+                    <div class="row mt-5">
+                        <div class="col-6">
+                            <div class="text-center border-top pt-2">
+                                <small class="text-muted">Student Signature</small>
+                                <p class="mt-2">_________________________</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center border-top pt-2">
+                                <small class="text-muted">Authorized Signature</small>
+                                <p class="mt-2">_________________________</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Note -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="alert alert-light text-center small mb-0">
+                                <i class="fas fa-info-circle me-1"></i>
+                                This is a computer-generated receipt. No signature is required for validation.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mt-4">
+                <button class="btn btn-success" onclick="downloadReceipt()">
+                    <i class="fas fa-download me-1"></i>Download PDF
+                </button>
+                <a href="mailto:?subject=Payment Receipt&body=Please find attached payment receipt." class="btn btn-info">
+                    <i class="fas fa-envelope me-1"></i>Email Receipt
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style media="print">
+    @page {
+        size: A4;
+        margin: 1cm;
+    }
+    body * {
+        visibility: hidden;
+    }
+    #receiptCard, #receiptCard * {
+        visibility: visible;
+    }
+    #receiptCard {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        box-shadow: none !important;
+    }
+    .btn, .no-print {
+        display: none !important;
+    }
+    .card {
+        border: 1px solid #ddd !important;
+    }
+</style>
+
+<script>
+function downloadReceipt() {
+    // You can implement PDF download here using jsPDF or similar library
+    alert('PDF download feature coming soon!');
+}
+
+// Auto-print dialog when page loads (optional)
+// window.onload = function() {
+//     if (window.location.search.includes('print=true')) {
+//         window.print();
+//     }
+// };
+</script>
+{% endblock %}

@@ -1,0 +1,296 @@
+<!-- templates/accounts/executive/task_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Task - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-tasks me-2"></i>{{ action }} Task
+        </h1>
+        <a href="{% url 'accounts:executive_task_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Tasks
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Task Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-edit me-1"></i>Task Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="taskForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Title -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-heading me-1"></i>Task Title <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                Clear, concise title for the task
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-align-left me-1"></i>Description
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                Detailed description of what needs to be done
+                            </div>
+                        </div>
+
+                        <!-- Assigned To and Priority -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-user me-1"></i>Assigned To <span class="text-danger">*</span>
+                                </label>
+                                {{ form.assigned_to }}
+                                {% if form.assigned_to.errors %}
+                                    <div class="text-danger small mt-1">{{ form.assigned_to.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-flag me-1"></i>Priority <span class="text-danger">*</span>
+                                </label>
+                                {{ form.priority }}
+                                {% if form.priority.errors %}
+                                    <div class="text-danger small mt-1">{{ form.priority.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Due Date and Related Meeting -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-calendar me-1"></i>Due Date <span class="text-danger">*</span>
+                                </label>
+                                {{ form.due_date }}
+                                {% if form.due_date.errors %}
+                                    <div class="text-danger small mt-1">{{ form.due_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-users-cog me-1"></i>Related Meeting
+                                </label>
+                                {{ form.related_to_meeting }}
+                                {% if form.related_to_meeting.errors %}
+                                    <div class="text-danger small mt-1">{{ form.related_to_meeting.errors }}</div>
+                                {% endif %}
+                                <div class="form-text text-muted">
+                                    Optional: Link this task to a meeting
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Attachments -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-paperclip me-1"></i>Attachments
+                            </label>
+                            {% if action == 'Edit' and task.attachments %}
+                                <div class="current-file mb-2 p-2 bg-light rounded">
+                                    <i class="fas fa-file me-2"></i>
+                                    <a href="{{ task.attachments.url }}" target="_blank">Current Attachment</a>
+                                </div>
+                            {% endif %}
+                            <input type="file" name="attachments" class="form-control" id="attachments">
+                            <div id="attachmentPreview" class="mt-2"></div>
+                            <div class="form-text text-muted">
+                                Upload relevant documents (PDF, DOC, Images) - Max 10MB
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <hr>
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'accounts:executive_task_list' %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>{{ action }} Task
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Task Tips -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-lightbulb me-1"></i>Task Tips
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Be specific about what needs to be done
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Set realistic due dates
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Assign to the right person
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Link to relevant meetings
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Add supporting documents
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Priority Guide -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-flag me-1"></i>Priority Guide
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="badge bg-danger p-2 w-100 mb-2">High Priority</span>
+                        <p class="small text-muted">Urgent tasks that need immediate attention. Complete within 24-48 hours.</p>
+                    </div>
+                    <div class="mb-3">
+                        <span class="badge bg-warning p-2 w-100 mb-2">Medium Priority</span>
+                        <p class="small text-muted">Important tasks that should be completed within the week.</p>
+                    </div>
+                    <div>
+                        <span class="badge bg-info p-2 w-100 mb-2">Low Priority</span>
+                        <p class="small text-muted">Tasks that can be scheduled flexibly. Complete when time permits.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+#id_due_date {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #2c3e50;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #d1d3e2;
+    border-radius: 0.35rem;
+}
+
+#id_description {
+    min-height: 120px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dueDateInput = document.getElementById('id_due_date');
+    const today = new Date().toISOString().split('T')[0];
+    dueDateInput.setAttribute('min', today);
+
+    // Attachment preview
+    const attachments = document.getElementById('attachments');
+    const preview = document.getElementById('attachmentPreview');
+
+    attachments.addEventListener('change', function(e) {
+        preview.innerHTML = '';
+        Array.from(this.files).forEach((file, index) => {
+            const div = document.createElement('div');
+            div.className = 'alert alert-info py-2 mb-1';
+            div.innerHTML = `
+                <i class="fas fa-file me-2"></i>
+                ${file.name} (${(file.size / 1024).toFixed(2)} KB)
+                <button type="button" class="btn-close float-end" onclick="removeAttachment(${index})"></button>
+            `;
+            preview.appendChild(div);
+        });
+    });
+
+    // Form validation
+    document.getElementById('taskForm').addEventListener('submit', function(e) {
+        const title = document.getElementById('id_title').value.trim();
+        const assignedTo = document.getElementById('id_assigned_to').value;
+        const dueDate = document.getElementById('id_due_date').value;
+
+        if (!title) {
+            e.preventDefault();
+            alert('Please enter a task title.');
+            return;
+        }
+
+        if (!assignedTo) {
+            e.preventDefault();
+            alert('Please assign this task to someone.');
+            return;
+        }
+
+        if (!dueDate) {
+            e.preventDefault();
+            alert('Please set a due date.');
+            return;
+        }
+    });
+});
+
+function removeAttachment(index) {
+    const input = document.getElementById('attachments');
+    const dt = new DataTransfer();
+    
+    Array.from(input.files).forEach((file, i) => {
+        if (i !== index) {
+            dt.items.add(file);
+        }
+    });
+    
+    input.files = dt.files;
+    
+    // Refresh preview
+    const event = new Event('change', { bubbles: true });
+    input.dispatchEvent(event);
+}
+</script>
+{% endblock %}

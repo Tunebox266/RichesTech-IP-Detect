@@ -1,0 +1,255 @@
+<!-- templates/events/event_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load course_filters %}
+
+{% block title %}Events - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-calendar-alt me-2"></i>Events
+        </h1>
+        <div>
+            <span class="badge bg-info me-2">
+                <i class="fas fa-calendar-check me-1"></i>{{ events.paginator.count }} Events
+            </span>
+            {% if request.user.user_type in 'staff,admin,executive' %}
+                <a href="{% url 'events:event_create' %}" class="btn btn-sm btn-primary shadow-sm">
+                    <i class="fas fa-plus fa-sm me-1"></i>Create Event
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {% if filter_type == 'upcoming' %}active{% endif %}" 
+                       href="?filter=upcoming">
+                        <i class="fas fa-clock me-1"></i>Upcoming
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if filter_type == 'past' %}active{% endif %}" 
+                       href="?filter=past">
+                        <i class="fas fa-history me-1"></i>Past
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if filter_type == 'all' %}active{% endif %}" 
+                       href="?filter=all">
+                        <i class="fas fa-list me-1"></i>All Events
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{% url 'events:event_list' %}" id="filterForm">
+                <input type="hidden" name="filter" value="{{ filter_type }}">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Search</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" name="search" class="form-control" 
+                                   placeholder="Search events..." value="{{ request.GET.search|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">Event Type</label>
+                        <select name="type" class="form-select">
+                            <option value="">All Types</option>
+                            {% for type_code, type_name in event_types %}
+                                <option value="{{ type_code }}" {% if request.GET.type == type_code %}selected{% endif %}>
+                                    {{ type_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">Date</label>
+                        <select name="date" class="form-select">
+                            <option value="">Any Date</option>
+                            <option value="today" {% if request.GET.date == 'today' %}selected{% endif %}>Today</option>
+                            <option value="tomorrow" {% if request.GET.date == 'tomorrow' %}selected{% endif %}>Tomorrow</option>
+                            <option value="week" {% if request.GET.date == 'week' %}selected{% endif %}>This Week</option>
+                            <option value="month" {% if request.GET.date == 'month' %}selected{% endif %}>This Month</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label fw-bold">Venue</label>
+                        <input type="text" name="venue" class="form-control" 
+                               placeholder="Venue..." value="{{ request.GET.venue|default:'' }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i>Apply Filters
+                        </button>
+                        <a href="{% url 'events:event_list' %}?filter={{ filter_type }}" class="btn btn-secondary">
+                            <i class="fas fa-redo me-1"></i>Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Events Grid -->
+    <div class="row">
+        {% for event in events %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow h-100 event-card">
+                {% if event.poster %}
+                    <img src="{{ event.poster.url }}" class="card-img-top" alt="{{ event.title }}" style="height: 180px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                        <i class="fas fa-calendar-alt fa-4x text-muted"></i>
+                    </div>
+                {% endif %}
+                
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-{{ event.event_type|event_color }}">
+                            {{ event.get_event_type_display }}
+                        </span>
+                        <small class="text-muted">
+                            <i class="fas fa-users me-1"></i>{{ event.get_attendee_count }} / {% if event.max_attendees %}{{ event.max_attendees }}{% else %}∞{% endif %}
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <h5 class="card-title mb-2">{{ event.title }}</h5>
+                    
+                    <div class="event-details small">
+                        <p class="mb-2">
+                            <i class="fas fa-calendar me-2 text-primary"></i>
+                            {{ event.start_date|date:"l, M d, Y" }}
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-clock me-2 text-success"></i>
+                            {{ event.start_date|date:"h:i A" }} - {{ event.end_date|date:"h:i A" }}
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                            {{ event.venue }}
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-user me-2 text-info"></i>
+                            Organized by: {{ event.created_by.get_full_name }}
+                        </p>
+                    </div>
+                    
+                    <p class="card-text text-muted small mt-3">
+                        {{ event.description|truncatechars:100 }}
+                    </p>
+                </div>
+                
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% if event.id in registered_events %}
+                                <span class="badge bg-success me-2">
+                                    <i class="fas fa-check me-1"></i>Registered
+                                </span>
+                            {% endif %}
+                            {% if event.is_full %}
+                                <span class="badge bg-danger">Full</span>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'events:event_detail' event.id %}" class="btn btn-primary btn-sm">
+                            View Details <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Events Found</h5>
+                    <p class="text-muted mb-3">There are no events matching your criteria.</p>
+                    {% if request.user.user_type in 'staff,admin,executive' %}
+                        <a href="{% url 'events:event_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create First Event
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if events.has_other_pages %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Events pagination">
+                <ul class="pagination justify-content-center">
+                    {% if events.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ events.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                        </li>
+                    {% endif %}
+
+                    {% for i in events.paginator.page_range %}
+                        {% if events.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% elif i > events.number|add:'-3' and i < events.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if events.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ events.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.event-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+.card-img-top {
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+.event-details p {
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}

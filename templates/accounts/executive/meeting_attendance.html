@@ -1,0 +1,382 @@
+<!-- templates/accounts/executive/meeting_attendance.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load core_tags %}
+
+{% block title %}Meeting Attendance - {{ meeting.title }} - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-clipboard-list me-2"></i>Meeting Attendance: {{ meeting.title }}
+        </h1>
+        <div>
+            <a href="{% url 'accounts:executive_meeting_detail' meeting.id %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to Meeting
+            </a>
+            <button class="btn btn-success btn-sm" onclick="exportAttendance()">
+                <i class="fas fa-download me-1"></i>Export CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ total_participants }}</div>
+                            <div class="small">Total Participants</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ checked_in_count }}</div>
+                            <div class="small">Checked In</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ total_participants|add:checked_in_count }}</div>
+                            <div class="small">Not Checked In</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ attendance_rate|floatformat:1 }}%</div>
+                            <div class="small">Attendance Rate</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Check-in -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-qrcode me-1"></i>Quick Check-in
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <form method="POST" action="{% url 'accounts:executive_meeting_attendance' meeting.id %}" class="mb-3">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                            <select name="executive_id" class="form-select" required>
+                                <option value="">Select Executive</option>
+                                {% for participant in meeting.participants.all %}
+                                    {% if participant.id not in checked_in_ids %}
+                                        <option value="{{ participant.id }}">
+                                            {{ participant.user.get_full_name }} - {{ participant.get_position_display }}
+                                        </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-success">Check In</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Meeting Code:</strong> {{ meeting.meeting_code }}
+                        <button class="btn btn-sm btn-outline-primary ms-2" onclick="copyCode()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <ul class="nav nav-tabs card-header-tabs" id="attendanceTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="checked-tab" data-bs-toggle="tab" href="#checked" role="tab">
+                        <i class="fas fa-check-circle text-success me-1"></i>
+                        Checked In ({{ checked_in_count }})
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pending-tab" data-bs-toggle="tab" href="#pending" role="tab">
+                        <i class="fas fa-clock text-warning me-1"></i>
+                        Pending ({{ total_participants|add:checked_in_count }})
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="attendanceTabContent">
+                <!-- Checked In Tab -->
+                <div class="tab-pane fade show active" id="checked" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Position</th>
+                                    <th>Check-in Time</th>
+                                    <th>Method</th>
+                                    <th>IP Address</th>
+                                    <th>Device Info</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in attendance %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if record.executive.user.profile_image %}
+                                                <img src="{{ record.executive.user.profile_image.url }}" class="rounded-circle me-2" width="30" height="30">
+                                            {% else %}
+                                                <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
+                                                    <i class="fas fa-user text-white"></i>
+                                                </div>
+                                            {% endif %}
+                                            {{ record.executive.user.get_full_name }}
+                                        </div>
+                                    </td>
+                                    <td>{{ record.executive.get_position_display }}</td>
+                                    <td>{{ record.check_in_time|date:"M d, Y H:i:s" }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ record.check_in_method|method_color }}">
+                                            {{ record.get_check_in_method_display }}
+                                        </span>
+                                    </td>
+                                    <td><small class="text-muted">{{ record.ip_address|default:"-" }}</small></td>
+                                    <td><small class="text-muted">{{ record.device_info|truncatechars:30|default:"-" }}</small></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="fas fa-user-check fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted mb-0">No one has checked in yet</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pending Tab -->
+                <div class="tab-pane fade" id="pending" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Position</th>
+                                    <th>Email</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for participant in absent %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if participant.user.profile_image %}
+                                                <img src="{{ participant.user.profile_image.url }}" class="rounded-circle me-2" width="30" height="30">
+                                            {% else %}
+                                                <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
+                                                    <i class="fas fa-user text-white"></i>
+                                                </div>
+                                            {% endif %}
+                                            {{ participant.user.get_full_name }}
+                                        </div>
+                                    </td>
+                                    <td>{{ participant.get_position_display }}</td>
+                                    <td>{{ participant.user.email }}</td>
+                                    <td>
+                                        <form method="POST" action="{% url 'accounts:executive_meeting_attendance' meeting.id %}" style="display: inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="executive_id" value="{{ participant.id }}">
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <i class="fas fa-check me-1"></i>Check In
+                                            </button>
+                                        </form>
+                                        <button class="btn btn-sm btn-warning" onclick="remindParticipant({{ participant.id }})">
+                                            <i class="fas fa-bell me-1"></i>Remind
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                        <p class="text-muted mb-0">All participants have checked in!</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Display -->
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-qrcode me-1"></i>Check-in QR Code
+            </h6>
+        </div>
+        <div class="card-body text-center">
+            <div class="row">
+                <div class="col-md-6 offset-md-3">
+                    {% if meeting.qr_code %}
+                        <img src="{{ meeting.qr_code.url }}" alt="Meeting QR Code" class="img-fluid mb-3" style="max-width: 200px;">
+                    {% endif %}
+                    <h5>Meeting Code: <strong>{{ meeting.meeting_code }}</strong></h5>
+                    <p class="text-muted small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Share this QR code or code with participants for self check-in
+                    </p>
+                    <button class="btn btn-primary" onclick="downloadQR()">
+                        <i class="fas fa-download me-1"></i>Download QR Code
+                    </button>
+                    <button class="btn btn-secondary" onclick="printQR()">
+                        <i class="fas fa-print me-1"></i>Print QR Code
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reminder Modal -->
+<div class="modal fade" id="reminderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">
+                    <i class="fas fa-bell me-2"></i>Send Reminder
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Send a reminder to this participant?</p>
+                <div class="mb-3">
+                    <label class="form-label">Additional message (optional)</label>
+                    <textarea class="form-control" id="reminderMessage" rows="3" placeholder="Type your reminder message..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" onclick="sendReminder()">Send Reminder</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentParticipantId = null;
+
+function remindParticipant(participantId) {
+    currentParticipantId = participantId;
+    new bootstrap.Modal(document.getElementById('reminderModal')).show();
+}
+
+function sendReminder() {
+    const message = document.getElementById('reminderMessage').value;
+    
+    fetch(`/accounts/executive/meetings/{{ meeting.id }}/remind/${currentParticipantId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: message })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Reminder sent successfully!');
+            bootstrap.Modal.getInstance(document.getElementById('reminderModal')).hide();
+        } else {
+            alert(data.error || 'Failed to send reminder');
+        }
+    });
+}
+
+function exportAttendance() {
+    window.location.href = `/accounts/executive/meetings/{{ meeting.id }}/export-attendance/`;
+}
+
+function downloadQR() {
+    window.location.href = `/accounts/executive/meetings/{{ meeting.id }}/qr/download/`;
+}
+
+function printQR() {
+    const qrImage = '{{ meeting.qr_code.url }}';
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+            <head><title>Print QR Code</title></head>
+            <body style="text-align: center; padding: 50px;">
+                <img src="${qrImage}" style="max-width: 400px;">
+                <h3>Meeting: {{ meeting.title }}</h3>
+                <p>Code: {{ meeting.meeting_code }}</p>
+                <p>Date: {{ meeting.date|date:"M d, Y" }} at {{ meeting.start_time|time:"h:i A" }}</p>
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+function copyCode() {
+    navigator.clipboard.writeText('{{ meeting.meeting_code }}').then(() => {
+        alert('Meeting code copied to clipboard!');
+    });
+}
+
+// Auto-refresh attendance every 15 seconds
+setTimeout(function() {
+    location.reload();
+}, 15000);
+</script>
+{% endblock %}

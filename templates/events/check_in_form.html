@@ -1,0 +1,312 @@
+<!-- templates/events/check_in_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Event Check-In - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <!-- Page Heading -->
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <h1 class="h3 mb-0 text-gray-800">
+                    <i class="fas fa-qrcode me-2"></i>Event Check-In
+                </h1>
+                <a href="{% url 'events:my_events' %}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to My Events
+                </a>
+            </div>
+
+            <!-- QR Scanner Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <ul class="nav nav-pills card-header-pills" id="checkinTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="qr-tab" data-bs-toggle="tab" data-bs-target="#qr" type="button" role="tab">
+                                <i class="fas fa-qrcode me-1"></i>Scan QR Code
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="code-tab" data-bs-toggle="tab" data-bs-target="#code" type="button" role="tab">
+                                <i class="fas fa-keyboard me-1"></i>Enter Code
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="checkinTabsContent">
+                        <!-- QR Code Scanner Tab -->
+                        <div class="tab-pane fade show active" id="qr" role="tabpanel">
+                            <div class="text-center mb-4">
+                                <div id="qr-reader" style="width: 100%; max-width: 500px; margin: 0 auto;"></div>
+                            </div>
+                            
+                            <div id="qr-result" class="alert alert-info text-center" style="display: none;">
+                                <i class="fas fa-spinner fa-spin me-2"></i>Processing...
+                            </div>
+                            
+                            <div class="text-center mt-3">
+                                <button class="btn btn-primary" onclick="startScanner()">
+                                    <i class="fas fa-camera me-2"></i>Start Camera
+                                </button>
+                                <button class="btn btn-secondary" onclick="stopScanner()">
+                                    <i class="fas fa-stop me-2"></i>Stop Camera
+                                </button>
+                            </div>
+                            
+                            <div class="mt-3 small text-muted text-center">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Position the QR code in front of your camera to check in
+                            </div>
+                        </div>
+
+                        <!-- Manual Code Entry Tab -->
+                        <div class="tab-pane fade" id="code" role="tabpanel">
+                            <form method="POST" action="{% url 'events:session_check_in_code' %}" id="codeForm">
+                                {% csrf_token %}
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-key me-1"></i>Enter Session Code
+                                    </label>
+                                    <input type="text" name="code" class="form-control form-control-lg text-center" 
+                                           placeholder="e.g., ABC12345" maxlength="10" autocomplete="off" required>
+                                    <div class="form-text text-muted">
+                                        Enter the 8-character code provided at the event
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-check-circle me-2"></i>Check In
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Sessions Card -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-clock me-1"></i>Your Upcoming Sessions
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for session in upcoming_sessions %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ session.event.title }}</h6>
+                                    <small class="text-muted d-block">
+                                        <i class="fas fa-clock me-1"></i>{{ session.start_time|date:"M d, Y h:i A" }}
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ session.venue|default:session.event.venue }}
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-info mb-2">{{ session.name }}</span>
+                                    <button class="btn btn-sm btn-success d-block" onclick="quickCheckIn('{{ session.session_code }}')">
+                                        <i class="fas fa-qrcode me-1"></i>Quick Check-in
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No upcoming sessions</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>Check-in Successful!
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                <h5 id="successMessage">You have been checked in successfully!</h5>
+                <p class="text-muted mb-0" id="successDetails"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-circle me-2"></i>Check-in Failed
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-times-circle fa-4x text-danger mb-3"></i>
+                <h5 id="errorMessage">Unable to check in</h5>
+                <p class="text-muted mb-0" id="errorDetails"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Try Again</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include QR Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+
+<style>
+#qr-reader {
+    border: 2px dashed #4e73df;
+    border-radius: 10px;
+    padding: 10px;
+}
+#qr-reader__scan_region {
+    background: #f8f9fc;
+}
+#qr-reader__dashboard_section_csr button {
+    background: #4e73df !important;
+    color: white !important;
+    border: none !important;
+    padding: 5px 15px !important;
+    border-radius: 5px !important;
+    margin: 5px !important;
+}
+#qr-reader__dashboard_section_csr button:hover {
+    background: #224abe !important;
+}
+</style>
+
+<script>
+let html5QrcodeScanner = null;
+
+function startScanner() {
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear();
+    }
+    
+    html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader", 
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        /* verbose= */ false
+    );
+    
+    html5QrcodeScanner.render(onScanSuccess, onScanError);
+}
+
+function stopScanner() {
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear();
+        html5QrcodeScanner = null;
+    }
+}
+
+function onScanSuccess(decodedText, decodedResult) {
+    // Handle the scanned code
+    document.getElementById('qr-result').style.display = 'block';
+    document.getElementById('qr-result').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Verifying...';
+    
+    // Send to server
+    fetch('{% url "events:session_check_in_api" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ code: decodedText })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccess(data.message, data.session_name, data.check_in_time);
+            stopScanner();
+        } else {
+            showError(data.error);
+        }
+        document.getElementById('qr-result').style.display = 'none';
+    })
+    .catch(error => {
+        showError('Network error. Please try again.');
+        document.getElementById('qr-result').style.display = 'none';
+    });
+}
+
+function onScanError(errorMessage) {
+    // console.log(errorMessage);
+}
+
+function quickCheckIn(code) {
+    document.getElementById('code-tab').click();
+    document.querySelector('input[name="code"]').value = code;
+    document.getElementById('codeForm').submit();
+}
+
+function showSuccess(message, sessionName, checkInTime) {
+    document.getElementById('successMessage').textContent = message;
+    document.getElementById('successDetails').innerHTML = 
+        `<strong>${sessionName}</strong><br>Checked in at: ${checkInTime}`;
+    new bootstrap.Modal(document.getElementById('successModal')).show();
+}
+
+function showError(message) {
+    document.getElementById('errorMessage').textContent = message;
+    new bootstrap.Modal(document.getElementById('errorModal')).show();
+}
+
+// Form submission handler
+document.getElementById('codeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const code = document.querySelector('input[name="code"]').value;
+    
+    fetch('{% url "events:session_check_in_api" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ code: code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccess(data.message, data.session_name, data.check_in_time);
+            document.querySelector('input[name="code"]').value = '';
+        } else {
+            showError(data.error);
+        }
+    })
+    .catch(error => {
+        showError('Network error. Please try again.');
+    });
+});
+
+// Clean up scanner when leaving page
+window.addEventListener('beforeunload', function() {
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear();
+    }
+});
+</script>
+{% endblock %}

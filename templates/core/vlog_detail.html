@@ -1,0 +1,317 @@
+<!-- templates/core/vlog_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ vlog.title }} - MELTSA-TaTU Vlog{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Video Vlog -->
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow mb-4">
+                <!-- Video Player with Error Handling -->
+                <div class="ratio ratio-16x9 bg-dark position-relative" id="video-container">
+                    {% if vlog.youtube_url %}
+                        {# Extract YouTube ID #}
+                        {% with youtube_url=vlog.youtube_url %}
+                            {% if 'youtu.be/' in youtube_url %}
+                                {% with temp=vlog.youtube_url|cut:"https://youtu.be/" %}
+                                    {% if '?si=' in temp %}
+                                        {% with video_id=temp|slice:":11" %}
+                                            <iframe id="youtube-player"
+                                                    src="https://www.youtube-nocookie.com/embed/{{ video_id }}?rel=0&modestbranding=1&enablejsapi=1"
+                                                    title="{{ vlog.title }}"
+                                                    allowfullscreen
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                            </iframe>
+                                        {% endwith %}
+                                    {% else %}
+                                        {% with video_id=temp %}
+                                            <iframe id="youtube-player"
+                                                    src="https://www.youtube-nocookie.com/embed/{{ video_id }}?rel=0&modestbranding=1&enablejsapi=1"
+                                                    title="{{ vlog.title }}"
+                                                    allowfullscreen>
+                                            </iframe>
+                                        {% endwith %}
+                                    {% endif %}
+                                {% endwith %}
+                            {% elif 'youtube.com/watch' in youtube_url %}
+                                {% if 'v=' in youtube_url %}
+                                    {% with url_parts=youtube_url|cut:"https://www.youtube.com/watch?v=" %}
+                                        {% if '&' in url_parts %}
+                                            {% with video_id=url_parts|slice:":11" %}
+                                                <iframe id="youtube-player"
+                                                        src="https://www.youtube-nocookie.com/embed/{{ video_id }}?rel=0&modestbranding=1"
+                                                        title="{{ vlog.title }}"
+                                                        allowfullscreen>
+                                                </iframe>
+                                            {% endwith %}
+                                        {% else %}
+                                            {% with video_id=url_parts %}
+                                                <iframe id="youtube-player"
+                                                        src="https://www.youtube-nocookie.com/embed/{{ video_id }}?rel=0&modestbranding=1"
+                                                        title="{{ vlog.title }}"
+                                                        allowfullscreen>
+                                                </iframe>
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endif %}
+                            {% else %}
+                                {# Try direct embed #}
+                                <iframe src="{{ youtube_url }}"
+                                        title="{{ vlog.title }}"
+                                        allowfullscreen>
+                                </iframe>
+                            {% endif %}
+                        {% endwith %}
+                    {% else %}
+                        <div class="d-flex align-items-center justify-content-center h-100 bg-secondary">
+                            <p class="text-white">Video not available</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Error Overlay (initially hidden) -->
+                    <div id="video-error" class="position-absolute top-0 start-0 w-100 h-100 bg-dark text-white d-none align-items-center justify-content-center" style="z-index: 10;">
+                        <div class="text-center p-4">
+                            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                            <h5>Video cannot be played here</h5>
+                            <p class="mb-3">This video may have embedding restrictions.</p>
+                            <a href="{{ vlog.youtube_url }}" target="_blank" class="btn btn-primary">
+                                <i class="fab fa-youtube me-2"></i>Watch on YouTube
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Info -->
+                <div class="card-body">
+                    <h2 class="card-title">{{ vlog.title }}</h2>
+                    
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                        <div class="text-muted small">
+                            <i class="fas fa-user me-1"></i>{{ vlog.uploaded_by.get_full_name }} |
+                            <i class="fas fa-calendar me-1 ms-2"></i>{{ vlog.uploaded_at|date:"F d, Y" }} |
+                            <i class="fas fa-eye me-1 ms-2"></i>{{ vlog.views }} views
+                        </div>
+                        <div class="mt-2 mt-sm-0">
+                            <a href="{{ vlog.youtube_url }}" target="_blank" class="btn btn-sm btn-danger">
+                                <i class="fab fa-youtube me-1"></i>Watch on YouTube
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <h6 class="fw-bold mt-3">Description</h6>
+                    <p class="card-text">{{ vlog.description|linebreaks }}</p>
+                </div>
+
+                <!-- Actions -->
+                <div class="card-footer">
+                    <div class="d-flex flex-wrap justify-content-between">
+                        <div class="mb-2 mb-sm-0">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="shareVlog()">
+                                <i class="fas fa-share me-1"></i>Share
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm ms-1" onclick="copyVideoLink()">
+                                <i class="fas fa-link me-1"></i>Copy Link
+                            </button>
+                        </div>
+                        <div>
+                            <a href="{% url 'core:vlog_list' %}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left me-1"></i>Back to Vlogs
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Comments ({{ comments.count }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if request.user.is_authenticated %}
+                    <form method="POST" action="{% url 'core:vlog_add_comment' vlog.id %}" class="mb-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <textarea name="content" class="form-control" rows="2" placeholder="Add a comment..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>Comment
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Please <a href="{% url 'accounts:login' %}?next={{ request.path }}">login</a> to comment.
+                    </div>
+                    {% endif %}
+
+                    <!-- Comments List -->
+                    <div class="comments-section" style="max-height: 500px; overflow-y: auto;">
+                        {% for comment in comments %}
+                        <div class="d-flex mb-3 pb-3 border-bottom" id="comment-{{ comment.id }}">
+                            {% if comment.user.profile_image %}
+                            <img src="{{ comment.user.profile_image.url }}" class="rounded-circle me-2" width="40" height="40">
+                            {% else %}
+                            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width:40px;height:40px;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <div class="d-flex flex-wrap justify-content-between">
+                                    <h6 class="mb-1">{{ comment.user.get_full_name }}</h6>
+                                    <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+                                </div>
+                                <p class="mb-1">{{ comment.content }}</p>
+                                <div>
+                                    <small>
+                                        <a href="#" onclick="replyToComment({{ comment.id }})">Reply</a>
+                                        {% if request.user == comment.user %}
+                                        <span class="mx-2">|</span>
+                                        <a href="#" class="text-danger" onclick="deleteComment({{ comment.id }})">Delete</a>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center py-3">No comments yet. Be the first to comment!</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reply Modal -->
+<div class="modal fade" id="replyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-reply me-2"></i>Reply to Comment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'core:vlog_reply_comment' %}" id="replyForm">
+                {% csrf_token %}
+                <input type="hidden" name="comment_id" id="replyCommentId">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <textarea name="content" class="form-control" rows="3" placeholder="Write your reply..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Post Reply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.comments-section {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) var(--light-color);
+}
+
+.comments-section::-webkit-scrollbar {
+    width: 6px;
+}
+
+.comments-section::-webkit-scrollbar-track {
+    background: var(--light-color);
+}
+
+.comments-section::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
+}
+
+#video-container {
+    background: #000;
+    min-height: 300px;
+}
+</style>
+
+<script>
+// YouTube iframe API
+let player;
+
+function onYouTubeIframeAPIReady() {
+    // This function is called when the YouTube API is ready
+    console.log('YouTube API ready');
+}
+
+// Handle iframe errors
+document.getElementById('youtube-player')?.addEventListener('error', function() {
+    showVideoError();
+});
+
+// Error handling for iframe
+window.addEventListener('load', function() {
+    const player = document.getElementById('youtube-player');
+    if (player) {
+        // Try to detect if iframe loaded successfully
+        setTimeout(function() {
+            // Check if we can access iframe content (will throw error if cross-origin)
+            try {
+                const iframeDoc = player.contentDocument || player.contentWindow.document;
+                // If we can access, check if there's an error message
+                if (iframeDoc.body.innerText.includes('Error') || 
+                    iframeDoc.body.innerText.includes('Video unavailable')) {
+                    showVideoError();
+                }
+            } catch (e) {
+                // Cross-origin restriction - assume it's working
+                console.log('Cannot access iframe content due to cross-origin policy');
+            }
+        }, 3000);
+    }
+});
+
+function showVideoError() {
+    document.getElementById('video-error')?.classList.remove('d-none');
+    document.getElementById('youtube-player')?.classList.add('d-none');
+}
+
+function shareVlog() {
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ vlog.title }}',
+            text: 'Check out this video on MELTSA-TaTU',
+            url: window.location.href
+        });
+    } else {
+        copyVideoLink();
+    }
+}
+
+function copyVideoLink() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        alert('Link copied to clipboard!');
+    }, function() {
+        prompt('Copy this link:', window.location.href);
+    });
+}
+
+function replyToComment(commentId) {
+    document.getElementById('replyCommentId').value = commentId;
+    new bootstrap.Modal(document.getElementById('replyModal')).show();
+}
+
+function deleteComment(commentId) {
+    if (confirm('Delete this comment?')) {
+        // Add delete functionality here
+        alert('Delete feature coming soon!');
+    }
+}
+</script>
+
+<!-- Load YouTube IFrame API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+{% endblock %}

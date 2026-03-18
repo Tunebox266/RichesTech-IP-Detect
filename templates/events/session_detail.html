@@ -1,0 +1,352 @@
+<!-- templates/events/session_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load core_tags %}
+
+{% block title %}{{ session.name }} - Session Details - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-clock me-2"></i>{{ session.name }}
+        </h1>
+        <div>
+            <a href="{% url 'events:event_detail' session.event.id %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to Event
+            </a>
+            {% if request.user.user_type in 'admin,staff,executive' %}
+                <a href="{% url 'events:session_edit' session.id %}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit me-1"></i>Edit Session
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Session Info Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Session Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-calendar fa-2x text-primary mb-2"></i>
+                                <span class="d-block h6 mb-0">{{ session.start_time|date:"M d, Y" }}</span>
+                                <small class="text-muted">Date</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-clock fa-2x text-success mb-2"></i>
+                                <span class="d-block h6 mb-0">{{ session.start_time|date:"h:i A" }}</span>
+                                <small class="text-muted">Start</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-clock fa-2x text-danger mb-2"></i>
+                                <span class="d-block h6 mb-0">{{ session.end_time|date:"h:i A" }}</span>
+                                <small class="text-muted">End</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-tag fa-2x text-info mb-2"></i>
+                                <span class="d-block h6 mb-0">{{ session.get_session_type_display }}</span>
+                                <small class="text-muted">Type</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="fw-bold">Venue</h6>
+                        <p>{{ session.venue|default:session.event.venue }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="fw-bold">Status</h6>
+                        {% if session.is_active_now %}
+                            <span class="badge bg-success p-2">Active Now</span>
+                        {% elif session.start_time > now %}
+                            <span class="badge bg-info p-2">Upcoming</span>
+                        {% else %}
+                            <span class="badge bg-secondary p-2">Ended</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Part of event:</strong> 
+                        <a href="{% url 'events:event_detail' session.event.id %}" class="alert-link">{{ session.event.title }}</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Code Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-qrcode me-1"></i>Check-in QR Code
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="row">
+                        <div class="col-md-6">
+                            {% if session.qr_code %}
+                                <img src="{{ session.qr_code.url }}" alt="Session QR Code" class="img-fluid mb-3" style="max-width: 200px;">
+                            {% else %}
+                                <div class="bg-light p-4 rounded mb-3 d-inline-block">
+                                    <i class="fas fa-qrcode fa-5x text-muted"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <h5 class="mb-2">Session Code: <strong>{{ session.session_code }}</strong></h5>
+                            <p class="text-muted small">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Share this code with attendees for manual check-in
+                            </p>
+                            
+                            <button class="btn btn-primary" onclick="downloadQR()">
+                                <i class="fas fa-download me-1"></i>Download QR Code
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-light p-4 rounded">
+                                <h6 class="fw-bold mb-3">Quick Stats</h6>
+                                <div class="mb-2">
+                                    <span class="text-muted">Checked in:</span>
+                                    <span class="fw-bold float-end">{{ checked_in_count }}</span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="text-muted">Total registered:</span>
+                                    <span class="fw-bold float-end">{{ total_registered }}</span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="text-muted">Check-in rate:</span>
+                                    <span class="fw-bold float-end">{{ check_in_rate|floatformat:1 }}%</span>
+                                </div>
+                                <div class="progress mt-3" style="height: 10px;">
+                                    <div class="progress-bar bg-success" style="width: {{ check_in_rate }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance List -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-clipboard-list me-1"></i>Attendance Records ({{ checked_in_count }})
+                    </h6>
+                    <button class="btn btn-sm btn-success" onclick="exportAttendance()">
+                        <i class="fas fa-download me-1"></i>Export
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Student</th>
+                                    <th>ID</th>
+                                    <th>Level</th>
+                                    <th>Check-in Time</th>
+                                    <th>Method</th>
+                                    <th>IP Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in attendance %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if record.user.profile_image %}
+                                                <img src="{{ record.user.profile_image.url }}" class="rounded-circle me-2" width="30" height="30">
+                                            {% else %}
+                                                <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
+                                                    <i class="fas fa-user text-white"></i>
+                                                </div>
+                                            {% endif %}
+                                            {{ record.user.get_full_name }}
+                                        </div>
+                                    </td>
+                                    <td>{{ record.user.student_id }}</td>
+                                    <td>Level {{ record.user.level }}</td>
+                                    <td>{{ record.checked_in_at|date:"M d, Y H:i:s" }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ record.check_in_method|method_color }}">
+                                            {{ record.get_check_in_method_display }}
+                                        </span>
+                                    </td>
+                                    <td><small class="text-muted">{{ record.ip_address|default:"-" }}</small></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted mb-0">No attendance records yet</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Manual Check-in Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-user-check me-1"></i>Manual Check-in
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'events:manual_check_in' session.id %}" id="manualCheckinForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Student ID</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                <input type="text" name="student_id" class="form-control" 
+                                       placeholder="Enter student ID" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-check-circle me-1"></i>Check In
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Not Checked In Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-clock me-1"></i>Not Checked In ({{ not_checked_in|length }})
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                        {% for attendee in not_checked_in %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ attendee.user.get_full_name }}</strong>
+                                    <small class="text-muted d-block">{{ attendee.user.student_id }}</small>
+                                </div>
+                                <form method="POST" action="{% url 'events:mark_attendance' attendee.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="session_id" value="{{ session.id }}">
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center py-3">
+                            <p class="text-muted mb-0">All attendees checked in!</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Session Actions -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-cog me-1"></i>Session Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="printAttendance()">
+                            <i class="fas fa-print me-1"></i>Print Attendance List
+                        </button>
+                        <button class="btn btn-outline-info" onclick="sendReminder()">
+                            <i class="fas fa-bell me-1"></i>Send Reminder to Pending
+                        </button>
+                        {% if session.is_active_now %}
+                            <button class="btn btn-outline-success" onclick="extendSession()">
+                                <i class="fas fa-clock me-1"></i>Extend Session
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function downloadQR() {
+    window.location.href = '{% url "events:download_session_qr" session.id %}';
+}
+
+function exportAttendance() {
+    window.location.href = '{% url "events:export_session_attendance" session.id %}';
+}
+
+function printAttendance() {
+    window.open('{% url "events:print_attendance" session.id %}', '_blank');
+}
+
+function sendReminder() {
+    if (confirm('Send check-in reminder to all pending attendees?')) {
+        fetch('{% url "events:send_session_reminder" session.id %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Reminders sent successfully!');
+            }
+        });
+    }
+}
+
+function extendSession() {
+    const minutes = prompt('Enter minutes to extend:', '15');
+    if (minutes) {
+        fetch('{% url "events:extend_session" session.id %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ minutes: minutes })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+// Auto-refresh attendance every 30 seconds
+setTimeout(function() {
+    location.reload();
+}, 30000);
+</script>
+{% endblock %}

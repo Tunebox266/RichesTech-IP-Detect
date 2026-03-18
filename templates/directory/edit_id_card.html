@@ -1,0 +1,69 @@
+<!-- templates/directory/edit_id_card.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit ID Card - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Edit ID Card Information</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <h5 class="mb-3">Medical Information</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Blood Group</label>
+                                {{ form.blood_group }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Valid Until</label>
+                                {{ form.valid_until }}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Allergies</label>
+                                {{ form.allergies }}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Medical Conditions</label>
+                                {{ form.medical_conditions }}
+                            </div>
+                        </div>
+                        
+                        <h5 class="mb-3">Emergency Contact</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Contact Name</label>
+                                {{ form.emergency_contact_name }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Relationship</label>
+                                {{ form.emergency_relationship }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone Number</label>
+                                {{ form.emergency_phone }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Address</label>
+                                {{ form.emergency_address }}
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'directory:view_id_card' %}" class="btn btn-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

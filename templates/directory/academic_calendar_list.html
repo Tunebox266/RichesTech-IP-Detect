@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load core_tags %}
+
+{% block title %}Academic Calendar - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-calendar-alt me-2"></i>Academic Calendar
+        </h1>
+        <div>
+            <a href="{% url 'directory:academic_calendar_export' %}" class="btn btn-sm btn-success">
+                <i class="fas fa-file-csv me-1"></i>Export CSV
+            </a>
+            <a href="{% url 'directory:academic_calendar_ical' %}" class="btn btn-sm btn-info">
+                <i class="fas fa-calendar-plus me-1"></i>iCal
+            </a>
+            {% if request.user.user_type in 'admin,staff' %}
+                <a href="{% url 'directory:academic_calendar_create' %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus me-1"></i>Add Event
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="GET" action="{% url 'directory:academic_calendar_list' %}" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Year</label>
+                        {{ filter_form.year }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Month</label>
+                        {{ filter_form.month }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Event Type</label>
+                        {{ filter_form.event_type }}
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i>Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    {% if upcoming_events %}
+    <div class="card shadow mb-4 border-left-success">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-clock me-2"></i>Upcoming Events
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for event in upcoming_events %}
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="fw-bold">{{ event.title }}</h6>
+                                {% if event.is_important %}
+                                    <span class="badge bg-danger">Important</span>
+                                {% endif %}
+                            </div>
+                            <p class="small text-muted mb-2">{{ event.event_type|title }}</p>
+                            <p class="small mb-1">
+                                <i class="fas fa-calendar text-primary me-2"></i>
+                                {{ event.start_date|date:"l, M d, Y" }}
+                                {% if event.end_date and event.end_date != event.start_date %}
+                                    - {{ event.end_date|date:"M d, Y" }}
+                                {% endif %}
+                            </p>
+                            {% if event.start_time and not event.is_all_day %}
+                                <p class="small mb-1">
+                                    <i class="fas fa-clock text-success me-2"></i>
+                                    {{ event.start_time|time:"h:i A" }}
+                                    {% if event.end_time %} - {{ event.end_time|time:"h:i A" }}{% endif %}
+                                </p>
+                            {% endif %}
+                            {% if event.venue %}
+                                <p class="small mb-0">
+                                    <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                    {{ event.venue }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{% url 'directory:academic_calendar_detail' event.id %}" class="btn btn-sm btn-outline-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Calendar View -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-calendar-week me-1"></i>Calendar View
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Sun</th>
+                            <th>Mon</th>
+                            <th>Tue</th>
+                            <th>Wed</th>
+                            <th>Thu</th>
+                            <th>Fri</th>
+                            <th>Sat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="row">
+                                    {% for month_key, month_events in events_by_month.items %}
+                                    <div class="col-md-4 mb-4">
+                                        <h6>{{ month_key|date:"F Y" }}</h6>
+                                        <ul class="list-unstyled">
+                                            {% for event in month_events|slice:":5" %}
+                                            <li class="small mb-1">
+                                                <i class="fas fa-circle text-{{ event.event_type|event_color }} me-1" style="font-size: 8px;"></i>
+                                                <a href="{% url 'directory:academic_calendar_detail' event.id %}">
+                                                    {{ event.start_date|date:"d" }} - {{ event.title|truncatechars:20 }}
+                                                </a>
+                                            </li>
+                                            {% endfor %}
+                                            {% if month_events.count > 5 %}
+                                            <li class="small text-muted">+{{ month_events.count|add:"-5" }} more</li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Past Events (Collapsible) -->
+    <div class="card shadow">
+        <div class="card-header py-3" data-bs-toggle="collapse" data-bs-target="#pastEvents" style="cursor: pointer;">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-history me-1"></i>Past Events
+                <i class="fas fa-chevron-down float-end"></i>
+            </h6>
+        </div>
+        <div class="collapse" id="pastEvents">
+            <div class="card-body">
+                <div class="list-group">
+                    {% for event in past_events %}
+                    <a href="{% url 'directory:academic_calendar_detail' event.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong>{{ event.title }}</strong>
+                                <small class="text-muted d-block">{{ event.start_date|date:"M d, Y" }}</small>
+                            </div>
+                            <span class="badge bg-secondary">{{ event.get_event_type_display }}</span>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="text-muted text-center py-3">No past events.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-success {
+    border-left: 4px solid #1cc88a;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit on filter change
+    document.querySelectorAll('select[name="year"], select[name="month"], select[name="event_type"]').forEach(select => {
+        select.addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+    });
+});
+</script>
+{% endblock %}

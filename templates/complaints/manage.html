@@ -1,0 +1,575 @@
+<!-- templates/complaints/manage.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Complaints - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-tasks me-2"></i>Manage Complaints
+        </h1>
+        <div>
+            <span class="badge bg-primary me-2">
+                <i class="fas fa-clock me-1"></i>Pending: {{ pending_count }}
+            </span>
+            <span class="badge bg-success me-2">
+                <i class="fas fa-check-circle me-1"></i>Resolved: {{ resolved_count }}
+            </span>
+            <a href="{% url 'complaints:export' %}" class="btn btn-sm btn-success">
+                <i class="fas fa-download me-1"></i>Export Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Dashboard Stats -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ total_complaints }}</div>
+                            <div class="small">Total Complaints</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ pending_count }}</div>
+                            <div class="small">Pending</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ under_review_count }}</div>
+                            <div class="small">Under Review</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-search fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ resolved_count }}</div>
+                            <div class="small">Resolved</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-xl-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-pie me-1"></i>Complaints by Type
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="typeChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-line me-1"></i>Monthly Trends
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="trendChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {% if filter == 'all' %}active{% endif %}" 
+                       href="?filter=all">
+                        <i class="fas fa-list me-1"></i>All
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if filter == 'pending' %}active{% endif %}" 
+                       href="?filter=pending">
+                        <i class="fas fa-clock me-1"></i>Pending
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if filter == 'my' %}active{% endif %}" 
+                       href="?filter=my">
+                        <i class="fas fa-user me-1"></i>Assigned to Me
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if filter == 'unassigned' %}active{% endif %}" 
+                       href="?filter=unassigned">
+                        <i class="fas fa-user-slash me-1"></i>Unassigned
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Advanced Filters -->
+        <div class="card-body border-bottom">
+            <form method="GET" action="{% url 'complaints:manage' %}" id="filterForm">
+                <input type="hidden" name="filter" value="{{ filter }}">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" name="q" class="form-control" 
+                                   placeholder="Search..." value="{{ request.GET.q|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <select name="type" class="form-select">
+                            <option value="">All Types</option>
+                            {% for type_code, type_name in complaint_types %}
+                                <option value="{{ type_code }}" {% if request.GET.type == type_code %}selected{% endif %}>
+                                    {{ type_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <select name="status" class="form-select">
+                            <option value="">All Status</option>
+                            <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="under_review" {% if request.GET.status == 'under_review' %}selected{% endif %}>Under Review</option>
+                            <option value="resolved" {% if request.GET.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                            <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <select name="priority" class="form-select">
+                            <option value="">All Priority</option>
+                            <option value="high" {% if request.GET.priority == 'high' %}selected{% endif %}>High</option>
+                            <option value="medium" {% if request.GET.priority == 'medium' %}selected{% endif %}>Medium</option>
+                            <option value="low" {% if request.GET.priority == 'low' %}selected{% endif %}>Low</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <div class="input-group">
+                            <span class="input-group-text">From</span>
+                            <input type="date" name="date_from" class="form-control" value="{{ request.GET.date_from|default:'' }}">
+                            <span class="input-group-text">To</span>
+                            <input type="date" name="date_to" class="form-control" value="{{ request.GET.date_to|default:'' }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i>Apply Filters
+                        </button>
+                        <a href="{% url 'complaints:manage' %}" class="btn btn-secondary">
+                            <i class="fas fa-redo me-1"></i>Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div class="card-body bg-light border-bottom">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <input type="checkbox" class="form-check-input" id="selectAll">
+                </div>
+                <div class="col-auto">
+                    <label class="form-check-label" for="selectAll">Select All</label>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select form-select-sm" id="bulkAction">
+                        <option value="">Bulk Actions</option>
+                        <option value="assign">Assign to Me</option>
+                        <option value="pending">Mark as Pending</option>
+                        <option value="review">Mark as Under Review</option>
+                        <option value="resolved">Mark as Resolved</option>
+                        <option value="delete">Delete Selected</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-primary" onclick="executeBulkAction()">Apply</button>
+                </div>
+                <div class="col-auto ms-auto">
+                    <span class="text-muted" id="selectedCount">0 selected</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Complaints Table -->
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th width="30"></th>
+                            <th>ID</th>
+                            <th>Student</th>
+                            <th>Type</th>
+                            <th>Subject</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Assigned To</th>
+                            <th>Age</th>
+                            <th>Responses</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for complaint in complaints %}
+                        <tr class="{% if complaint.priority == 'high' %}table-danger{% elif complaint.priority == 'medium' %}table-warning{% endif %}">
+                            <td>
+                                <input type="checkbox" class="form-check-input complaint-checkbox" value="{{ complaint.id }}">
+                            </td>
+                            <td>#{{ complaint.id }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if complaint.is_anonymous %}
+                                        <i class="fas fa-user-secret text-secondary me-2"></i>
+                                        <span class="text-muted">Anonymous</span>
+                                    {% else %}
+                                        {% if complaint.user.profile_image %}
+                                            <img src="{{ complaint.user.profile_image.url }}" 
+                                                 class="rounded-circle me-2" width="30" height="30">
+                                        {% else %}
+                                            <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                                 style="width:30px;height:30px;">
+                                                <i class="fas fa-user text-white"></i>
+                                            </div>
+                                        {% endif %}
+                                        {{ complaint.user.get_full_name|truncatechars:20 }}
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ complaint.complaint_type|complaint_color }}">
+                                    {{ complaint.get_complaint_type_display|truncatechars:15 }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'complaints:detail' complaint.id %}" class="text-decoration-none">
+                                    {{ complaint.subject|truncatechars:30 }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if complaint.priority == 'high' %}danger{% elif complaint.priority == 'medium' %}warning{% else %}info{% endif %}">
+                                    {{ complaint.get_priority_display|default:"Normal" }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ complaint.status|status_color }}">
+                                    {{ complaint.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if complaint.assigned_to %}
+                                    <div class="d-flex align-items-center">
+                                        {% if complaint.assigned_to.profile_image %}
+                                            <img src="{{ complaint.assigned_to.profile_image.url }}" 
+                                                 class="rounded-circle me-1" width="20" height="20">
+                                        {% endif %}
+                                        <small>{{ complaint.assigned_to.get_full_name|truncatechars:15 }}</small>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-{% if complaint.age_days > 7 %}danger{% elif complaint.age_days > 3 %}warning{% endif %}">
+                                    {{ complaint.age_days }}d
+                                </small>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ complaint.response_count }}</span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'complaints:detail' complaint.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-success" onclick="quickRespond({{ complaint.id }})">
+                                        <i class="fas fa-reply"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-warning" onclick="assignComplaint({{ complaint.id }})">
+                                        <i class="fas fa-user-plus"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="11" class="text-center py-5">
+                                <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                                <h5 class="text-muted">No Complaints Found</h5>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if complaints.has_other_pages %}
+        <div class="card-footer">
+            <nav aria-label="Complaints pagination">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if complaints.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ complaints.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for i in complaints.paginator.page_range %}
+                        {% if complaints.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% elif i > complaints.number|add:'-3' and i < complaints.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if complaints.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ complaints.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Response Modal -->
+<div class="modal fade" id="quickResponseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-reply me-2"></i>Quick Response
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="" id="quickResponseForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Response</label>
+                        <textarea name="content" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Update Status</label>
+                        <select name="status" class="form-select">
+                            <option value="under_review">Mark as Under Review</option>
+                            <option value="resolved">Mark as Resolved</option>
+                            <option value="pending">Keep as Pending</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Send Response</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Modal -->
+<div class="modal fade" id="assignModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>Assign Complaint
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="" id="assignForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Assign to</label>
+                        <select name="assigned_to" class="form-select">
+                            <option value="">Select user</option>
+                            {% for user in staff_users %}
+                            <option value="{{ user.id }}">{{ user.get_full_name }} ({{ user.user_type|title }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Assign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Type Chart
+    const typeCtx = document.getElementById('typeChart').getContext('2d');
+    new Chart(typeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ type_labels|safe }},
+            datasets: [{
+                data: {{ type_data|safe }},
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
+                hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617'],
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // Trend Chart
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: {{ trend_labels|safe }},
+            datasets: [{
+                label: 'Complaints',
+                data: {{ trend_data|safe }},
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                tension: 0.3
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Select All functionality
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.complaint-checkbox');
+    const selectedCount = document.getElementById('selectedCount');
+
+    selectAll.addEventListener('change', function() {
+        checkboxes.forEach(cb => cb.checked = this.checked);
+        updateSelectedCount();
+    });
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateSelectedCount);
+    });
+
+    function updateSelectedCount() {
+        const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+        selectedCount.textContent = checked + ' selected';
+    }
+});
+
+function quickRespond(complaintId) {
+    const modal = new bootstrap.Modal(document.getElementById('quickResponseModal'));
+    document.getElementById('quickResponseForm').action = `/complaints/${complaintId}/respond/`;
+    modal.show();
+}
+
+function assignComplaint(complaintId) {
+    const modal = new bootstrap.Modal(document.getElementById('assignModal'));
+    document.getElementById('assignForm').action = `/complaints/${complaintId}/assign/`;
+    modal.show();
+}
+
+function executeBulkAction() {
+    const action = document.getElementById('bulkAction').value;
+    const selected = Array.from(document.querySelectorAll('.complaint-checkbox:checked'))
+        .map(cb => cb.value);
+
+    if (selected.length === 0) {
+        alert('Please select complaints to process.');
+        return;
+    }
+
+    if (!action) {
+        alert('Please select an action.');
+        return;
+    }
+
+    fetch('/complaints/bulk-action/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            action: action,
+            complaint_ids: selected
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+
+// Auto-refresh every 60 seconds
+setTimeout(function() {
+    location.reload();
+}, 60000);
+</script>
+{% endblock %}

@@ -1,0 +1,515 @@
+<!-- templates/core/contact_messages.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Messages - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-envelope me-2"></i>Contact Messages
+        </h1>
+        <div>
+            <span class="badge bg-primary me-2">
+                <i class="fas fa-inbox me-1"></i>Total: {{ stats.total }}
+            </span>
+            <span class="badge bg-warning me-2">
+                <i class="fas fa-clock me-1"></i>New: {{ stats.new }}
+            </span>
+            <span class="badge bg-success">
+                <i class="fas fa-reply me-1"></i>Replied: {{ stats.replied }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="card glass-card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{% url 'core:contact_messages' %}" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" name="search" class="form-control" 
+                                   placeholder="Search by name, email, subject..." value="{{ request.GET.search|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="status" class="form-select">
+                            <option value="">All Status</option>
+                            {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="sort" class="form-select">
+                            <option value="-created_at" {% if request.GET.sort == '-created_at' %}selected{% endif %}>Newest First</option>
+                            <option value="created_at" {% if request.GET.sort == 'created_at' %}selected{% endif %}>Oldest First</option>
+                            <option value="name" {% if request.GET.sort == 'name' %}selected{% endif %}>Name A-Z</option>
+                            <option value="-name" {% if request.GET.sort == '-name' %}selected{% endif %}>Name Z-A</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i>Apply
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Messages Table -->
+    <div class="card glass-card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th width="50">
+                                <input type="checkbox" class="form-check-input" id="selectAll">
+                            </th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Subject</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for message in messages %}
+                        <tr class="{% if message.status == 'new' %}table-warning{% endif %}">
+                            <td>
+                                <input type="checkbox" class="form-check-input message-checkbox" value="{{ message.id }}">
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle bg-primary text-white me-2">
+                                        {{ message.name|first|upper }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ message.name }}</strong>
+                                        {% if message.phone %}
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-phone-alt fa-xs"></i> {{ message.phone }}
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="mailto:{{ message.email }}" class="text-decoration-none">
+                                    <i class="fas fa-envelope fa-xs me-1"></i>
+                                    {{ message.email }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'core:contact_message_detail' message.id %}" class="text-decoration-none">
+                                    {{ message.subject|truncatechars:40 }}
+                                </a>
+                            </td>
+                            <td>
+                                <small class="text-muted" title="{{ message.created_at|date:'M d, Y H:i' }}">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ message.created_at|timesince }} ago
+                                </small>
+                            </td>
+                            <td>
+                                <span class="badge status-badge status-{{ message.status }}">
+                                    {{ message.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'core:contact_message_detail' message.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-success" onclick="quickReply({{ message.id }})">
+                                        <i class="fas fa-reply"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-info" onclick="updateStatus({{ message.id }})">
+                                        <i class="fas fa-tag"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                                <h5 class="text-muted">No Messages Found</h5>
+                                <p class="text-muted mb-0">There are no contact messages matching your criteria.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        {% if messages %}
+        <div class="card-footer">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <select class="form-select form-select-sm" id="bulkAction">
+                        <option value="">Bulk Actions</option>
+                        <option value="mark_read">Mark as Read</option>
+                        <option value="mark_replied">Mark as Replied</option>
+                        <option value="archive">Archive</option>
+                        <option value="delete">Delete</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-primary" onclick="executeBulkAction()">Apply</button>
+                </div>
+                <div class="col-auto ms-auto">
+                    <span class="text-muted" id="selectedCount">0 selected</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if messages.has_other_pages %}
+    <nav aria-label="Messages pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if messages.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ messages.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                </li>
+            {% endif %}
+
+            {% for i in messages.paginator.page_range %}
+                {% if messages.number == i %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ i }}</span>
+                    </li>
+                {% elif i > messages.number|add:'-3' and i < messages.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if messages.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ messages.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Quick Reply Modal -->
+<div class="modal fade" id="quickReplyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content glass-modal">
+            <div class="modal-header bg-gradient-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-reply me-2"></i>Quick Reply
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="quickReplyForm">
+                {% csrf_token %}
+                <input type="hidden" name="message_id" id="replyMessageId">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Reply Message</label>
+                        <textarea name="reply" class="form-control" rows="5" required 
+                                  placeholder="Type your reply here..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="send_copy" id="sendCopy" checked>
+                            <label class="form-check-label" for="sendCopy">
+                                Send a copy to my email
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Send Reply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content glass-modal">
+            <div class="modal-header bg-gradient-info text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-tag me-2"></i>Update Status
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="statusForm">
+                {% csrf_token %}
+                <input type="hidden" name="message_id" id="statusMessageId">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Status</label>
+                        <select name="status" class="form-select" id="statusSelect">
+                            {% for value, label in status_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-info">Update Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-bs-theme="dark"] .glass-card {
+    background: rgba(30, 30, 47, 0.7);
+}
+
+.avatar-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.status-new {
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    color: #2c3e50;
+}
+
+.status-read {
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    color: #2c3e50;
+}
+
+.status-replied {
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    color: #2c3e50;
+}
+
+.status-archived {
+    background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
+    color: #2c3e50;
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.btn-group .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.message-checkbox');
+    const selectedCount = document.getElementById('selectedCount');
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateSelectedCount();
+        });
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateSelectedCount);
+    });
+
+    function updateSelectedCount() {
+        const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+        selectedCount.textContent = checked + ' selected';
+    }
+
+    // Quick Reply Form
+    document.getElementById('quickReplyForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const messageId = document.getElementById('replyMessageId').value;
+        
+        fetch(`/core/contact/messages/${messageId}/reply/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                reply: formData.get('reply')
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                bootstrap.Modal.getInstance(document.getElementById('quickReplyModal')).hide();
+                location.reload();
+            } else {
+                alert(data.error || 'Failed to send reply');
+            }
+        });
+    });
+
+    // Status Update Form
+    document.getElementById('statusForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const messageId = document.getElementById('statusMessageId').value;
+        
+        fetch(`/core/contact/messages/${messageId}/update-status/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                status: formData.get('status')
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                bootstrap.Modal.getInstance(document.getElementById('statusModal')).hide();
+                location.reload();
+            } else {
+                alert(data.error || 'Failed to update status');
+            }
+        });
+    });
+});
+
+function quickReply(messageId) {
+    document.getElementById('replyMessageId').value = messageId;
+    new bootstrap.Modal(document.getElementById('quickReplyModal')).show();
+}
+
+function updateStatus(messageId) {
+    document.getElementById('statusMessageId').value = messageId;
+    new bootstrap.Modal(document.getElementById('statusModal')).show();
+}
+
+function executeBulkAction() {
+    const action = document.getElementById('bulkAction').value;
+    const selected = Array.from(document.querySelectorAll('.message-checkbox:checked'))
+        .map(cb => cb.value);
+
+    if (selected.length === 0) {
+        alert('Please select messages to process.');
+        return;
+    }
+
+    if (!action) {
+        alert('Please select an action.');
+        return;
+    }
+
+    // Implement bulk actions here
+    if (action === 'delete') {
+        if (confirm(`Delete ${selected.length} message(s)?`)) {
+            fetch('/core/contact/messages/bulk-delete/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ids: selected })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+        }
+    } else {
+        // Update status for selected messages
+        fetch('/core/contact/messages/bulk-update/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                ids: selected,
+                action: action
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+// Auto-submit on filter change
+document.querySelectorAll('select[name="status"], select[name="sort"]').forEach(select => {
+    select.addEventListener('change', function() {
+        document.getElementById('filterForm').submit();
+    });
+});
+
+// Debounced search
+let searchTimeout;
+document.querySelector('input[name="search"]')?.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        document.getElementById('filterForm').submit();
+    }, 500);
+});
+</script>
+{% endblock %}

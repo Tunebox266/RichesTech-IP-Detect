@@ -1,0 +1,350 @@
+<!-- templates/payments/payment_reports.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Reports - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-chart-line me-2"></i>Payment Reports
+        </h1>
+        <div>
+            <a href="{% url 'payments:due_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to Dues
+            </a>
+            <button class="btn btn-success btn-sm" onclick="exportReport()">
+                <i class="fas fa-download me-1"></i>Export Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">GHS {{ total_collected|floatformat:2 }}</div>
+                            <div class="small">Total Collected</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ total_paid_students }}</div>
+                            <div class="small">Students Paid</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ total_students }}</div>
+                            <div class="small">Total Students</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-graduate fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ collection_rate|floatformat:1 }}%</div>
+                            <div class="small">Collection Rate</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-pie fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-filter me-1"></i>Filter Reports
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{% url 'payments:payment_reports' %}" id="filterForm">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">Academic Year</label>
+                        <select name="academic_year" class="form-select">
+                            <option value="">All Years</option>
+                            {% for year in academic_years %}
+                                <option value="{{ year.id }}" {% if request.GET.academic_year == year.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ year.academic_year }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">Due</label>
+                        <select name="due" class="form-select">
+                            <option value="">All Dues</option>
+                            {% for due in dues %}
+                                <option value="{{ due.id }}" {% if request.GET.due == due.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ due.title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label fw-bold">Level</label>
+                        <select name="level" class="form-select">
+                            <option value="">All Levels</option>
+                            <option value="100" {% if request.GET.level == '100' %}selected{% endif %}>100</option>
+                            <option value="200" {% if request.GET.level == '200' %}selected{% endif %}>200</option>
+                            <option value="300" {% if request.GET.level == '300' %}selected{% endif %}>300</option>
+                            <option value="400" {% if request.GET.level == '400' %}selected{% endif %}>400</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label fw-bold">From Date</label>
+                        <input type="date" name="from_date" class="form-control" value="{{ request.GET.from_date|default:'' }}">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label fw-bold">To Date</label>
+                        <input type="date" name="to_date" class="form-control" value="{{ request.GET.to_date|default:'' }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i>Apply Filters
+                        </button>
+                        <a href="{% url 'payments:payment_reports' %}" class="btn btn-secondary">
+                            <i class="fas fa-redo me-1"></i>Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-xl-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-pie me-1"></i>Payments by Level
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="paymentsByLevelChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-line me-1"></i>Monthly Collection Trend
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyTrendChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Due-wise Report Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-table me-1"></i>Due-wise Collection Report
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Due Title</th>
+                            <th>Amount</th>
+                            <th>Target Students</th>
+                            <th>Paid Students</th>
+                            <th>Collection Rate</th>
+                            <th>Total Collected</th>
+                            <th>Deadline</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in report_data %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'payments:due_detail' item.due.id %}">{{ item.due.title }}</a>
+                            </td>
+                            <td>GHS {{ item.due.amount|floatformat:2 }}</td>
+                            <td>{{ item.due.get_total_students }}</td>
+                            <td>{{ item.paid_count }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: {{ item.rate }}%"></div>
+                                    </div>
+                                    <span>{{ item.rate|floatformat:1 }}%</span>
+                                </div>
+                            </td>
+                            <td>GHS {{ item.total_collected|floatformat:2 }}</td>
+                            <td>
+                                <span class="{% if item.due.deadline < today %}text-danger{% endif %}">
+                                    {{ item.due.deadline|date:"M d, Y" }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if item.due.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No payment data available</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payments by Level Table -->
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-layer-group me-1"></i>Payments by Level
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Level</th>
+                            <th>Total Students</th>
+                            <th>Paid Students</th>
+                            <th>Payment Rate</th>
+                            <th>Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for level in payments_by_level %}
+                        <tr>
+                            <td>Level {{ level.student__level }}</td>
+                            <td>{{ level.total_students }}</td>
+                            <td>{{ level.count }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: {{ level.payment_rate }}%"></div>
+                                    </div>
+                                    <span>{{ level.payment_rate|floatformat:1 }}%</span>
+                                </div>
+                            </td>
+                            <td>GHS {{ level.total|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <p class="text-muted">No level data available</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Payments by Level Chart
+    const levelCtx = document.getElementById('paymentsByLevelChart').getContext('2d');
+    new Chart(levelCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ level_labels|safe }},
+            datasets: [{
+                data: {{ level_data|safe }},
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
+                hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617'],
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // Monthly Trend Chart
+    const trendCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: {{ month_labels|safe }},
+            datasets: [{
+                label: 'Collection Amount (GHS)',
+                data: {{ month_data|safe }},
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+});
+
+function exportReport() {
+    const params = new URLSearchParams(window.location.search);
+    window.location.href = '{% url "payments:export_payments" %}?' + params.toString();
+}
+</script>
+{% endblock %}

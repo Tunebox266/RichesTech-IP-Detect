@@ -1,0 +1,719 @@
+<!-- templates/core/home.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section with Gradient Background -->
+    <div class="hero-section position-relative overflow-hidden mb-5" 
+         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 60px 0;">
+        <div class="container position-relative text-white text-center">
+            <h1 class="display-4 fw-bold mb-3 animate__animated animate__fadeInDown">
+                Welcome to MELTSA-TaTU
+            </h1>
+            <p class="lead mb-4 animate__animated animate__fadeInUp">
+                Medical Laboratory Students' Association - Tamale Technical University
+            </p>
+            {% if not user.is_authenticated %}
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                    <button class="btn btn-light btn-lg px-4 gap-3" onclick="openPasscodeModal()">
+                        <i class="fas fa-sign-in-alt me-2"></i>Student Login
+                    </button>
+                    <a href="{% url 'core:home' %}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fas fa-user me-2"></i>Continue as Guest
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        <!-- Wave SVG -->
+        <svg class="position-absolute bottom-0 w-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
+            <path fill="#ffffff" fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
+        </svg>
+    </div>
+
+    <!-- Latest Announcements with Images and Attachments -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="h3 mb-4">
+                <i class="fas fa-bullhorn text-primary me-2"></i>Latest Announcements
+                {% if announcements %}
+                    <small class="text-muted fs-6 ms-2">({{ announcements|length }} new)</small>
+                {% endif %}
+            </h2>
+            <div class="row">
+                {% for announcement in announcements %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm hover-card border-0">
+                            <!-- Featured Image -->
+                            {% if announcement.image %}
+                                <img src="{{ announcement.image.url }}" class="card-img-top" alt="{{ announcement.title }}" 
+                                     style="height: 180px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                            {% else %}
+                                <div class="card-img-top bg-gradient-primary text-white d-flex align-items-center justify-content-center" 
+                                     style="height: 180px; border-radius: 12px 12px 0 0;">
+                                    <i class="fas fa-bullhorn fa-4x opacity-50"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="card-body">
+                                <!-- Priority Badge -->
+                                {% if announcement.priority == 'high' %}
+                                    <span class="badge bg-danger mb-2">🔴 High Priority</span>
+                                {% elif announcement.priority == 'medium' %}
+                                    <span class="badge bg-warning mb-2">🟡 Medium Priority</span>
+                                {% elif announcement.priority == 'low' %}
+                                    <span class="badge bg-info mb-2">🔵 Low Priority</span>
+                                {% endif %}
+
+                                <!-- Pinned Badge -->
+                                {% if announcement.is_pinned %}
+                                    <span class="badge bg-secondary mb-2 ms-1">
+                                        <i class="fas fa-thumbtack me-1"></i>Pinned
+                                    </span>
+                                {% endif %}
+
+                                <h5 class="card-title fw-bold">{{ announcement.title }}</h5>
+                                
+                                <!-- Preview Content -->
+                                <p class="card-text text-muted small">
+                                    {{ announcement.content|striptags|truncatewords:20 }}
+                                </p>
+
+                                <!-- Attachments Indicator -->
+                                {% if announcement.attachments.exists %}
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-paperclip me-1"></i>
+                                            {{ announcement.attachments.count }} attachment(s)
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="card-footer bg-transparent border-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="far fa-clock me-1"></i>{{ announcement.created_at|date:"M d, Y" }}
+                                    </small>
+                                    <a href="{% url 'core:announcement_detail' announcement.id %}" class="btn btn-sm btn-outline-primary">
+                                        Read More <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                                <div class="mt-2 small text-muted">
+                                    <i class="far fa-user me-1"></i>{{ announcement.created_by.get_full_name|default:"Admin" }}
+                                    <span class="mx-2">•</span>
+                                    <i class="far fa-eye me-1"></i>{{ announcement.views }} views
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <div class="text-center py-5 bg-light rounded">
+                            <i class="fas fa-bullhorn fa-4x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No announcements at the moment.</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- View All Announcements Button -->
+            {% if announcements %}
+                <div class="text-center mt-4">
+                    <a href="{% url 'core:announcements' %}" class="btn btn-outline-primary">
+                        View All Announcements <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Video Vlogs -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="h3 mb-4">
+                <i class="fab fa-youtube text-danger me-2"></i>Video Vlogs
+                {% if video_vlogs %}
+                    <small class="text-muted fs-6 ms-2">({{ video_vlogs|length }} videos)</small>
+                {% endif %}
+            </h2>
+            <div class="row">
+                {% for vlog in video_vlogs %}
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card h-100 shadow-sm border-0 hover-card">
+                            {% if vlog.thumbnail %}
+                                <img src="{{ vlog.thumbnail.url }}" class="card-img-top" alt="{{ vlog.title }}" 
+                                     style="height: 150px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                            {% else %}
+                                <div class="ratio ratio-16x9 bg-light d-flex align-items-center justify-content-center" 
+                                     style="border-radius: 12px 12px 0 0;">
+                                    <i class="fab fa-youtube fa-3x text-danger"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h6 class="card-title fw-bold">{{ vlog.title|truncatechars:50 }}</h6>
+                                <p class="card-text small text-muted">{{ vlog.description|truncatewords:10 }}</p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="far fa-eye me-1"></i>{{ vlog.views }} views
+                                    </small>
+                                    <a href="{% url 'core:vlog_detail' vlog.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="fab fa-youtube me-1"></i>Watch
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <div class="text-center py-5 bg-light rounded">
+                            <i class="fab fa-youtube fa-4x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No video vlogs available.</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Blog Posts -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="h3 mb-4">
+                <i class="fas fa-blog text-primary me-2"></i>Blog Posts
+                {% if blog_posts %}
+                    <small class="text-muted fs-6 ms-2">({{ blog_posts|length }} articles)</small>
+                {% endif %}
+            </h2>
+            <div class="row">
+                {% for post in blog_posts %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm border-0 hover-card">
+                            <div class="row g-0">
+                                {% if post.featured_image %}
+                                    <div class="col-md-4">
+                                        <img src="{{ post.featured_image.url }}" class="img-fluid rounded-start h-100" 
+                                             style="object-fit: cover; border-radius: 12px 0 0 12px;" alt="{{ post.title }}">
+                                    </div>
+                                    <div class="col-md-8">
+                                {% else %}
+                                    <div class="col-md-12">
+                                {% endif %}
+                                    <div class="card-body">
+                                        <h5 class="card-title fw-bold">
+                                            <a href="{% url 'core:blog_detail' post.id %}" class="text-decoration-none text-dark">
+                                                {{ post.title|truncatechars:60 }}
+                                            </a>
+                                        </h5>
+                                        <p class="card-text text-muted small">{{ post.content|striptags|truncatewords:25 }}</p>
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <small class="text-muted">
+                                                <i class="far fa-user me-1"></i>{{ post.author.get_full_name|default:"Admin" }}
+                                                <span class="mx-2">•</span>
+                                                <i class="far fa-calendar me-1"></i>{{ post.created_at|date:"M d, Y" }}
+                                            </small>
+                                            <span class="badge bg-light text-dark">
+                                                <i class="far fa-eye me-1"></i>{{ post.views }} views
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Read More Button -->
+                            <div class="card-footer bg-transparent border-0 text-end">
+                                <a href="{% url 'core:blog_detail' post.id %}" class="btn btn-sm btn-outline-primary">
+                                    Read Full Article <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <div class="text-center py-5 bg-light rounded">
+                            <i class="fas fa-blog fa-4x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No blog posts available.</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- View All Blog Posts Button -->
+            {% if blog_posts %}
+                <div class="text-center mt-4">
+                    <a href="{% url 'core:blog_list' %}" class="btn btn-outline-primary">
+                        View All Blog Posts <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    {% if upcoming_events %}
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="h3 mb-4">
+                    <i class="fas fa-calendar-alt text-success me-2"></i>Upcoming Events
+                    <small class="text-muted fs-6 ms-2">({{ upcoming_events|length }} events)</small>
+                </h2>
+                <div class="row">
+                    {% for event in upcoming_events %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-0 shadow-sm hover-card">
+                                {% if event.poster %}
+                                    <img src="{{ event.poster.url }}" class="card-img-top" alt="{{ event.title }}" 
+                                         style="height: 140px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h6 class="card-title fw-bold">
+                                        <a href="{% url 'events:event_detail' event.id %}" class="text-decoration-none text-dark">
+                                            {{ event.title|truncatechars:40 }}
+                                        </a>
+                                    </h6>
+                                    <div class="small text-muted">
+                                        <p class="mb-1">
+                                            <i class="fas fa-map-marker-alt text-danger me-2"></i>{{ event.venue }}
+                                        </p>
+                                        <p class="mb-1">
+                                            <i class="fas fa-clock text-primary me-2"></i>
+                                            {{ event.start_date|date:"M d, Y H:i" }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-0 text-end">
+                                    <a href="{% url 'events:event_detail' event.id %}" class="btn btn-sm btn-outline-success">
+                                        View Details <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- View All Events Button -->
+                <div class="text-center mt-3">
+                    <a href="{% url 'events:event_list' %}" class="btn btn-outline-success">
+                        View All Events <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Quick Stats Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="h3 mb-4 text-center">
+                <i class="fas fa-chart-bar text-primary me-2"></i>MELTSA by Numbers
+            </h2>
+            <div class="row g-4">
+                <div class="col-md-3 col-6">
+                    <div class="card text-center p-4 border-0 shadow-sm glass-card">
+                        <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                        <h3 class="fw-bold">{{ total_students|default:"500" }}+</h3>
+                        <p class="text-muted mb-0">Students</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center p-4 border-0 shadow-sm glass-card">
+                        <i class="fas fa-calendar-check fa-3x text-success mb-3"></i>
+                        <h3 class="fw-bold">{{ total_events|default:"3" }}+</h3>
+                        <p class="text-muted mb-0">Events</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center p-4 border-0 shadow-sm glass-card">
+                        <i class="fas fa-book-open fa-3x text-info mb-3"></i>
+                        <h3 class="fw-bold">{{ total_courses|default:"8-11" }}+</h3>
+                        <p class="text-muted mb-0">Courses</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center p-4 border-0 shadow-sm glass-card">
+                        <i class="fas fa-trophy fa-3x text-warning mb-3"></i>
+                        <h3 class="fw-bold">{{ years_of_excellence|default:"3" }}+</h3>
+                        <p class="text-muted mb-0">Years</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Passcode Lock Screen Modal -->
+<div class="modal fade" id="passcodeLockModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card border-0" style="border-radius: 30px; overflow: hidden;">
+            <div class="modal-body p-0">
+                <!-- iPhone-style Lock Screen -->
+                <div style="background: linear-gradient(145deg, #1a1a2e, #16213e); border-radius: 30px;">
+                    <!-- Top Bar -->
+                    <div class="d-flex justify-content-between align-items-center p-4 text-white">
+                        <span class="small opacity-75" id="lockScreenTime">{{ now|date:"H:i" }}</span>
+                        <div>
+                            <i class="fas fa-signal me-1"></i>
+                            <i class="fas fa-wifi me-1"></i>
+                            <i class="fas fa-battery-full"></i>
+                        </div>
+                    </div>
+
+                    <!-- Lock Icon & Message -->
+                    <div class="text-center mt-4 mb-3">
+                        <div class="mb-3">
+                            <i class="fas fa-lock fa-3x text-white opacity-75"></i>
+                        </div>
+                        <h5 class="text-white mb-1">Student Access Only</h5>
+                        <p class="text-white-50 small">Enter 4-digit passcode to continue</p>
+                    </div>
+
+                    <!-- Passcode Dots Display -->
+                    <div class="text-center mb-4">
+                        <div class="passcode-dots d-flex justify-content-center gap-3">
+                            <span class="dot" id="dot1"></span>
+                            <span class="dot" id="dot2"></span>
+                            <span class="dot" id="dot3"></span>
+                            <span class="dot" id="dot4"></span>
+                        </div>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="passcodeError" class="text-center text-danger mb-2" style="min-height: 24px;">
+                        <small></small>
+                    </div>
+
+                    <!-- Keypad Grid -->
+                    <div class="keypad-grid px-4 pb-4">
+                        <div class="row g-3">
+                            <!-- Row 1 -->
+                            <div class="col-4">
+                                <button class="keypad-btn" onclick="addDigit('1')">1</button>
+                            </div>
+                            <div class="col-4">
+                                <button class="keypad-btn" onclick="addDigit('2')">2</button>
+                            </div>
+                            <div class="col-4">
+                                <button class="keypad-btn" onclick="addDigit('3')">3</button>
+                            </div>
+                            
+                            <!-- Row 2 -->
+                            <div class="col-4">
+                                <button class="keypad-btn" onclick="addDigit('4')">4</button>
+                            </div>
+                            <div class="col-4">
+                                <button class="keypad-btn" onclick="addDigit('5')">5</button>
+                            </div>
+                            <div class="col-4">
+                                <button class="keypad-btn" onclick="addDigit('6')">6</button>
+                            </div>
+                            
+                            <!-- Row 3 -->
+                            <div class="col-4">
+                                <button class="keypad-btn" onclick="addDigit('7')">7</button>
+                            </div>
+                            <div class="col-4">
+                                <button class="keypad-btn" onclick="addDigit('8')">8</button>
+                            </div>
+                            <div class="col-4">
+                                <button class="keypad-btn" onclick="addDigit('9')">9</button>
+                            </div>
+                            
+                            <!-- Row 4 -->
+                            <div class="col-4">
+                                <button class="keypad-btn" onclick="deleteDigit()">
+                                    <i class="fas fa-backspace"></i>
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button class="keypad-btn" onclick="addDigit('0')">0</button>
+                            </div>
+                            <div class="col-4">
+                                <button class="keypad-btn" onclick="clearPasscode()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cancel Button -->
+                    <div class="text-center pb-4">
+                        <button class="btn btn-link text-white-50" onclick="closePasscodeModal()">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-card {
+        transition: all 0.3s ease-in-out;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .hover-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 1rem 2rem rgba(0,0,0,.15)!important;
+    }
+    
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    [data-bs-theme="dark"] .glass-card {
+        background: rgba(30, 30, 47, 0.7);
+    }
+    
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .opacity-50 {
+        opacity: 0.5;
+    }
+    
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section svg {
+        pointer-events: none;
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translate3d(0, -30px, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translate3d(0, 30px, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+    
+    .animate__fadeInDown {
+        animation: fadeInDown 1s;
+    }
+    
+    .animate__fadeInUp {
+        animation: fadeInUp 1s;
+    }
+    
+    .card-img-top {
+        border-radius: 12px 12px 0 0;
+    }
+
+    /* iPhone-style Passcode Lock Screen Styles */
+    .keypad-btn {
+        width: 70px;
+        height: 70px;
+        border-radius: 35px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        font-size: 28px;
+        font-weight: 300;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .keypad-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+
+    .keypad-btn:active {
+        transform: scale(0.95);
+    }
+
+    .keypad-btn i {
+        font-size: 24px;
+        color: white;
+    }
+
+    .passcode-dots .dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .passcode-dots .dot.filled {
+        background: white;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .passcode-dots .dot.error {
+        background: #dc3545;
+        animation: shake 0.5s ease;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    .text-white-50 {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        .keypad-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+        }
+    }
+</style>
+
+<script>
+let passcode = '';
+let isProcessing = false;
+
+function openPasscodeModal() {
+    passcode = '';
+    updateDots();
+    document.getElementById('passcodeError').innerHTML = '';
+    new bootstrap.Modal(document.getElementById('passcodeLockModal')).show();
+}
+
+function closePasscodeModal() {
+    bootstrap.Modal.getInstance(document.getElementById('passcodeLockModal')).hide();
+    passcode = '';
+    updateDots();
+}
+
+function addDigit(digit) {
+    if (passcode.length < 4 && !isProcessing) {
+        passcode += digit;
+        updateDots();
+        
+        if (passcode.length === 4) {
+            verifyPasscode();
+        }
+    }
+}
+
+function deleteDigit() {
+    if (passcode.length > 0 && !isProcessing) {
+        passcode = passcode.slice(0, -1);
+        updateDots();
+    }
+}
+
+function clearPasscode() {
+    passcode = '';
+    updateDots();
+}
+
+function updateDots() {
+    for (let i = 1; i <= 4; i++) {
+        const dot = document.getElementById(`dot${i}`);
+        if (i <= passcode.length) {
+            dot.classList.add('filled');
+        } else {
+            dot.classList.remove('filled');
+        }
+    }
+}
+
+function verifyPasscode() {
+    isProcessing = true;
+    
+    fetch('/api/verify-passcode/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ passcode: passcode })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success animation
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach(dot => {
+                dot.style.background = '#28a745';
+                dot.style.boxShadow = '0 0 10px #28a745';
+            });
+            
+            setTimeout(() => {
+                closePasscodeModal();
+                window.location.href = data.redirect_url;
+            }, 500);
+        } else {
+            // Show error animation
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach(dot => {
+                dot.classList.add('error');
+                dot.style.background = '#dc3545';
+            });
+            
+            document.getElementById('passcodeError').innerHTML = 
+                '<small class="text-danger">Invalid passcode</small>';
+            
+            setTimeout(() => {
+                dots.forEach(dot => {
+                    dot.classList.remove('error');
+                    dot.style.background = '';
+                });
+                passcode = '';
+                updateDots();
+                isProcessing = false;
+            }, 500);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('passcodeError').innerHTML = 
+            '<small class="text-danger">Verification failed</small>';
+        passcode = '';
+        updateDots();
+        isProcessing = false;
+    });
+}
+
+// Update time in the lock screen
+function updateLockScreenTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+    });
+    const timeElement = document.getElementById('lockScreenTime');
+    if (timeElement) {
+        timeElement.textContent = timeString;
+    }
+}
+
+// Update time every minute
+setInterval(updateLockScreenTime, 60000);
+</script>
+{% endblock %}

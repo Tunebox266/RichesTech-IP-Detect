@@ -1,0 +1,295 @@
+<!-- templates/core/notification_settings.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Notification Settings - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-bell me-2"></i>Notification Settings
+        </h1>
+        <a href="{% url 'accounts:dashboard_redirect' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Settings Form Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-cog me-1"></i>Notification Preferences
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'core:notification_settings' %}" id="settingsForm">
+                        {% csrf_token %}
+                        
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <!-- Email Notifications -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-envelope text-primary me-2"></i>Email Notifications
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="emailMessages" 
+                                               name="email_messages" {% if setting.email_messages %}checked{% endif %}>
+                                        <label class="form-check-label" for="emailMessages">
+                                            <strong>New Messages</strong>
+                                            <p class="small text-muted mb-0">Receive email notifications when you get new messages</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="emailEvents" 
+                                               name="email_events" {% if setting.email_events %}checked{% endif %}>
+                                        <label class="form-check-label" for="emailEvents">
+                                            <strong>Event Reminders</strong>
+                                            <p class="small text-muted mb-0">Receive reminders about upcoming events</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="emailPayments" 
+                                               name="email_payments" {% if setting.email_payments %}checked{% endif %}>
+                                        <label class="form-check-label" for="emailPayments">
+                                            <strong>Payment Confirmations</strong>
+                                            <p class="small text-muted mb-0">Get payment receipts and confirmations</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <!-- Note: email_announcements is not in your model, so removed -->
+                            </div>
+                        </div>
+
+                        <!-- In-App Notifications -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-bell text-success me-2"></i>In-App Notifications
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="appMessages" 
+                                               name="app_messages" {% if setting.app_messages %}checked{% endif %}>
+                                        <label class="form-check-label" for="appMessages">
+                                            <strong>New Messages</strong>
+                                            <p class="small text-muted mb-0">Show notifications for new messages</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="appEvents" 
+                                               name="app_events" {% if setting.app_events %}checked{% endif %}>
+                                        <label class="form-check-label" for="appEvents">
+                                            <strong>Event Reminders</strong>
+                                            <p class="small text-muted mb-0">Get in-app reminders for events</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="appPayments" 
+                                               name="app_payments" {% if setting.app_payments %}checked{% endif %}>
+                                        <label class="form-check-label" for="appPayments">
+                                            <strong>Payment Updates</strong>
+                                            <p class="small text-muted mb-0">Show payment status notifications</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <!-- Note: app_announcements is not in your model, so removed -->
+                            </div>
+                        </div>
+
+                        <!-- Digest Settings -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-clock text-info me-2"></i>Digest Settings
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Email Digest Frequency</label>
+                                    <select name="digest" class="form-select">
+                                        <option value="never" {% if setting.digest == 'never' %}selected{% endif %}>Never</option>
+                                        <option value="daily" {% if setting.digest == 'daily' %}selected{% endif %}>Daily</option>
+                                        <option value="weekly" {% if setting.digest == 'weekly' %}selected{% endif %}>Weekly</option>
+                                    </select>
+                                    <small class="text-muted">Receive a summary of all notifications</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quiet Hours -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-moon text-warning me-2"></i>Quiet Hours
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Start Time</label>
+                                        <input type="time" name="quiet_start" class="form-control" 
+                                               value="{{ setting.quiet_start|time:'H:i'|default:'22:00' }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">End Time</label>
+                                        <input type="time" name="quiet_end" class="form-control" 
+                                               value="{{ setting.quiet_end|time:'H:i'|default:'07:00' }}">
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Notifications will be muted during quiet hours
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Save Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i>Save Settings
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetToDefault()">
+                                <i class="fas fa-undo me-2"></i>Reset to Default
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <h6 class="fw-bold"><i class="fas fa-info-circle me-2 text-info"></i>About Notifications</h6>
+                    <p class="small text-muted mb-2">
+                        You can customize how and when you receive notifications. Changes will take effect immediately.
+                    </p>
+                    <p class="small text-muted mb-0">
+                        <i class="fas fa-check-circle text-success me-1"></i>
+                        Email notifications are sent to: <strong>{{ user.email }}</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Confirmation Modal -->
+<div class="modal fade" id="resetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">
+                    <i class="fas fa-undo me-2"></i>Reset Settings
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to reset all notification settings to default?</p>
+                <p class="small text-muted mb-0">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" onclick="confirmReset()">Reset to Default</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+</style>
+
+<script>
+function resetToDefault() {
+    new bootstrap.Modal(document.getElementById('resetModal')).show();
+}
+
+function confirmReset() {
+    // Set default values based on your model defaults
+    document.getElementById('emailMessages').checked = true;
+    document.getElementById('emailEvents').checked = true;
+    document.getElementById('emailPayments').checked = true;
+    
+    document.getElementById('appMessages').checked = true;
+    document.getElementById('appEvents').checked = true;
+    document.getElementById('appPayments').checked = true;
+    
+    document.querySelector('select[name="digest"]').value = 'never';  // Your model default is 'never'
+    document.querySelector('input[name="quiet_start"]').value = '22:00';
+    document.querySelector('input[name="quiet_end"]').value = '07:00';
+    
+    bootstrap.Modal.getInstance(document.getElementById('resetModal')).hide();
+    
+    // Show success message
+    alert('Settings have been reset to default values. Click Save Settings to apply changes.');
+}
+
+// Validate quiet hours
+document.getElementById('settingsForm').addEventListener('submit', function(e) {
+    const quietStart = document.querySelector('input[name="quiet_start"]').value;
+    const quietEnd = document.querySelector('input[name="quiet_end"]').value;
+    
+    if (quietStart && quietEnd && quietStart === quietEnd) {
+        e.preventDefault();
+        alert('Quiet hours start and end times cannot be the same.');
+        return;
+    }
+    
+    // Optional: Show saving feedback
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+    
+    // Form will submit normally
+    setTimeout(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }, 3000);
+});
+
+// Debug: Log current settings on page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Current settings:', {
+        email_messages: document.getElementById('emailMessages').checked,
+        email_events: document.getElementById('emailEvents').checked,
+        email_payments: document.getElementById('emailPayments').checked,
+        app_messages: document.getElementById('appMessages').checked,
+        app_events: document.getElementById('appEvents').checked,
+        app_payments: document.getElementById('appPayments').checked,
+        digest: document.querySelector('select[name="digest"]').value,
+        quiet_start: document.querySelector('input[name="quiet_start"]').value,
+        quiet_end: document.querySelector('input[name="quiet_end"]').value
+    });
+});
+</script>
+{% endblock %}

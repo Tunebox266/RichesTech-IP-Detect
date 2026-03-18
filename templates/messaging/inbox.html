@@ -1,0 +1,601 @@
+<!-- templates/messaging/inbox.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inbox - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-inbox me-2"></i>Messages
+        </h1>
+        <div>
+            <span class="badge bg-primary me-2">
+                <i class="fas fa-envelope me-1"></i>Total: {{ messages.paginator.count }}
+            </span>
+            <span class="badge bg-warning me-2">
+                <i class="fas fa-envelope-open me-1"></i>Unread: {{ unread_count }}
+            </span>
+            <a href="{% url 'messaging:compose' %}" class="btn btn-sm btn-primary shadow-sm">
+                <i class="fas fa-pen me-1"></i>Compose
+            </a>
+        </div>
+    </div>
+
+    <!-- Message Tabs -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {% if active_tab == 'inbox' %}active{% endif %}" 
+                       href="{% url 'messaging:inbox' %}">
+                        <i class="fas fa-inbox me-1"></i>Inbox
+                        {% if unread_count > 0 %}
+                            <span class="badge bg-danger ms-1">{{ unread_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if active_tab == 'sent' %}active{% endif %}" 
+                       href="{% url 'messaging:sent' %}">
+                        <i class="fas fa-paper-plane me-1"></i>Sent
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if active_tab == 'drafts' %}active{% endif %}" 
+                       href="#">
+                        <i class="fas fa-save me-1"></i>Drafts
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if active_tab == 'archived' %}active{% endif %}" 
+                       href="#">
+                        <i class="fas fa-archive me-1"></i>Archived
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="card-body border-bottom">
+            <form method="GET" action="{% url 'messaging:inbox' %}" id="filterForm">
+                <div class="row">
+                    <div class="col-md-5 mb-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" name="q" class="form-control" 
+                                   placeholder="Search messages..." value="{{ request.GET.q|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select name="status" class="form-select">
+                            <option value="">All Messages</option>
+                            <option value="unread" {% if request.GET.status == 'unread' %}selected{% endif %}>Unread Only</option>
+                            <option value="read" {% if request.GET.status == 'read' %}selected{% endif %}>Read Only</option>
+                            <option value="starred" {% if request.GET.status == 'starred' %}selected{% endif %}>Starred</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <select name="date" class="form-select">
+                            <option value="">Any Date</option>
+                            <option value="today" {% if request.GET.date == 'today' %}selected{% endif %}>Today</option>
+                            <option value="week" {% if request.GET.date == 'week' %}selected{% endif %}>This Week</option>
+                            <option value="month" {% if request.GET.date == 'month' %}selected{% endif %}>This Month</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i>Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Message List -->
+        <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+                {% for message in messages %}
+                <div class="list-group-item message-item {% if not message.is_read %}unread{% endif %} {% if message.is_starred %}starred{% endif %}"
+                     data-message-id="{{ message.id }}" id="message-{{ message.id }}">
+                    <div class="row align-items-center">
+                        <!-- Checkbox -->
+                        <div class="col-auto">
+                            <input type="checkbox" class="form-check-input message-checkbox" value="{{ message.id }}">
+                        </div>
+                        
+                        <!-- Star -->
+                        <div class="col-auto">
+                            <button class="btn btn-sm btn-link p-0 star-btn" onclick="toggleStar({{ message.id }})">
+                                <i class="fas fa-star {% if message.is_starred %}text-warning{% else %}text-muted{% endif %}"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Sender/Recipient -->
+                        <div class="col-md-2">
+                            {% if active_tab == 'inbox' %}
+                                <div class="d-flex align-items-center">
+                                    {% if message.sender.profile_image %}
+                                        <img src="{{ message.sender.profile_image.url }}" 
+                                             class="rounded-circle me-2" width="32" height="32">
+                                    {% else %}
+                                        <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                             style="width:32px;height:32px;">
+                                            <i class="fas fa-user text-white"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ message.sender.get_full_name|default:message.sender.username }}</strong>
+                                        <small class="text-muted d-block">{{ message.sender.user_type|title }}</small>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="d-flex align-items-center">
+                                    {% if message.recipient.profile_image %}
+                                        <img src="{{ message.recipient.profile_image.url }}" 
+                                             class="rounded-circle me-2" width="32" height="32">
+                                    {% else %}
+                                        <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                             style="width:32px;height:32px;">
+                                            <i class="fas fa-user text-white"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ message.recipient.get_full_name|default:message.recipient.username }}</strong>
+                                        <small class="text-muted d-block">{{ message.recipient.user_type|title }}</small>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Message Preview -->
+                        <div class="col-md-6">
+                            <a href="{% url 'messaging:message_detail' message.id %}" class="text-decoration-none text-dark">
+                                <div class="d-flex align-items-center">
+                                    {% if not message.is_read and active_tab == 'inbox' %}
+                                        <span class="badge bg-primary me-2">New</span>
+                                    {% endif %}
+                                    {% if message.is_urgent %}
+                                        <span class="badge bg-danger me-2">Urgent</span>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ message.subject }}</strong>
+                                        <small class="text-muted d-block">
+                                            {{ message.body|truncatechars:60 }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- Attachments -->
+                        <div class="col-auto">
+                            {% if message.attachments.count > 0 %}
+                                <span class="badge bg-info" title="Has attachments">
+                                    <i class="fas fa-paperclip me-1"></i>{{ message.attachments.count }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Date -->
+                        <div class="col-auto ms-auto">
+                            <small class="text-muted" title="{{ message.sent_at|date:'F d, Y H:i' }}">
+                                {{ message.sent_at|timesince }} ago
+                            </small>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="col-auto">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-link" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'messaging:message_detail' message.id %}">
+                                            <i class="fas fa-eye me-2"></i>View
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'messaging:reply_message' message.id %}">
+                                            <i class="fas fa-reply me-2"></i>Reply
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" onclick="toggleStar({{ message.id }})">
+                                            <i class="fas fa-star me-2"></i>
+                                            {% if message.is_starred %}Unstar{% else %}Star{% endif %}
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="#" onclick="deleteMessage({{ message.id }})">
+                                            <i class="fas fa-trash me-2"></i>Delete
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="list-group-item text-center py-5">
+                    <i class="fas fa-envelope-open fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Messages</h5>
+                    <p class="text-muted mb-3">Your inbox is empty.</p>
+                    <a href="{% url 'messaging:compose' %}" class="btn btn-primary">
+                        <i class="fas fa-pen me-2"></i>Compose First Message
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        {% if messages %}
+        <div class="card-footer">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <input type="checkbox" class="form-check-input" id="selectAll">
+                </div>
+                <div class="col-auto">
+                    <label class="form-check-label" for="selectAll">Select All</label>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-outline-primary" onclick="markAsRead()">
+                        <i class="fas fa-envelope-open me-1"></i>Mark as Read
+                    </button>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-outline-warning" onclick="starSelected()">
+                        <i class="fas fa-star me-1"></i>Star
+                    </button>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteSelected()">
+                        <i class="fas fa-trash me-1"></i>Delete
+                    </button>
+                </div>
+                <div class="col-auto ms-auto">
+                    <span class="text-muted" id="selectedCount">0 selected</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if messages.has_other_pages %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Messages pagination">
+                <ul class="pagination justify-content-center">
+                    {% if messages.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ messages.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                        </li>
+                    {% endif %}
+
+                    {% for i in messages.paginator.page_range %}
+                        {% if messages.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% elif i > messages.number|add:'-3' and i < messages.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if messages.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ messages.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Compose Quick Message Modal -->
+<div class="modal fade" id="composeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-pen me-2"></i>Quick Message
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'messaging:compose' %}" method="POST" id="quickComposeForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">To</label>
+                        <select name="recipient" class="form-select" required>
+                            <option value="">Select recipient...</option>
+                            {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.get_full_name }} ({{ user.user_type|title }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Subject</label>
+                        <input type="text" name="subject" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Message</label>
+                        <textarea name="body" class="form-control" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i>Send
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.message-item {
+    transition: background-color 0.2s ease;
+    border-left: 3px solid transparent;
+}
+.message-item:hover {
+    background-color: #f8f9fc;
+}
+.message-item.unread {
+    background-color: #f0f7ff;
+    border-left-color: #4e73df;
+    font-weight: 500;
+}
+.message-item.starred {
+    border-left-color: #f6c23e;
+}
+.message-item .star-btn {
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+.message-item:hover .star-btn {
+    opacity: 1;
+}
+.badge {
+    font-size: 0.7rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Select All functionality
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.message-checkbox');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => {
+                cb.checked = this.checked;
+            });
+            updateSelectedCount();
+        });
+    }
+    
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateSelectedCount);
+    });
+    
+    function updateSelectedCount() {
+        const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+        if (selectedCount) {
+            if (checked === 0) {
+                selectedCount.textContent = 'No messages selected';
+            } else {
+                selectedCount.textContent = checked + ' message(s) selected';
+            }
+        }
+    }
+});
+
+function toggleStar(messageId) {
+    fetch(`/messaging/${messageId}/star/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload page to show updated star status
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to update star status. Please try again.');
+    });
+}
+
+function deleteMessage(messageId) {
+    if (confirm('Are you sure you want to delete this message?')) {
+        fetch(`/messaging/${messageId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove message from DOM with animation
+                const messageElement = document.getElementById(`message-${messageId}`);
+                if (messageElement) {
+                    messageElement.style.transition = 'opacity 0.3s';
+                    messageElement.style.opacity = '0';
+                    setTimeout(() => {
+                        messageElement.remove();
+                        // Update counts
+                        updateSelectedCount();
+                        // Show success message
+                        showToast('Message deleted successfully', 'success');
+                    }, 300);
+                } else {
+                    location.reload();
+                }
+            } else {
+                alert(data.error || 'Failed to delete message');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to delete message. Please try again.');
+        });
+    }
+}
+
+function markAsRead() {
+    const selected = Array.from(document.querySelectorAll('.message-checkbox:checked'))
+        .map(cb => cb.value);
+    
+    if (selected.length === 0) {
+        alert('Please select messages to mark as read.');
+        return;
+    }
+    
+    fetch('{% url "messaging:bulk_mark_read" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message_ids: selected })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Failed to mark messages as read');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to mark messages as read. Please try again.');
+    });
+}
+
+function starSelected() {
+    const selected = Array.from(document.querySelectorAll('.message-checkbox:checked'))
+        .map(cb => cb.value);
+    
+    if (selected.length === 0) {
+        alert('Please select messages to star.');
+        return;
+    }
+    
+    fetch('{% url "messaging:bulk_star" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message_ids: selected })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Failed to star messages');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to star messages. Please try again.');
+    });
+}
+
+function deleteSelected() {
+    const selected = Array.from(document.querySelectorAll('.message-checkbox:checked'))
+        .map(cb => cb.value);
+    
+    if (selected.length === 0) {
+        alert('Please select messages to delete.');
+        return;
+    }
+    
+    if (confirm(`Are you sure you want to delete ${selected.length} message(s)?`)) {
+        fetch('{% url "messaging:bulk_delete" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message_ids: selected })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error || 'Failed to delete messages');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to delete messages. Please try again.');
+        });
+    }
+}
+
+function showToast(message, type = 'info') {
+    // Use global toast function if available
+    if (window.showToast) {
+        window.showToast(message, type);
+    } else {
+        // Fallback alert
+        alert(message);
+    }
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + N to compose new message
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        new bootstrap.Modal(document.getElementById('composeModal')).show();
+    }
+    
+    // Ctrl/Cmd + A to select all
+    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        const selectAll = document.getElementById('selectAll');
+        if (selectAll && document.activeElement.tagName !== 'INPUT' && 
+            document.activeElement.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            selectAll.click();
+        }
+    }
+});
+</script>
+{% endblock %}

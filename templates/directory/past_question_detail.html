@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ past_question.course_code }} - Past Question - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-history me-2"></i>Past Question Details
+        </h1>
+        <div>
+            <a href="{% url 'directory:past_question_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to List
+            </a>
+            <a href="{% url 'directory:download_past_question' past_question.id %}" class="btn btn-success btn-sm">
+                <i class="fas fa-download me-1"></i>Download ({{ past_question.downloads }})
+            </a>
+            {% if request.user.user_type in 'admin,staff' %}
+                <a href="{% url 'directory:past_question_delete' past_question.id %}" class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash me-1"></i>Delete
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Question Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h4 class="fw-bold">{{ past_question.title }}</h4>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Course Code:</th>
+                                    <td><span class="badge bg-primary p-2">{{ past_question.course_code }}</span></td>
+                                </tr>
+                                {% if past_question.course_name %}
+                                <tr>
+                                    <th>Course Name:</th>
+                                    <td>{{ past_question.course_name }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <th>Level:</th>
+                                    <td>{{ past_question.get_level_display }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Semester:</th>
+                                    <td>{{ past_question.get_semester_display }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Academic Year:</th>
+                                    <td>{{ past_question.academic_year }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Exam Year:</th>
+                                    <td>{{ past_question.exam_year }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Uploaded:</th>
+                                    <td>{{ past_question.uploaded_at|date:"M d, Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Downloads:</th>
+                                    <td>{{ past_question.downloads }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr>
+                    
+                    <h6 class="fw-bold">File Preview</h6>
+                    <div class="border rounded p-3 bg-light">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file-pdf fa-3x text-danger me-3"></i>
+                            <div>
+                                <h6 class="mb-1">{{ past_question.filename }}</h6>
+                                <small class="text-muted">Size: {{ past_question.file_size|filesizeformat }}</small>
+                            </div>
+                            <a href="{% url 'directory:download_past_question' past_question.id %}" class="btn btn-primary ms-auto">
+                                <i class="fas fa-download me-1"></i>Download
+                            </a>
+                        </div>
+                    </div>
+
+                    {% if past_question.file.name|slice:'-3:' == 'pdf' %}
+                    <div class="mt-4">
+                        <iframe src="{{ past_question.file.url }}" width="100%" height="500px" style="border: 1px solid #ddd;"></iframe>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Stats Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar me-1"></i>Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Downloads:</span>
+                            <span class="fw-bold">{{ past_question.downloads }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Views:</span>
+                            <span class="fw-bold">{{ past_question.views }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Questions -->
+            {% if related %}
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-link me-1"></i>Related Questions
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for item in related %}
+                        <a href="{% url 'directory:past_question_detail' item.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ item.course_code }}</strong>
+                                    <small class="d-block text-muted">{{ item.exam_year }}</small>
+                                </div>
+                                <span class="badge bg-info">{{ item.downloads }}</span>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

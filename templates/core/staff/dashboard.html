@@ -1,0 +1,460 @@
+<!-- templates/core/staff/dashboard.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Staff Dashboard - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-chalkboard-teacher me-2"></i>Staff Dashboard
+        </h1>
+        <div>
+            <span class="badge bg-success me-2">
+                <i class="fas fa-calendar me-1"></i>{{ current_date|date:"F d, Y" }}
+            </span>
+            <a href="{% url 'accounts:profile' %}" class="btn btn-sm btn-success shadow-sm">
+                <i class="fas fa-user-circle fa-sm me-1"></i>My Profile
+            </a>
+        </div>
+    </div>
+
+    <!-- Welcome Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-success text-white shadow-lg">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-lg-8">
+                            <h4 class="mb-2">
+                                <i class="fas fa-chalkboard-teacher me-2"></i>Welcome, {{ request.user.get_full_name }}!
+                            </h4>
+                            <p class="mb-0">
+                                <i class="fas fa-clock me-1"></i>
+                                Last login: {{ request.user.last_login|date:"F d, Y H:i" }}
+                            </p>
+                        </div>
+                        <div class="col-lg-4 text-lg-end">
+                            <span class="badge bg-light text-dark p-2">
+                                <i class="fas fa-id-card me-1"></i>Staff ID: {{ request.user.staff_id }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row">
+        <!-- Courses Teaching -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                <i class="fas fa-book me-1"></i>My Courses
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ courses_teaching|default:"0" }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-book-open fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 small">
+                    <a href="{% url 'courses:course_list' %}" class="text-primary">Manage Courses <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Students -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                <i class="fas fa-users me-1"></i>Total Students
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_students|default:"0" }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 small">
+                    <a href="{% url 'accounts:user_list' %}?type=student" class="text-success">View All <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Materials Uploaded -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                <i class="fas fa-file-alt me-1"></i>Materials Uploaded
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ materials_uploaded|default:"0" }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-cloud-upload-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 small">
+                    <a href="{% url 'courses:upload_material' %}" class="text-info">Upload New <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                <i class="fas fa-calendar me-1"></i>Upcoming Events
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ upcoming_events|default:"0" }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 small">
+                    <a href="{% url 'events:event_list' %}" class="text-warning">View Events <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Row -->
+    <div class="row">
+        <!-- My Courses -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-book me-1"></i>My Courses
+                    </h6>
+                    <a href="{% url 'courses:course_create' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-1"></i>Add Course
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for course in my_courses|slice:":5" %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ course.code }} - {{ course.title }}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-layer-group me-1"></i>Level {{ course.level }} | 
+                                        <i class="fas fa-clock me-1"></i>{{ course.get_semester_display }}
+                                    </small>
+                                </div>
+                                <div>
+                                    <span class="badge bg-info me-2">{{ course.student_count }} students</span>
+                                    <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center py-4">
+                            <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No courses assigned yet</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'courses:course_list' %}" class="btn btn-sm btn-primary">View All Courses</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Materials -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-file-alt me-1"></i>Recent Materials
+                    </h6>
+                    <a href="{% url 'courses:upload_material' %}" class="btn btn-sm btn-success">
+                        <i class="fas fa-upload me-1"></i>Upload
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for material in recent_materials|slice:":5" %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ material.title }}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-book me-1"></i>{{ material.course.code }} |
+                                        <i class="fas fa-download me-1"></i>{{ material.downloads }} downloads |
+                                        <i class="fas fa-clock me-1"></i>{{ material.uploaded_at|timesince }} ago
+                                    </small>
+                                </div>
+                                <div>
+                                    <span class="badge bg-secondary me-2">{{ material.get_material_type_display }}</span>
+                                    <a href="{% url 'courses:download_material' material.id %}" class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center py-4">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No materials uploaded yet</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second Row -->
+    <div class="row">
+        <!-- Student List by Course -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-users me-1"></i>Students by Course
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Level</th>
+                                    <th>Students</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for course in course_student_counts|slice:":5" %}
+                                <tr>
+                                    <td>{{ course.code }}</td>
+                                    <td>Level {{ course.level }}</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ course.student_count }}</span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'courses:course_students' course.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-list"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-3">No courses available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Tasks & Notifications -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-tasks me-1"></i>Pending Tasks
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-check-circle text-warning me-2"></i>
+                                    <span>Grade pending assignments</span>
+                                </div>
+                                <span class="badge bg-warning">{{ pending_grades|default:"0" }}</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-file-alt text-info me-2"></i>
+                                    <span>Review course materials</span>
+                                </div>
+                                <span class="badge bg-info">{{ pending_reviews|default:"0" }}</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-envelope text-primary me-2"></i>
+                                    <span>Unread messages</span>
+                                </div>
+                                <span class="badge bg-primary">{{ unread_messages|default:"0" }}</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-calendar text-success me-2"></i>
+                                    <span>Upcoming classes today</span>
+                                </div>
+                                <span class="badge bg-success">{{ today_classes|default:"0" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'messaging:inbox' %}" class="btn btn-sm btn-primary">Go to Messages</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bolt me-1"></i>Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <a href="{% url 'courses:upload_material' %}" class="btn btn-outline-primary w-100 mb-2">
+                                <i class="fas fa-upload me-2"></i>Upload Material
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'events:event_create' %}" class="btn btn-outline-success w-100 mb-2">
+                                <i class="fas fa-calendar-plus me-2"></i>Create Event
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'messaging:compose' %}" class="btn btn-outline-info w-100 mb-2">
+                                <i class="fas fa-envelope me-2"></i>Send Message
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'attendance:mark_attendance' %}" class="btn btn-outline-warning w-100 mb-2">
+                                <i class="fas fa-qrcode me-2"></i>Take Attendance
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-clock me-1"></i>Today's Schedule
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Course</th>
+                                    <th>Level</th>
+                                    <th>Venue</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for class in today_schedule %}
+                                <tr>
+                                    <td>{{ class.time }}</td>
+                                    <td>{{ class.course }}</td>
+                                    <td>Level {{ class.level }}</td>
+                                    <td>{{ class.venue }}</td>
+                                    <td>
+                                        {% if class.status == 'ongoing' %}
+                                            <span class="badge bg-success">Ongoing</span>
+                                        {% elif class.status == 'upcoming' %}
+                                            <span class="badge bg-warning">Upcoming</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Completed</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">
+                                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted mb-0">No classes scheduled for today</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-primary {
+    border-left: 4px solid #4e73df;
+}
+.border-left-success {
+    border-left: 4px solid #1cc88a;
+}
+.border-left-info {
+    border-left: 4px solid #36b9cc;
+}
+.border-left-warning {
+    border-left: 4px solid #f6c23e;
+}
+.bg-gradient-success {
+    background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+}
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+.list-group-item {
+    transition: background-color 0.2s ease;
+}
+.list-group-item:hover {
+    background-color: #f8f9fc;
+}
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+</style>
+{% endblock %}

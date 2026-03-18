@@ -1,0 +1,512 @@
+<!-- templates/core/blog_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load core_tags %}
+
+{% block title %}{{ blog.title }} - MELTSA-TaTU Blog{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Blog Post -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Back to Blog Link -->
+            <div class="mb-4">
+                <a href="{% url 'core:blog_list' %}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Blog
+                </a>
+            </div>
+
+            <!-- Blog Post Card -->
+            <div class="card shadow mb-4">
+                {% if blog.featured_image %}
+                <img src="{{ blog.featured_image.url }}" class="card-img-top" alt="{{ blog.title }}" style="max-height: 400px; object-fit: cover;">
+                {% endif %}
+                
+                <div class="card-body">
+                    <!-- Meta Info -->
+                    <div class="mb-3">
+                        <h1 class="display-5 fw-bold">{{ blog.title }}</h1>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="text-muted">
+                                <i class="fas fa-user me-1"></i>{{ blog.author.get_full_name|default:blog.author.username }} |
+                                <i class="fas fa-calendar me-1 ms-2"></i>{{ blog.created_at|date:"F d, Y" }} |
+                                <i class="fas fa-clock me-1 ms-2"></i>{{ blog.read_time|default:"5" }} min read |
+                                <i class="fas fa-eye me-1 ms-2"></i>{{ blog.views }} views
+                            </div>
+                            <div>
+                                {% for tag in blog.tags.all %}
+                                <span class="badge bg-primary">{{ tag.name }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        {% if blog.category %}
+                        <span class="badge bg-info mb-3">
+                            <i class="fas fa-folder me-1"></i>{{ blog.category.name }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Blog Content -->
+                    <div class="blog-content">
+                        {{ blog.content|safe }}
+                    </div>
+                    
+                    <!-- Attachment -->
+                    {% if blog.attachment %}
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6><i class="fas fa-paperclip me-2"></i>Attachments:</h6>
+                        <a href="{{ blog.attachment.url }}" class="btn btn-sm btn-outline-primary" download>
+                            <i class="fas fa-download me-1"></i>Download Attachment
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Footer with Like Button -->
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <button class="btn btn-outline-danger btn-sm like-button" 
+                                    data-type="post" 
+                                    data-id="{{ blog.id }}"
+                                    data-liked="{% if user_liked_post %}true{% else %}false{% endif %}">
+                                <i class="{% if user_liked_post %}fas{% else %}far{% endif %} fa-heart me-1"></i>
+                                <span class="like-count">{{ blog_likes_count }}</span> Likes
+                            </button>
+                            <button class="btn btn-outline-info btn-sm ms-2" onclick="sharePost()">
+                                <i class="fas fa-share me-1"></i>Share
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Author Info -->
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>About the Author</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        {% if blog.author.profile_image %}
+                        <img src="{{ blog.author.profile_image.url }}" class="rounded-circle me-3" width="60" height="60">
+                        {% else %}
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:60px;height:60px;">
+                            <i class="fas fa-user fa-2x"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h6 class="mb-1">{{ blog.author.get_full_name|default:blog.author.username }}</h6>
+                            <p class="text-muted small mb-0">{{ blog.author.bio|default:"No bio available." }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Comments ({{ comments.count }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if request.user.is_authenticated %}
+                    <form method="POST" action="{% url 'core:blog_comment_add' blog.id %}" class="mb-4" id="commentForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <textarea name="content" class="form-control" rows="3" placeholder="Write a comment..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>Post Comment
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Please <a href="{% url 'accounts:login' %}?next={{ request.path }}">login</a> to leave a comment.
+                    </div>
+                    {% endif %}
+
+                    <!-- Comments List -->
+                    <div class="comments-section">
+                        {% for comment in comments %}
+                        <div class="d-flex mb-3 pb-3 border-bottom" id="comment-{{ comment.id }}">
+                            <div class="flex-shrink-0 me-2">
+                                {% if comment.user.profile_image %}
+                                <img src="{{ comment.user.profile_image.url }}" class="rounded-circle" width="40" height="40">
+                                {% else %}
+                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="mb-1">{{ comment.user.get_full_name }}</h6>
+                                    <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+                                </div>
+                                <p class="mb-1">{{ comment.content }}</p>
+                                <div class="d-flex align-items-center">
+                                    <button class="btn btn-sm btn-link p-0 me-3 like-button" 
+                                            data-type="comment" 
+                                            data-id="{{ comment.id }}"
+                                            data-liked="{% if comment.id in liked_comment_ids %}true{% else %}false{% endif %}">
+                                        <i class="{% if comment.id in liked_comment_ids %}fas{% else %}far{% endif %} fa-heart text-danger me-1"></i>
+                                        <span class="like-count">{{ comment.likes_count }}</span>
+                                    </button>
+                                    <button class="btn btn-sm btn-link p-0" onclick="replyToComment({{ comment.id }})">
+                                        <i class="far fa-comment me-1"></i> Reply
+                                    </button>
+                                    {% if request.user == comment.user %}
+                                    <button class="btn btn-sm btn-link text-danger p-0 ms-3" onclick="deleteComment({{ comment.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Replies -->
+                                {% for reply in comment.replies.all %}
+                                <div class="d-flex mt-3 ms-4">
+                                    <div class="flex-shrink-0 me-2">
+                                        {% if reply.user.profile_image %}
+                                        <img src="{{ reply.user.profile_image.url }}" class="rounded-circle" width="30" height="30">
+                                        {% else %}
+                                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="d-flex justify-content-between">
+                                            <h6 class="mb-1">{{ reply.user.get_full_name }}</h6>
+                                            <small class="text-muted ms-2">{{ reply.created_at|timesince }} ago</small>
+                                        </div>
+                                        <p class="mb-1">{{ reply.content }}</p>
+                                        <button class="btn btn-sm btn-link p-0 like-button" 
+                                                data-type="comment" 
+                                                data-id="{{ reply.id }}"
+                                                data-liked="{% if reply.id in liked_comment_ids %}true{% else %}false{% endif %}">
+                                            <i class="{% if reply.id in liked_comment_ids %}fas{% else %}far{% endif %} fa-heart text-danger me-1"></i>
+                                            <span class="like-count">{{ reply.likes_count }}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center py-3">No comments yet. Be the first to comment!</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reply Modal -->
+<div class="modal fade" id="replyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-reply me-2"></i>Reply to Comment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'core:blog_comment_reply' %}" id="replyForm">
+                {% csrf_token %}
+                <input type="hidden" name="comment_id" id="replyCommentId">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <textarea name="content" class="form-control" rows="3" placeholder="Write your reply..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Post Reply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;"></div>
+
+<style>
+.blog-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+.blog-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+.blog-content h2, .blog-content h3 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+.comments-section {
+    max-height: 500px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    padding-right: 10px;
+}
+.comments-section::-webkit-scrollbar {
+    width: 5px;
+}
+.comments-section::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 5px;
+}
+.like-button {
+    transition: transform 0.2s ease;
+}
+.like-button:hover {
+    transform: scale(1.1);
+}
+.like-button i {
+    transition: all 0.2s ease;
+}
+</style>
+
+<script>
+// Toast notification function
+function showToast(message, type = 'success') {
+    const toastContainer = document.querySelector('.toast-container');
+    const toastId = 'toast-' + Date.now();
+    const icon = type === 'success' ? 'check-circle' : (type === 'error' ? 'exclamation-circle' : 'info-circle');
+    const bgColor = type === 'success' ? 'bg-success' : (type === 'error' ? 'bg-danger' : 'bg-info');
+    
+    const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center text-white ${bgColor} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-${icon} me-2"></i>${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    toast.show();
+    
+    toastElement.addEventListener('hidden.bs.toast', function() {
+        this.remove();
+    });
+}
+
+// Like functionality
+document.querySelectorAll('.like-button').forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const type = this.dataset.type;
+        const id = this.dataset.id;
+        const url = type === 'post' 
+            ? `/core/blog/${id}/like/` 
+            : `/core/blog/comment/${id}/like/`;
+        
+        // Disable button to prevent double clicks
+        this.disabled = true;
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update like count
+                const countSpan = this.querySelector('.like-count');
+                countSpan.textContent = data.like_count;
+                
+                // Update heart icon
+                const icon = this.querySelector('i');
+                if (data.liked) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                }
+                
+                // Update data-liked attribute
+                this.dataset.liked = data.liked;
+                
+                // Show success message
+                showToast(data.liked ? 'Liked!' : 'Unliked', 'success');
+            } else {
+                showToast('Error: ' + (data.error || 'Failed to process like'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Network error occurred', 'error');
+        })
+        .finally(() => {
+            // Re-enable button
+            this.disabled = false;
+        });
+    });
+});
+
+function sharePost() {
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ blog.title }}',
+            text: 'Check out this article on MELTSA-TaTU Blog',
+            url: window.location.href
+        })
+        .catch(() => {
+            prompt('Copy this link to share:', window.location.href);
+        });
+    } else {
+        prompt('Copy this link to share:', window.location.href);
+    }
+}
+
+function replyToComment(commentId) {
+    document.getElementById('replyCommentId').value = commentId;
+    new bootstrap.Modal(document.getElementById('replyModal')).show();
+}
+
+function deleteComment(commentId) {
+    if (confirm('Delete this comment? This action cannot be undone.')) {
+        fetch(`/core/blog/comment/${commentId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const commentElement = document.getElementById(`comment-${commentId}`);
+                if (commentElement) {
+                    commentElement.remove();
+                    showToast('Comment deleted successfully', 'success');
+                    
+                    // Update comment count in header
+                    const commentHeader = document.querySelector('.card-header h5');
+                    const currentCount = parseInt(commentHeader.innerText.match(/\d+/)[0]);
+                    commentHeader.innerHTML = `<i class="fas fa-comments me-2"></i>Comments (${currentCount - 1})`;
+                }
+            } else {
+                showToast('Error deleting comment', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Network error occurred', 'error');
+        });
+    }
+}
+
+// Handle comment form submission
+document.getElementById('commentForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    // Disable button and show loading
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Posting...';
+    
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Clear the form
+            this.reset();
+            showToast('Comment posted successfully!', 'success');
+            
+            // Reload to show new comment (simplest approach)
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.error || 'Error adding comment', 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Network error occurred', 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+});
+
+// Handle reply form submission
+document.getElementById('replyForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Posting...';
+    
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('replyModal')).hide();
+            showToast('Reply posted successfully!', 'success');
+            
+            // Reload to show new reply
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.error || 'Error posting reply', 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Network error occurred', 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+});
+
+// Track reading time for analytics
+let startTime = Date.now();
+window.addEventListener('beforeunload', function() {
+    const timeSpent = Math.round((Date.now() - startTime) / 1000);
+    if (timeSpent > 30) { // Only track if spent more than 30 seconds
+        navigator.sendBeacon(`/core/blog/{{ blog.id }}/read-time/`, JSON.stringify({
+            time_spent: timeSpent
+        }));
+    }
+});
+</script>
+{% endblock %}

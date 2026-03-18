@@ -1,0 +1,278 @@
+<!-- templates/accounts/admin/user_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} User - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-user-edit me-2"></i>{{ action }} User
+        </h1>
+        <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Users
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- User Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-user me-1"></i>User Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="userForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Basic Information -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Username <span class="text-danger">*</span></label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger small">{{ form.username.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Email <span class="text-danger">*</span></label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">First Name <span class="text-danger">*</span></label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small">{{ form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Last Name <span class="text-danger">*</span></label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small">{{ form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- User Type and Status -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">User Type <span class="text-danger">*</span></label>
+                                {{ form.user_type }}
+                                {% if form.user_type.errors %}
+                                    <div class="text-danger small">{{ form.user_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Profile Image</label>
+                                {{ form.profile_image }}
+                                {% if form.profile_image.errors %}
+                                    <div class="text-danger small">{{ form.profile_image.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Student/Executive Specific Fields -->
+                        <div id="studentFields" style="display: none;">
+                            <hr>
+                            <h6 class="fw-bold text-primary">Student Information</h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">Program Type</label>
+                                    {{ form.program_type }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">Year of Admission</label>
+                                    {{ form.year_of_admission }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">Level</label>
+                                    {{ form.level }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Executive Position (if applicable) -->
+                        <div id="executivePosition" style="display: none;">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Executive Position</label>
+                                <select name="executive_position" class="form-select">
+                                    <option value="">Select Position</option>
+                                    <option value="president">President</option>
+                                    <option value="vice_president">Vice President</option>
+                                    <option value="secretary">Secretary</option>
+                                    <option value="treasurer">Treasurer</option>
+                                    <option value="financial_secretary">Financial Secretary</option>
+                                    <option value="organizer">Organizer</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Password Fields (only for create) -->
+                        {% if action == 'Create' %}
+                        <hr>
+                        <h6 class="fw-bold text-primary">Password</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Password</label>
+                                {{ form.password1 }}
+                                <small class="text-muted">Leave blank to auto-generate</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Confirm Password</label>
+                                {{ form.password2 }}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Contact Information -->
+                        <hr>
+                        <h6 class="fw-bold text-primary">Contact Information</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Phone Number</label>
+                                {{ form.phone_number }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Date of Birth</label>
+                                {{ form.date_of_birth }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Address</label>
+                            {{ form.address }}
+                        </div>
+
+                        <!-- Status -->
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                        <i class="fas fa-check-circle text-success me-1"></i>Active
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    {{ form.requires_password_change }}
+                                    <label class="form-check-label" for="{{ form.requires_password_change.id_for_label }}">
+                                        <i class="fas fa-key text-warning me-1"></i>Require password change on next login
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <hr>
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>{{ action }} User
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Guidelines Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Student ID format: BTMLYY0001
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Staff ID format: STAFF001
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Password auto-generated if left blank
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Inactive users cannot login
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Password Info (for create) -->
+            {% if action == 'Create' %}
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-key me-1"></i>Password Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="small mb-0">
+                        <i class="fas fa-info-circle text-info me-1"></i>
+                        If you leave the password fields blank, a random password will be generated and sent to the user's email.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userTypeSelect = document.getElementById('id_user_type');
+    const studentFields = document.getElementById('studentFields');
+    const executivePosition = document.getElementById('executivePosition');
+
+    function toggleFields() {
+        const selectedType = userTypeSelect.value;
+        
+        if (selectedType === 'student' || selectedType === 'executive') {
+            studentFields.style.display = 'block';
+        } else {
+            studentFields.style.display = 'none';
+        }
+
+        if (selectedType === 'executive') {
+            executivePosition.style.display = 'block';
+        } else {
+            executivePosition.style.display = 'none';
+        }
+    }
+
+    userTypeSelect.addEventListener('change', toggleFields);
+    toggleFields(); // Initial call
+});
+</script>
+{% endblock %}

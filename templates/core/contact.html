@@ -1,0 +1,462 @@
+<!-- templates/core/contact.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Us - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Hero Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="hero-section position-relative overflow-hidden mb-5" 
+                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 300px;">
+                <div class="container h-100">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-lg-8 text-white py-5" data-aos="fade-right">
+                            <h1 class="display-4 fw-bold mb-4">Get in Touch</h1>
+                            <p class="lead mb-4">Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+                        </div>
+                        <div class="col-lg-4 d-none d-lg-block" data-aos="fade-left">
+                            <i class="fas fa-headset fa-8x text-white opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- Wave SVG -->
+                <svg class="position-absolute bottom-0 w-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
+                    <path fill="#ffffff" fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="row g-5">
+            <!-- Contact Information -->
+            <div class="col-lg-4" data-aos="fade-right">
+                <h2 class="fw-bold mb-4">Contact Information</h2>
+                
+                <!-- Address Card -->
+                <div class="card glass-card border-0 shadow-lg mb-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start">
+                            <div class="icon-circle bg-primary text-white me-3">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold">Visit Us</h5>
+                                <p class="text-muted mb-0">
+                                    {{ contact_info.address_line1 }}<br>
+                                    {% if contact_info.address_line2 %}{{ contact_info.address_line2 }}<br>{% endif %}
+                                    {{ contact_info.city }}, {{ contact_info.region }}<br>
+                                    {{ contact_info.country }} {{ contact_info.postal_code }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Card -->
+                <div class="card glass-card border-0 shadow-lg mb-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start">
+                            <div class="icon-circle bg-success text-white me-3">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold">Email Us</h5>
+                                <p class="text-muted mb-1">
+                                    <strong>General Inquiries:</strong><br>
+                                    <a href="mailto:{{ contact_info.primary_email }}" class="text-decoration-none">{{ contact_info.primary_email }}</a>
+                                </p>
+                                {% if contact_info.support_email %}
+                                <p class="text-muted mb-0">
+                                    <strong>Support:</strong><br>
+                                    <a href="mailto:{{ contact_info.support_email }}" class="text-decoration-none">{{ contact_info.support_email }}</a>
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phone Card -->
+                <div class="card glass-card border-0 shadow-lg mb-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start">
+                            <div class="icon-circle bg-info text-white me-3">
+                                <i class="fas fa-phone-alt"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold">Call Us</h5>
+                                <p class="text-muted mb-1">
+                                    <strong>Main Line:</strong><br>
+                                    <a href="tel:{{ contact_info.primary_phone }}" class="text-decoration-none">{{ contact_info.primary_phone }}</a>
+                                </p>
+                                {% if contact_info.support_phone %}
+                                <p class="text-muted mb-0">
+                                    <strong>Support:</strong><br>
+                                    <a href="tel:{{ contact_info.support_phone }}" class="text-decoration-none">{{ contact_info.support_phone }}</a>
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Office Hours Card -->
+                {% if contact_info.office_hours %}
+                <div class="card glass-card border-0 shadow-lg mb-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start">
+                            <div class="icon-circle bg-warning text-white me-3">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold">Office Hours</h5>
+                                <p class="text-muted mb-0">{{ contact_info.office_hours|linebreaks }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Social Media Links -->
+                <div class="card glass-card border-0 shadow-lg">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Follow Us</h5>
+                        <div class="social-links">
+                            {% if contact_info.facebook %}
+                                <a href="{{ contact_info.facebook }}" target="_blank" class="btn btn-outline-primary btn-lg me-2 mb-2">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                            {% endif %}
+                            {% if contact_info.twitter %}
+                                <a href="{{ contact_info.twitter }}" target="_blank" class="btn btn-outline-info btn-lg me-2 mb-2">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                            {% endif %}
+                            {% if contact_info.instagram %}
+                                <a href="{{ contact_info.instagram }}" target="_blank" class="btn btn-outline-danger btn-lg me-2 mb-2">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                            {% endif %}
+                            {% if contact_info.linkedin %}
+                                <a href="{{ contact_info.linkedin }}" target="_blank" class="btn btn-outline-primary btn-lg me-2 mb-2">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                            {% endif %}
+                            {% if contact_info.youtube %}
+                                <a href="{{ contact_info.youtube }}" target="_blank" class="btn btn-outline-danger btn-lg me-2 mb-2">
+                                    <i class="fab fa-youtube"></i>
+                                </a>
+                            {% endif %}
+                            {% if contact_info.whatsapp %}
+                                <a href="https://wa.me/{{ contact_info.whatsapp }}" target="_blank" class="btn btn-outline-success btn-lg me-2 mb-2">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="col-lg-8" data-aos="fade-left">
+                <div class="card glass-card border-0 shadow-lg">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4">
+                        <h2 class="fw-bold mb-0">Send Us a Message</h2>
+                        <p class="text-muted">Fill out the form below and we'll get back to you within 24 hours.</p>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="POST" action="{% url 'core:contact' %}" id="contactForm">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-danger">
+                                    {% for error in form.non_field_errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Full Name <span class="text-danger">*</span></label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">Phone Number (Optional)</label>
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                        <div class="text-danger small mt-1">{{ form.phone.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">Subject <span class="text-danger">*</span></label>
+                                    {{ form.subject }}
+                                    {% if form.subject.errors %}
+                                        <div class="text-danger small mt-1">{{ form.subject.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">Message <span class="text-danger">*</span></label>
+                                    {{ form.message }}
+                                    {% if form.message.errors %}
+                                        <div class="text-danger small mt-1">{{ form.message.errors }}</div>
+                                    {% endif %}
+                                    <div class="form-text text-muted">
+                                        <span id="messageCount">0</span>/1000 characters
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+                                </div>
+                                <div class="col-md-12 text-end">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                                        <i class="fas fa-paper-plane me-2"></i>Send Message
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Section -->
+    <div class="container-fluid px-0 mb-5">
+        <div class="map-container position-relative" style="height: 450px;">
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.798467112345!2d{{ contact_info.longitude }}!3d{{ contact_info.latitude }}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zM8KwMjUnMjcuMCJOIDDCsDUxJzEyLjAiVw!5e0!3m2!1sen!2sgh!4v1620000000000!5m2!1sen!2sgh"
+                width="100%" 
+                height="450" 
+                style="border:0;" 
+                allowfullscreen="" 
+                loading="lazy">
+            </iframe>
+            
+            <!-- Map Overlay Info -->
+            <div class="position-absolute bottom-0 end-0 m-4 p-3 bg-white rounded shadow-lg" style="z-index: 10;">
+                <h6 class="fw-bold mb-1"><i class="fas fa-map-pin text-primary me-2"></i>Our Location</h6>
+                <p class="small text-muted mb-0">
+                    {{ contact_info.address_line1 }}<br>
+                    {{ contact_info.city }}, {{ contact_info.region }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Preview Section -->
+    {% if faqs %}
+    <div class="container mb-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-4" data-aos="fade-up">
+                <h2 class="fw-bold">Frequently Asked Questions</h2>
+                <p class="text-muted">Find quick answers to common questions</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="accordion" id="faqAccordion">
+                    {% for faq in faqs %}
+                    <div class="accordion-item glass-card mb-3 border-0" data-aos="fade-up">
+                        <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                            <button class="accordion-button collapsed bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}">
+                                {{ faq.question }}
+                            </button>
+                        </h2>
+                        <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                {{ faq.answer|safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center mt-4">
+                    <a href="{% url 'core:faq' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-question-circle me-2"></i>View All FAQs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Floating Contact Button for Mobile -->
+<div class="d-lg-none">
+    <button class="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 shadow-lg" 
+            style="width: 60px; height: 60px; z-index: 100;" 
+            onclick="document.getElementById('contactForm').scrollIntoView({behavior: 'smooth'});">
+        <i class="fas fa-envelope fa-lg"></i>
+    </button>
+</div>
+
+<style>
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+[data-bs-theme="dark"] .glass-card {
+    background: rgba(30, 30, 47, 0.7);
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+.icon-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.social-links .btn {
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.social-links .btn:hover {
+    transform: translateY(-3px);
+}
+
+.map-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.map-container iframe {
+    filter: grayscale(0.5);
+    transition: filter 0.3s ease;
+}
+
+.map-container:hover iframe {
+    filter: grayscale(0);
+}
+
+.hero-section svg {
+    pointer-events: none;
+}
+
+#contactForm input, #contactForm textarea {
+    border: 1px solid rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+[data-bs-theme="dark"] #contactForm input,
+[data-bs-theme="dark"] #contactForm textarea {
+    background: rgba(30, 30, 47, 0.8);
+    border-color: rgba(255,255,255,0.1);
+    color: white;
+}
+
+#contactForm input:focus, #contactForm textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.accordion-button:not(.collapsed) {
+    color: inherit;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: transparent;
+}
+</style>
+
+<!-- AOS Animation -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<script>
+    AOS.init({
+        duration: 800,
+        once: true
+    });
+
+    // Character counter for message
+    const messageInput = document.querySelector('textarea[name="message"]');
+    const messageCount = document.getElementById('messageCount');
+    
+    if (messageInput) {
+        messageInput.addEventListener('input', function() {
+            const count = this.value.length;
+            messageCount.textContent = count;
+            
+            if (count > 1000) {
+                this.value = this.value.substring(0, 1000);
+                messageCount.textContent = 1000;
+            }
+        });
+    }
+
+    // Form validation
+    document.getElementById('contactForm')?.addEventListener('submit', function(e) {
+        const email = document.querySelector('input[name="email"]').value;
+        const phone = document.querySelector('input[name="phone"]').value;
+        
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            e.preventDefault();
+            alert('Please enter a valid email address.');
+            return;
+        }
+        
+        // Phone validation (if provided)
+        if (phone) {
+            const phoneRegex = /^[\d\s\+\-\(\)]{8,20}$/;
+            if (!phoneRegex.test(phone)) {
+                e.preventDefault();
+                alert('Please enter a valid phone number.');
+                return;
+            }
+        }
+    });
+</script>
+
+<!-- Google reCAPTCHA (if enabled) -->
+{% if recaptcha_site_key %}
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{% endif %}
+{% endblock %}

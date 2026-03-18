@@ -1,0 +1,206 @@
+<!-- templates/events/my_events.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load course_filters %}
+
+{% block title %}My Events - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-calendar-check me-2"></i>My Events
+        </h1>
+        <div>
+            <span class="badge bg-success me-2">
+                <i class="fas fa-clock me-1"></i>Upcoming: {{ upcoming_events.count }}
+            </span>
+            <span class="badge bg-secondary">
+                <i class="fas fa-history me-1"></i>Past: {{ past_events.count }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-clock me-1"></i>Upcoming Events
+            </h6>
+        </div>
+        <div class="card-body">
+            {% if upcoming_events %}
+                <div class="row">
+                    {% for registration in upcoming_events %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card h-100 event-card">
+                            {% if registration.event.poster %}
+                                <img src="{{ registration.event.poster.url }}" class="card-img-top" alt="{{ registration.event.title }}" style="height: 150px; object-fit: cover;">
+                            {% else %}
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                    <i class="fas fa-calendar-alt fa-3x text-muted"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="card-body">
+                                <h5 class="card-title">{{ registration.event.title }}</h5>
+                                
+                                <div class="event-details small">
+                                    <p class="mb-2">
+                                        <i class="fas fa-calendar me-2 text-primary"></i>
+                                        {{ registration.event.start_date|date:"l, M d, Y" }}
+                                    </p>
+                                    <p class="mb-2">
+                                        <i class="fas fa-clock me-2 text-success"></i>
+                                        {{ registration.event.start_date|date:"h:i A" }}
+                                    </p>
+                                    <p class="mb-2">
+                                        <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                                        {{ registration.event.venue }}
+                                    </p>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <span class="badge bg-{{ registration.event.event_type|event_color }}">
+                                        {{ registration.event.get_event_type_display }}
+                                    </span>
+                                    {% if registration.attended %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check me-1"></i>Attended
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="card-footer bg-transparent">
+                                <a href="{% url 'events:event_detail' registration.event.id %}" class="btn btn-primary btn-sm w-100">
+                                    View Details <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Upcoming Events</h5>
+                    <p class="text-muted">You haven't registered for any upcoming events.</p>
+                    <a href="{% url 'events:event_list' %}" class="btn btn-primary">
+                        <i class="fas fa-calendar-alt me-2"></i>Browse Events
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Past Events -->
+    {% if past_events %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-secondary">
+                <i class="fas fa-history me-1"></i>Past Events
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Event</th>
+                            <th>Date</th>
+                            <th>Venue</th>
+                            <th>Attendance</th>
+                            <th>Feedback</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registration in past_events %}
+                        <tr>
+                            <td>
+                                <strong>{{ registration.event.title }}</strong><br>
+                                <small class="text-muted">{{ registration.event.get_event_type_display }}</small>
+                            </td>
+                            <td>{{ registration.event.start_date|date:"M d, Y" }}</td>
+                            <td>{{ registration.event.venue }}</td>
+                            <td>
+                                {% if registration.attended %}
+                                    <span class="badge bg-success">Attended</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Absent</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if registration.event.id in feedback_given %}
+                                    <span class="badge bg-info">Feedback Given</span>
+                                {% else %}
+                                    <a href="{% url 'events:feedback' registration.event.id %}" class="btn btn-sm btn-outline-primary">
+                                        Give Feedback
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'events:event_detail' registration.event.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Session Attendance Summary -->
+    {% if attended_sessions %}
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-info">
+                <i class="fas fa-clipboard-list me-1"></i>Sessions Attended
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for session_id, record in attended_sessions.items %}
+                <div class="col-md-4 mb-3">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ record.session.name }}</h6>
+                            <p class="small mb-1">
+                                <i class="fas fa-calendar me-1"></i>{{ record.session.start_date|date:"M d, Y" }}
+                            </p>
+                            <p class="small mb-1">
+                                <i class="fas fa-clock me-1"></i>{{ record.checked_in_at|date:"h:i A" }}
+                            </p>
+                            <p class="small mb-0">
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>Checked In
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.event-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+.event-details p {
+    margin-bottom: 0.3rem;
+}
+</style>
+{% endblock %}

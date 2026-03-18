@@ -1,0 +1,430 @@
+<!-- templates/complaints/complaint_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ complaint.subject }} - Complaint Details - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-exclamation-circle me-2"></i>Complaint Details
+        </h1>
+        <div>
+            <a href="{% url 'complaints:list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to List
+            </a>
+            {% if request.user.user_type in 'admin,staff,executive' %}
+                <button class="btn btn-warning btn-sm" onclick="updateStatus()">
+                    <i class="fas fa-edit me-1"></i>Update Status
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Complaint Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Complaint #{{ complaint.id }}
+                    </h6>
+                    <span class="badge bg-{{ complaint.status|status_color }} p-2">
+                        {{ complaint.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <!-- Complaint Type -->
+                    <div class="mb-3">
+                        <span class="badge bg-{{ complaint.complaint_type|complaint_color }} p-2">
+                            {{ complaint.get_complaint_type_display }}
+                        </span>
+                        {% if complaint.is_anonymous %}
+                            <span class="badge bg-secondary ms-2">
+                                <i class="fas fa-user-secret me-1"></i>Anonymous
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Subject -->
+                    <h5 class="fw-bold mb-3">{{ complaint.subject }}</h5>
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Description:</h6>
+                        <p class="text-muted">{{ complaint.description|linebreaks }}</p>
+                    </div>
+
+                    <!-- Attachments -->
+                    {% if complaint.attachments.exists %}
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Attachments:</h6>
+                        <div class="list-group">
+                            {% for attachment in complaint.attachments.all %}
+                            <a href="{{ attachment.file.url }}" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-paperclip me-2"></i>
+                                {{ attachment.filename }}
+                                <small class="text-muted float-end">
+                                    {{ attachment.file.size|filesizeformat }}
+                                </small>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Metadata -->
+                    <div class="row mt-4 pt-3 border-top">
+                        <div class="col-md-4">
+                            <small class="text-muted d-block">
+                                <i class="fas fa-user me-1"></i>
+                                Submitted by: 
+                                {% if complaint.is_anonymous %}
+                                    Anonymous
+                                {% else %}
+                                    {{ complaint.user.get_full_name }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted d-block">
+                                <i class="fas fa-calendar me-1"></i>
+                                Date: {{ complaint.created_at|date:"M d, Y H:i" }}
+                            </small>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted d-block">
+                                <i class="fas fa-user-check me-1"></i>
+                                Assigned to: {{ complaint.assigned_to.get_full_name|default:"Unassigned" }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Responses -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-comments me-1"></i>Responses ({{ complaint.responses.count }})
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <!-- Response Form -->
+                    {% if request.user.user_type in 'admin,staff,executive' or request.user == complaint.user %}
+                    <form method="POST" action="{% url 'complaints:add_response' complaint.id %}" class="mb-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <textarea name="content" class="form-control" rows="3" 
+                                      placeholder="Write your response..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>Post Response
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    <!-- Responses List -->
+                    <div class="responses-section">
+                        {% for response in complaint.responses.all %}
+                        <div class="d-flex mb-4 {% if response.responder == complaint.user %}justify-content-end{% endif %}">
+                            {% if response.responder != complaint.user %}
+                            <div class="flex-shrink-0 me-3">
+                                {% if response.responder.profile_image %}
+                                <img src="{{ response.responder.profile_image.url }}" 
+                                     class="rounded-circle" width="40" height="40">
+                                {% else %}
+                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width:40px;height:40px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            
+                            <div class="flex-grow-1 {% if response.responder == complaint.user %}text-end{% endif %}">
+                                <div class="card {% if response.responder == complaint.user %}bg-primary text-white{% else %}bg-light{% endif %}">
+                                    <div class="card-body p-3">
+                                        <p class="mb-1">{{ response.content }}</p>
+                                        <small class="{% if response.responder == complaint.user %}text-white-50{% else %}text-muted{% endif %}">
+                                            {{ response.responder.get_full_name }} • {{ response.created_at|timesince }} ago
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if response.responder == complaint.user %}
+                            <div class="flex-shrink-0 ms-3">
+                                {% if response.responder.profile_image %}
+                                <img src="{{ response.responder.profile_image.url }}" 
+                                     class="rounded-circle" width="40" height="40">
+                                {% else %}
+                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width:40px;height:40px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center py-3">No responses yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Status Timeline -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-clock me-1"></i>Timeline
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="fas fa-circle text-primary"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-1"><strong>Submitted</strong></p>
+                                    <small class="text-muted">{{ complaint.created_at|date:"M d, Y H:i" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if complaint.under_review_at %}
+                        <div class="list-group-item">
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="fas fa-circle text-info"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-1"><strong>Under Review</strong></p>
+                                    <small class="text-muted">{{ complaint.under_review_at|date:"M d, Y H:i" }}</small>
+                                    {% if complaint.assigned_to %}
+                                        <br><small>by {{ complaint.assigned_to.get_full_name }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if complaint.resolved_at %}
+                        <div class="list-group-item">
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="fas fa-circle text-success"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-1"><strong>Resolved</strong></p>
+                                    <small class="text-muted">{{ complaint.resolved_at|date:"M d, Y H:i" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bolt me-1"></i>Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if request.user.user_type in 'admin,staff,executive' %}
+                            {% if complaint.status != 'resolved' %}
+                                <button class="btn btn-success" onclick="markResolved()">
+                                    <i class="fas fa-check-circle me-1"></i>Mark as Resolved
+                                </button>
+                            {% endif %}
+                            
+                            {% if not complaint.assigned_to %}
+                                <button class="btn btn-warning" onclick="assignToMe()">
+                                    <i class="fas fa-user-plus me-1"></i>Assign to Me
+                                </button>
+                            {% endif %}
+                            
+                            <button class="btn btn-info" onclick="escalate()">
+                                <i class="fas fa-level-up-alt me-1"></i>Escalate
+                            </button>
+                        {% endif %}
+                        
+                        {% if request.user == complaint.user and complaint.status != 'resolved' %}
+                            <button class="btn btn-danger" onclick="cancelComplaint()">
+                                <i class="fas fa-times-circle me-1"></i>Cancel Complaint
+                            </button>
+                        {% endif %}
+                        
+                        <button class="btn btn-outline-secondary" onclick="printPage()">
+                            <i class="fas fa-print me-1"></i>Print
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Update Status
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'complaints:update_status' complaint.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="pending" {% if complaint.status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="under_review" {% if complaint.status == 'under_review' %}selected{% endif %}>Under Review</option>
+                            <option value="resolved" {% if complaint.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                            <option value="rejected" {% if complaint.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Notes</label>
+                        <textarea name="notes" class="form-control" rows="3" placeholder="Optional notes..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Modal -->
+<div class="modal fade" id="assignModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>Assign Complaint
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'complaints:assign' complaint.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Assign this complaint to:</p>
+                    <div class="mb-3">
+                        <select name="assigned_to" class="form-select">
+                            <option value="">Select user</option>
+                            {% for user in staff_users %}
+                            <option value="{{ user.id }}">{{ user.get_full_name }} ({{ user.user_type|title }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Assign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateStatus() {
+    new bootstrap.Modal(document.getElementById('statusModal')).show();
+}
+
+function assignToMe() {
+    document.getElementById('assignModal').querySelector('select[name="assigned_to"]').value = '{{ request.user.id }}';
+    new bootstrap.Modal(document.getElementById('assignModal')).show();
+}
+
+function escalate() {
+    if (confirm('Escalate this complaint to higher authority?')) {
+        fetch(`/complaints/{{ complaint.id }}/escalate/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Complaint escalated successfully');
+                location.reload();
+            }
+        });
+    }
+}
+
+function markResolved() {
+    if (confirm('Mark this complaint as resolved?')) {
+        fetch(`/complaints/{{ complaint.id }}/resolve/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function cancelComplaint() {
+    if (confirm('Are you sure you want to cancel this complaint?')) {
+        fetch(`/complaints/{{ complaint.id }}/cancel/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '{% url "complaints:list" %}';
+            }
+        });
+    }
+}
+
+function printPage() {
+    window.print();
+}
+
+// Auto-refresh for new responses (every 30 seconds)
+setTimeout(function() {
+    location.reload();
+}, 30000);
+</script>
+
+<style media="print">
+    .btn, .modal, .sidebar {
+        display: none !important;
+    }
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+</style>
+{% endblock %}

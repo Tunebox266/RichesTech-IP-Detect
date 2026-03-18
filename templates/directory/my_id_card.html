@@ -1,0 +1,157 @@
+<!-- templates/directory/my_id_card.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My ID Card - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-id-card me-2"></i>My Student ID Card
+        </h1>
+        <div>
+            <button class="btn btn-primary btn-sm" onclick="window.print()">
+                <i class="fas fa-print me-1"></i>Print Card
+            </button>
+            <a href="{% url 'directory:download_id_card_pdf' %}" class="btn btn-success btn-sm">
+                <i class="fas fa-download me-1"></i>Download PDF
+            </a>
+            <a href="{% url 'directory:printable_id_card' %}" class="btn btn-info btn-sm" target="_blank">
+                <i class="fas fa-print me-1"></i>Printable Version
+            </a>
+        </div>
+    </div>
+
+    <!-- ID Card Display -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Front of Card -->
+            <div class="card shadow mb-4" id="idCardFront">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="mb-0">
+                        <i class="fas fa-university me-2"></i>MELTSA-TaTU
+                    </h4>
+                    <small>Medical Laboratory Science Students Association</small>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Photo Section -->
+                        <div class="col-md-4 text-center mb-3">
+                            {% if student.profile_image %}
+                                <img src="{{ student.profile_image.url }}" 
+                                     class="img-fluid border rounded shadow-sm" 
+                                     style="max-width: 150px; max-height: 150px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-secondary text-white rounded d-flex align-items-center justify-content-center mx-auto shadow-sm" 
+                                     style="width: 150px; height: 150px;">
+                                    <i class="fas fa-user-graduate fa-4x"></i>
+                                </div>
+                            {% endif %}
+                            
+                            {% if id_card.qr_code %}
+                                <div class="mt-3">
+                                    <img src="{{ id_card.qr_code.url }}" alt="QR Code" style="width: 80px; height: 80px;">
+                                    <small class="d-block text-muted">Scan for verification</small>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Details Section -->
+                        <div class="col-md-8">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="35%">Full Name:</th>
+                                    <td><strong class="text-primary">{{ student.get_full_name }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Student ID:</th>
+                                    <td>
+                                        <span class="badge bg-primary p-2 fs-6">{{ student.student_id }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Program:</th>
+                                    <td>{{ student.get_program_type_display }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Level:</th>
+                                    <td>Level {{ student.level }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Year of Admission:</th>
+                                    <td>{{ student.year_of_admission }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Date of Birth:</th>
+                                    <td>{{ student.date_of_birth|date:"M d, Y"|default:"Not specified" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Blood Group:</th>
+                                    <td>
+                                        <span class="badge bg-danger">{{ id_card.blood_group|default:"Not specified" }}</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Signature and Validity -->
+                    <div class="row mt-4">
+                        <div class="col-4 text-center">
+                            <div class="border-top pt-2">
+                                <small class="text-muted">Student Signature</small>
+                                <p class="mt-2 text-muted">__________________</p>
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="border-top pt-2">
+                                <small class="text-muted">Authorized Signature</small>
+                                <p class="mt-2 text-muted">__________________</p>
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="border-top pt-2">
+                                <small class="text-muted">Valid Until</small>
+                                <p class="mt-2 fw-bold">{{ id_card.valid_until|date:"M d, Y"|default:"Dec 31, 2025" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer text-center text-muted small">
+                  <a href="{% url 'directory:upload_signature' %}" class="btn btn-sm btn-info">
+            <i class="fas fa-pen me-1"></i>Add Signature
+        </a>
+                    <i class="fas fa-shield-alt me-1"></i>
+                    Card Number: {{ id_card.card_number|default:student.student_id }} | 
+                    Issued: {{ id_card.issued_at|date:"M d, Y"|default:"Jan 1, 2024" }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style media="print">
+    body * {
+        visibility: hidden;
+    }
+    #idCardFront, #idCardFront * {
+        visibility: visible;
+    }
+    #idCardFront {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        box-shadow: none !important;
+    }
+    .btn, .card-footer a, .no-print {
+        display: none !important;
+    }
+</style>
+{% endblock %}

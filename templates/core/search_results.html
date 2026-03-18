@@ -1,0 +1,366 @@
+<!-- templates/core/search_results.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Results - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-search me-2"></i>Search Results
+        </h1>
+        <div>
+            <span class="badge bg-primary me-2">
+                <i class="fas fa-file me-1"></i>{{ total_results }} results found
+            </span>
+            <span class="badge bg-info">
+                <i class="fas fa-clock me-1"></i>{{ search_time }} seconds
+            </span>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="GET" action="{% url 'core:global_search' %}" id="searchForm">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control form-control-lg" 
+                           placeholder="Search for courses, students, events, announcements..." 
+                           value="{{ query }}" autocomplete="off">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search me-1"></i>Search
+                    </button>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Search by: names, IDs, course codes, titles, event names, and more
+                    </small>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if query %}
+        <!-- Search Tabs -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <ul class="nav nav-tabs card-header-tabs" id="searchTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'all' or not active_tab %}active{% endif %}" 
+                           href="?q={{ query }}&tab=all">
+                            <i class="fas fa-globe me-1"></i>All Results
+                            <span class="badge bg-secondary ms-1">{{ total_results }}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'students' %}active{% endif %}" 
+                           href="?q={{ query }}&tab=students">
+                            <i class="fas fa-user-graduate me-1"></i>Students
+                            <span class="badge bg-secondary ms-1">{{ counts.students }}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'courses' %}active{% endif %}" 
+                           href="?q={{ query }}&tab=courses">
+                            <i class="fas fa-book me-1"></i>Courses
+                            <span class="badge bg-secondary ms-1">{{ counts.courses }}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'events' %}active{% endif %}" 
+                           href="?q={{ query }}&tab=events">
+                            <i class="fas fa-calendar me-1"></i>Events
+                            <span class="badge bg-secondary ms-1">{{ counts.events }}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'announcements' %}active{% endif %}" 
+                           href="?q={{ query }}&tab=announcements">
+                            <i class="fas fa-bullhorn me-1"></i>Announcements
+                            <span class="badge bg-secondary ms-1">{{ counts.announcements }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body">
+                <!-- Students Results -->
+                {% if active_tab == 'all' or active_tab == 'students' %}
+                    {% if results.students %}
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-user-graduate text-primary me-2"></i>
+                                Students ({{ results.students|length }})
+                            </h5>
+                            <div class="row">
+                                {% for student in results.students %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card search-item hover-effect">
+                                        <div class="card-body">
+                                            <div class="d-flex">
+                                                <div class="flex-shrink-0">
+                                                    {% if student.profile_image %}
+                                                        <img src="{{ student.profile_image.url }}" class="rounded-circle" width="50" height="50">
+                                                    {% else %}
+                                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                                             style="width: 50px; height: 50px;">
+                                                            {{ student.first_name|first|upper }}{{ student.last_name|first|upper }}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <h6 class="mb-1">{{ student.get_full_name }}</h6>
+                                                    <p class="mb-1 small text-muted">
+                                                        <i class="fas fa-id-card me-1"></i>{{ student.student_id }} |
+                                                        <i class="fas fa-layer-group me-1"></i>Level {{ student.level }} |
+                                                        <i class="fas fa-clock me-1"></i>{{ student.get_program_type_display }}
+                                                    </p>
+                                                    <div class="mt-2">
+                                                        <a href="{% url 'directory:student_detail' student.id %}" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-eye me-1"></i>View Profile
+                                                        </a>
+                                                        <button class="btn btn-sm btn-outline-info" onclick="quickMessage({{ student.id }}, '{{ student.get_full_name }}')">
+                                                            <i class="fas fa-envelope"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if active_tab == 'all' and counts.students > 5 %}
+                                <div class="text-center mt-2">
+                                    <a href="?q={{ query }}&tab=students" class="btn btn-sm btn-link">
+                                        View all {{ counts.students }} students <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Courses Results -->
+                {% if active_tab == 'all' or active_tab == 'courses' %}
+                    {% if results.courses %}
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-book text-success me-2"></i>
+                                Courses ({{ results.courses|length }})
+                            </h5>
+                            <div class="row">
+                                {% for course in results.courses %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card search-item hover-effect">
+                                        <div class="card-body">
+                                            <div class="d-flex">
+                                                <div class="flex-shrink-0">
+                                                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                                         style="width: 50px; height: 50px;">
+                                                        <i class="fas fa-book-open"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <h6 class="mb-1">{{ course.title }}</h6>
+                                                    <p class="mb-1 small text-muted">
+                                                        <i class="fas fa-code me-1"></i>{{ course.code }} |
+                                                        <i class="fas fa-layer-group me-1"></i>Level {{ course.level }} |
+                                                        <i class="fas fa-clock me-1"></i>{{ course.get_semester_display }}
+                                                    </p>
+                                                    <div class="mt-2">
+                                                        <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-sm btn-outline-success">
+                                                            <i class="fas fa-eye me-1"></i>View Course
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if active_tab == 'all' and counts.courses > 5 %}
+                                <div class="text-center mt-2">
+                                    <a href="?q={{ query }}&tab=courses" class="btn btn-sm btn-link">
+                                        View all {{ counts.courses }} courses <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Events Results -->
+                {% if active_tab == 'all' or active_tab == 'events' %}
+                    {% if results.events %}
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-calendar text-warning me-2"></i>
+                                Events ({{ results.events|length }})
+                            </h5>
+                            <div class="row">
+                                {% for event in results.events %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card search-item hover-effect">
+                                        <div class="card-body">
+                                            <div class="d-flex">
+                                                <div class="flex-shrink-0">
+                                                    <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                                         style="width: 50px; height: 50px;">
+                                                        <i class="fas fa-calendar-alt"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <h6 class="mb-1">{{ event.title }}</h6>
+                                                    <p class="mb-1 small text-muted">
+                                                        <i class="fas fa-calendar me-1"></i>{{ event.start_date|date:"M d, Y" }} |
+                                                        <i class="fas fa-clock me-1"></i>{{ event.start_date|date:"h:i A" }} |
+                                                        <i class="fas fa-map-marker-alt me-1"></i>{{ event.venue }}
+                                                    </p>
+                                                    <div class="mt-2">
+                                                        <a href="{% url 'events:event_detail' event.id %}" class="btn btn-sm btn-outline-warning">
+                                                            <i class="fas fa-eye me-1"></i>View Event
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if active_tab == 'all' and counts.events > 5 %}
+                                <div class="text-center mt-2">
+                                    <a href="?q={{ query }}&tab=events" class="btn btn-sm btn-link">
+                                        View all {{ counts.events }} events <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Announcements Results -->
+                {% if active_tab == 'all' or active_tab == 'announcements' %}
+                    {% if results.announcements %}
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-bullhorn text-info me-2"></i>
+                                Announcements ({{ results.announcements|length }})
+                            </h5>
+                            <div class="list-group">
+                                {% for announcement in results.announcements %}
+                                <div class="list-group-item search-item hover-effect">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ announcement.title }}</h6>
+                                        <small class="text-muted">{{ announcement.created_at|timesince }} ago</small>
+                                    </div>
+                                    <p class="mb-1 small">{{ announcement.content|truncatechars:150 }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>{{ announcement.created_by.get_full_name }}
+                                    </small>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if active_tab == 'all' and counts.announcements > 5 %}
+                                <div class="text-center mt-2">
+                                    <a href="?q={{ query }}&tab=announcements" class="btn btn-sm btn-link">
+                                        View all {{ counts.announcements }} announcements <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                <!-- No Results -->
+                {% if not results.students and not results.courses and not results.events and not results.announcements %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Results Found</h5>
+                        <p class="text-muted">We couldn't find any matches for "{{ query }}"</p>
+                        <p class="small text-muted">Suggestions:</p>
+                        <ul class="list-unstyled small text-muted">
+                            <li><i class="fas fa-check me-1"></i>Check your spelling</li>
+                            <li><i class="fas fa-check me-1"></i>Try more general keywords</li>
+                            <li><i class="fas fa-check me-1"></i>Try different keywords</li>
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Quick Message Modal -->
+<div class="modal fade" id="quickMessageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-envelope me-2"></i>Send Message
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'messaging:compose' %}">
+                {% csrf_token %}
+                <input type="hidden" name="recipient" id="modalRecipientId">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">To</label>
+                        <input type="text" class="form-control" id="modalRecipientName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Subject</label>
+                        <input type="text" name="subject" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Message</label>
+                        <textarea name="body" class="form-control" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i>Send
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.search-item {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-effect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 .25rem .5rem rgba(0,0,0,.1)!important;
+}
+#searchForm input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+</style>
+
+<script>
+function quickMessage(studentId, studentName) {
+    document.getElementById('modalRecipientId').value = studentId;
+    document.getElementById('modalRecipientName').value = studentName;
+    new bootstrap.Modal(document.getElementById('quickMessageModal')).show();
+}
+
+// Live search suggestions (optional)
+let searchTimeout;
+document.querySelector('input[name="q"]').addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        // Could implement live search suggestions here
+    }, 500);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,312 @@
+<!-- templates/directory/view_id_card.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My ID Card - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-id-card me-2"></i>My Student ID Card
+        </h1>
+        <div>
+            <button class="btn btn-primary btn-sm me-2" onclick="window.print()">
+                <i class="fas fa-print me-1"></i>Print Card
+            </button>
+            <a href="{% url 'directory:download_id_card_pdf' %}" class="btn btn-success btn-sm">
+                <i class="fas fa-file-pdf me-1"></i>Download PDF
+            </a>
+            <a href="{% url 'directory:directory_home' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to Directory
+            </a>
+        </div>
+    </div>
+
+    <!-- ID Card Display -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Front of Card -->
+            <div class="card shadow mb-4" id="idCardFront">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="mb-0">
+                        <i class="fas fa-university me-2"></i>MELTSA-TaTU
+                    </h4>
+                    <small>Medical Laboratory Science Students Association</small>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Photo Section -->
+                        <div class="col-md-4 text-center mb-3">
+                            {% if student.profile_image %}
+                                <img src="{{ student.profile_image.url }}" 
+                                     class="img-fluid border rounded shadow-sm" 
+                                     style="max-width: 150px; max-height: 150px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-secondary text-white rounded d-flex align-items-center justify-content-center mx-auto shadow-sm" 
+                                     style="width: 150px; height: 150px;">
+                                    <i class="fas fa-user-graduate fa-4x"></i>
+                                </div>
+                            {% endif %}
+                            
+                            {% if id_card.qr_code %}
+                                <div class="mt-3">
+                                    <img src="{{ id_card.qr_code.url }}" alt="QR Code" style="width: 80px; height: 80px;">
+                                    <small class="d-block text-muted">Scan for verification</small>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Details Section -->
+                        <div class="col-md-8">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="35%">Full Name:</th>
+                                    <td><strong class="text-primary">{{ student.get_full_name }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Student ID:</th>
+                                    <td>
+                                        <span class="badge bg-primary p-2 fs-6">{{ student.student_id }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Program:</th>
+                                    <td>{{ student.get_program_type_display }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Level:</th>
+                                    <td>Level {{ student.level }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Year of Admission:</th>
+                                    <td>{{ student.year_of_admission }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Date of Birth:</th>
+                                    <td>{{ student.date_of_birth|date:"M d, Y"|default:"Not specified" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Blood Group:</th>
+                                    <td>
+                                        <span class="badge bg-danger">{{ id_card.blood_group|default:"Not specified" }}</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Signature and Validity -->
+                    <div class="row mt-4">
+                        <div class="col-4 text-center">
+                            <div class="border-top pt-2">
+                                <small class="text-muted">Student Signature</small>
+                                {% if id_card.student_signature %}
+                                    <img src="{{ id_card.student_signature.url }}" height="40" alt="Signature">
+                                {% else %}
+                                    <p class="mt-2 text-muted">__________________</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="border-top pt-2">
+                                <small class="text-muted">Authorized Signature</small>
+                                {% if id_card.authorized_signature %}
+                                    <img src="{{ id_card.authorized_signature.url }}" height="40" alt="Signature">
+                                {% else %}
+                                    <p class="mt-2 text-muted">__________________</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="border-top pt-2">
+                                <small class="text-muted">Valid Until</small>
+                                <p class="mt-2 fw-bold">{{ id_card.valid_until|date:"M d, Y"|default:"Dec 31, 2025" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer text-center text-muted small">
+                    <i class="fas fa-shield-alt me-1"></i>
+                    This card is property of MELTSA-TaTU. If found, please return to the department.
+                </div>
+            </div>
+
+            <!-- Back of Card -->
+            <div class="card shadow" id="idCardBack">
+                <div class="card-header bg-secondary text-white text-center py-2">
+                    <h5 class="mb-0">Emergency Contact & Important Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold"><i class="fas fa-phone-alt text-danger me-2"></i>Emergency Contact</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>Name:</th>
+                                    <td>{{ id_card.emergency_contact_name|default:"Not specified" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Relationship:</th>
+                                    <td>{{ id_card.emergency_relationship|default:"Not specified" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Phone:</th>
+                                    <td>{{ id_card.emergency_phone|default:"Not specified" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Address:</th>
+                                    <td>{{ id_card.emergency_address|default:"Not specified" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold"><i class="fas fa-info-circle text-info me-2"></i>Medical Information</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>Blood Group:</th>
+                                    <td>{{ id_card.blood_group|default:"Not specified" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Allergies:</th>
+                                    <td>{{ id_card.allergies|default:"None specified"|linebreaks }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Medical Conditions:</th>
+                                    <td>{{ id_card.medical_conditions|default:"None specified"|linebreaks }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold"><i class="fas fa-id-card me-2"></i>Card Information</h6>
+                            <p class="mb-1"><strong>Card Number:</strong> {{ id_card.card_number|default:"MLS-001-2024" }}</p>
+                            <p class="mb-1"><strong>Issued On:</strong> {{ id_card.issued_at|date:"F d, Y" }}</p>
+                            <p class="mb-1"><strong>Issued By:</strong> {{ id_card.issued_by.get_full_name|default:"MELTSA-TaTU" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Important Notes</h6>
+                            <ul class="small">
+                                <li>This card is non-transferable</li>
+                                <li>Report lost cards immediately to the department</li>
+                                <li>Valid only for current academic year</li>
+                                <li>Must be presented upon request</li>
+                                <li>Not valid without signature</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <span class="text-muted small">© MELTSA-TaTU - Official Student Identification Card</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style media="print">
+    body * {
+        visibility: hidden;
+    }
+    #idCardFront, #idCardFront *,
+    #idCardBack, #idCardBack * {
+        visibility: visible;
+    }
+    #idCardFront, #idCardBack {
+        position: relative;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 20px 0;
+        padding: 0;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+    }
+    .btn, .card-footer a, .no-print {
+        display: none !important;
+    }
+    .card {
+        border: 1px solid #000 !important;
+    }
+</style>
+
+<style>
+#idCardFront, #idCardBack {
+    transition: transform 0.3s ease;
+}
+#idCardFront:hover, #idCardBack:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+</style>
+
+<script>
+// Digital card flip effect (optional)
+function flipCard() {
+    document.getElementById('idCardFront').classList.toggle('d-none');
+    document.getElementById('idCardBack').classList.toggle('d-none');
+}
+
+// Share card as image
+function shareCard() {
+    html2canvas(document.getElementById('idCardFront')).then(canvas => {
+        canvas.toBlob(blob => {
+            const file = new File([blob], 'ID_Card.png', { type: 'image/png' });
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Student ID Card',
+                    files: [file]
+                });
+            } else {
+                // Fallback - download
+                const link = document.createElement('a');
+                link.download = 'ID_Card.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            }
+        });
+    });
+}
+
+// Verify card online
+function verifyCard() {
+    const modal = new bootstrap.Modal(document.getElementById('verifyModal'));
+    modal.show();
+}
+</script>
+
+<!-- Verification Modal -->
+<div class="modal fade" id="verifyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>Card Verification
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-qrcode fa-4x text-success mb-3"></i>
+                <h5>Card is Valid</h5>
+                <p class="text-muted">This ID card has been verified and is currently active.</p>
+                <hr>
+                <div class="text-start small">
+                    <p><strong>Card Number:</strong> {{ id_card.card_number|default:"MLS-001-2024" }}</p>
+                    <p><strong>Student Name:</strong> {{ student.get_full_name }}</p>
+                    <p><strong>Verification Time:</strong> {% now "F d, Y H:i:s" %}</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

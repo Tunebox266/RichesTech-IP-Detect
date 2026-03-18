@@ -1,0 +1,340 @@
+<!-- templates/accounts/profile_edit.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-user-edit me-2"></i>Edit Profile
+        </h1>
+        <a href="{% url 'accounts:profile' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Profile
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Profile Edit Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-user me-1"></i>Personal Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="profileEditForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <!-- Profile Image -->
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="profile-image-container">
+                                    {% if user.profile_image %}
+                                        <img src="{{ user.profile_image.url }}" id="profilePreview" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                                    {% else %}
+                                        <div id="profilePreview" class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
+                                             style="width: 150px; height: 150px; font-size: 3rem;">
+                                            {{ user.first_name|first|default:user.username|first|upper }}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="mb-3">
+                                        <label for="{{ form.profile_image.id_for_label }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-camera me-1"></i>Change Photo
+                                        </label>
+                                        {{ form.profile_image }}
+                                    </div>
+                                    <small class="text-muted">Max size: 2MB (JPG, PNG)</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Personal Details -->
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">First Name</label>
+                                        {{ form.first_name }}
+                                        {% if form.first_name.errors %}
+                                            <div class="text-danger small">{{ form.first_name.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Last Name</label>
+                                        {{ form.last_name }}
+                                        {% if form.last_name.errors %}
+                                            <div class="text-danger small">{{ form.last_name.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Email</label>
+                                        {{ form.email }}
+                                        {% if form.email.errors %}
+                                            <div class="text-danger small">{{ form.email.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Phone Number</label>
+                                        {{ form.phone_number }}
+                                        {% if form.phone_number.errors %}
+                                            <div class="text-danger small">{{ form.phone_number.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Date of Birth</label>
+                                        {{ form.date_of_birth }}
+                                        {% if form.date_of_birth.errors %}
+                                            <div class="text-danger small">{{ form.date_of_birth.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label fw-bold">Address</label>
+                                        {{ form.address }}
+                                        {% if form.address.errors %}
+                                            <div class="text-danger small">{{ form.address.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <!-- Academic Information (Read-only) -->
+                        <h6 class="fw-bold mb-3">Academic Information</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label text-muted">Student/Staff ID</label>
+                                <input type="text" class="form-control" value="{% if user.student_id %}{{ user.student_id }}{% else %}{{ user.staff_id }}{% endif %}" readonly>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label text-muted">User Type</label>
+                                <input type="text" class="form-control" value="{{ user.get_user_type_display }}" readonly>
+                            </div>
+                            
+                            {% if user.user_type in 'student,executive' %}
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label text-muted">Program Type</label>
+                                <input type="text" class="form-control" value="{{ user.get_program_type_display }}" readonly>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label text-muted">Level</label>
+                                <input type="text" class="form-control" value="Level {{ user.level }}" readonly>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label text-muted">Year of Admission</label>
+                                <input type="text" class="form-control" value="{{ user.year_of_admission }}" readonly>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <hr>
+                        
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Executive Profile (if applicable) -->
+            {% if executive_form %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        <i class="fas fa-user-tie me-1"></i>Executive Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="executiveForm">
+                        {% csrf_token %}
+                        
+                        {% if executive_form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in executive_form.non_field_errors %}
+                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Position</label>
+                            {{ executive_form.position }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Executive Level</label>
+                            {{ executive_form.executive_level }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Executive Image</label>
+                            {{ executive_form.executive_image }}
+                            <small class="text-muted">Official executive portrait</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Manifesto</label>
+                            {{ executive_form.manifesto }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Achievements</label>
+                            {{ executive_form.achievements }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Official Email</label>
+                            {{ executive_form.official_email }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Office Location</label>
+                            {{ executive_form.office_location }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Office Hours</label>
+                            {{ executive_form.office_hours }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Signature</label>
+                            {{ executive_form.signature }}
+                            <small class="text-muted">Upload signature for official documents</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ executive_form.prefers_meeting_reminders }}
+                                <label class="form-check-label" for="{{ executive_form.prefers_meeting_reminders.id_for_label }}">
+                                    Receive meeting reminders
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" name="update_executive" class="btn btn-warning w-100">
+                            <i class="fas fa-save me-1"></i>Update Executive Profile
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Profile Tips -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-info-circle me-1"></i>Profile Tips
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Keep your contact information up to date
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Upload a professional profile photo
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Your student/staff ID cannot be changed
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Changes will be reflected immediately
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-image-container {
+    position: relative;
+}
+#profilePreview {
+    transition: opacity 0.3s ease;
+}
+#{{ form.profile_image.id_for_label }} {
+    display: none;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image preview
+    const imageInput = document.getElementById('{{ form.profile_image.id_for_label }}');
+    const preview = document.getElementById('profilePreview');
+    
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (preview.tagName === 'IMG') {
+                        preview.src = e.target.result;
+                    } else {
+                        // Replace div with img
+                        const img = document.createElement('img');
+                        img.id = 'profilePreview';
+                        img.src = e.target.result;
+                        img.className = 'img-fluid rounded-circle mb-3';
+                        img.style.width = '150px';
+                        img.style.height = '150px';
+                        img.style.objectFit = 'cover';
+                        preview.parentNode.replaceChild(img, preview);
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Form validation
+    const form = document.getElementById('profileEditForm');
+    form.addEventListener('submit', function(e) {
+        const phone = document.getElementById('{{ form.phone_number.id_for_label }}').value;
+        const phoneRegex = /^[0-9+\-\s()]{8,15}$/;
+        
+        if (phone && !phoneRegex.test(phone)) {
+            e.preventDefault();
+            alert('Please enter a valid phone number');
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,395 @@
+<!-- templates/directory/id_card_pdf.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student ID Card - {{ student.get_full_name }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        /* ID Card Container - Credit Card Size */
+        .id-card {
+            width: 85.6mm; /* Credit card width */
+            height: 53.98mm; /* Credit card height */
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            overflow: hidden;
+            position: relative;
+            margin: 20px auto;
+            page-break-inside: avoid;
+            border: 1px solid #ddd;
+        }
+        
+        /* Card Header - Small */
+        .card-header {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            padding: 4px 8px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .card-header small {
+            font-size: 8px;
+            opacity: 0.9;
+        }
+        
+        /* Front Card Content */
+        .front-content {
+            padding: 8px;
+            display: flex;
+            height: calc(100% - 25px);
+        }
+        
+        /* Photo Section */
+        .photo-section {
+            width: 65px;
+            flex-shrink: 0;
+        }
+        
+        .student-photo {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #4e73df;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .student-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .student-photo-placeholder {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 6px;
+        }
+        
+        /* Details Section */
+        .details-section {
+            flex: 1;
+            padding-left: 8px;
+            font-size: 9px;
+        }
+        
+        .student-name {
+            font-size: 12px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .student-id {
+            background: #4e73df;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 8px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 2px;
+            line-height: 1.3;
+        }
+        
+        .info-label {
+            width: 45px;
+            color: #666;
+        }
+        
+        .info-value {
+            flex: 1;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* QR Code Section */
+        .qr-section {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            text-align: center;
+        }
+        
+        .qr-section img {
+            width: 45px;
+            height: 45px;
+        }
+        
+        .qr-section small {
+            display: block;
+            font-size: 6px;
+            color: #666;
+        }
+        
+        /* Back Card Content */
+        .back-content {
+            padding: 8px;
+            font-size: 8px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .back-title {
+            background: #4e73df;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        
+        .emergency-row {
+            display: flex;
+            margin-bottom: 4px;
+        }
+        
+        .emergency-label {
+            width: 55px;
+            color: #666;
+            font-size: 8px;
+        }
+        
+        .emergency-value {
+            flex: 1;
+            font-weight: 600;
+            font-size: 8px;
+        }
+        
+        .medical-info {
+            margin-top: 6px;
+            padding-top: 4px;
+            border-top: 1px dashed #ccc;
+        }
+        
+        .medical-item {
+            font-size: 7px;
+            color: #666;
+            margin-bottom: 2px;
+        }
+        
+        .footer-note {
+            margin-top: auto;
+            text-align: center;
+            font-size: 6px;
+            color: #999;
+            padding-top: 4px;
+        }
+        
+        /* Signature Line */
+        .signature-line {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            width: 50px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .signature-text {
+            position: absolute;
+            bottom: 2px;
+            left: 8px;
+            font-size: 6px;
+            color: #666;
+        }
+        
+        /* Watermark */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 30px;
+            color: rgba(78, 115, 223, 0.1);
+            font-weight: bold;
+            white-space: nowrap;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .id-card {
+                box-shadow: none;
+                page-break-inside: avoid;
+                margin: 0 auto;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+        }
+        
+        /* Print Button */
+        .print-btn {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .print-btn button {
+            background: #4e73df;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print print-btn">
+        <button onclick="window.print()">
+            Print ID Card (Front & Back)
+        </button>
+    </div>
+
+    <!-- FRONT OF CARD -->
+    <div class="id-card">
+        <div class="card-header">
+            MELTSA-TaTU | Medical Laboratory Students Association
+        </div>
+        
+        <div class="front-content">
+            <!-- Photo -->
+            <div class="photo-section">
+                {% if student.profile_image %}
+                    <div class="student-photo">
+                        <img src="{{ student.profile_image.url }}" alt="Photo">
+                    </div>
+                {% else %}
+                    <div class="student-photo-placeholder">
+                        {{ student.first_name|first|upper }}{{ student.last_name|first|upper }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Details -->
+            <div class="details-section">
+                <div class="student-name">{{ student.get_full_name|truncatechars:20 }}</div>
+                <div class="student-id">{{ student.student_id }}</div>
+                
+                <div class="info-row">
+                    <span class="info-label">Level:</span>
+                    <span class="info-value">{{ student.level }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Program:</span>
+                    <span class="info-value">{{ student.get_program_type_display|slice:":3" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Blood:</span>
+                    <span class="info-value">{{ id_card.blood_group|default:"--" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Valid:</span>
+                    <span class="info-value">{{ id_card.valid_until|date:"m/y"|default:"12/25" }}</span>
+                </div>
+            </div>
+            
+            <!-- QR Code -->
+            {% if id_card.qr_code %}
+            <div class="qr-section">
+                <img src="{{ id_card.qr_code.url }}" alt="QR">
+                <small>verify</small>
+            </div>
+            {% endif %}
+            
+            <!-- Signature -->
+            <div class="signature-line"></div>
+            <div class="signature-text">Student</div>
+            
+            <!-- Watermark -->
+            <div class="watermark">MELTSA</div>
+        </div>
+    </div>
+
+    <!-- BACK OF CARD (Emergency Info) -->
+    <div class="id-card">
+        <div class="card-header">
+            EMERGENCY CONTACT & MEDICAL INFO
+        </div>
+        
+        <div class="back-content">
+            <!-- Emergency Contact -->
+            <div class="emergency-row">
+                <span class="emergency-label">Contact:</span>
+                <span class="emergency-value">{{ id_card.emergency_contact_name|default:"Not provided"|truncatechars:18 }}</span>
+            </div>
+            <div class="emergency-row">
+                <span class="emergency-label">Relationship:</span>
+                <span class="emergency-value">{{ id_card.emergency_relationship|default:"--" }}</span>
+            </div>
+            <div class="emergency-row">
+                <span class="emergency-label">Phone:</span>
+                <span class="emergency-value">{{ id_card.emergency_phone|default:"--" }}</span>
+            </div>
+            
+            <!-- Medical Info (Minimal) -->
+            <div class="medical-info">
+                <div class="medical-item">
+                    <strong>Allergies:</strong> {{ id_card.allergies|default:"None"|truncatechars:25 }}
+                </div>
+                <div class="medical-item">
+                    <strong>Conditions:</strong> {{ id_card.medical_conditions|default:"None"|truncatechars:25 }}
+                </div>
+            </div>
+            
+            <!-- Card Info -->
+            <div class="footer-note">
+                Card #: {{ id_card.card_number|default:student.student_id }} | 
+                Issued: {{ id_card.issued_at|date:"m/y"|default:"01/24" }}
+            </div>
+            
+            <!-- Watermark -->
+            <div class="watermark">MELTSA</div>
+        </div>
+    </div>
+
+    <!-- Optional: Include Font Awesome for icons (won't affect PDF) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</body>
+</html>

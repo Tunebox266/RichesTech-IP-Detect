@@ -1,0 +1,226 @@
+<!-- templates/core/blog_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load core_tags %}
+
+{% block title %}Blog - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-blog me-2"></i>Blog Posts
+        </h1>
+        <div>
+            <span class="badge bg-primary me-2">
+                <i class="fas fa-file-alt me-1"></i>Total: {{ blogs.paginator.count }}
+            </span>
+            {% if request.user.user_type in 'admin,staff' %}
+                <a href="{% url 'core:blog_create' %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus me-1"></i>New Post
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="GET" action="{% url 'core:blog_list' %}" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" name="search" class="form-control" 
+                                   placeholder="Search blog posts..." value="{{ request.GET.search|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="category" class="form-select">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="sort" class="form-select">
+                            <option value="-created_at" {% if request.GET.sort == '-created_at' or not request.GET.sort %}selected{% endif %}>Newest First</option>
+                            <option value="created_at" {% if request.GET.sort == 'created_at' %}selected{% endif %}>Oldest First</option>
+                            <option value="-views" {% if request.GET.sort == '-views' %}selected{% endif %}>Most Viewed</option>
+                            <option value="title" {% if request.GET.sort == 'title' %}selected{% endif %}>Title A-Z</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i>Apply
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Blog Posts Grid -->
+    <div class="row">
+        {% for post in blogs %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 shadow-sm hover-card border-0">
+                <!-- Featured Image -->
+                {% if post.featured_image %}
+                    <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}" 
+                         style="height: 200px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                {% else %}
+                    <div class="card-img-top bg-gradient-primary text-white d-flex align-items-center justify-content-center" 
+                         style="height: 200px; border-radius: 12px 12px 0 0;">
+                        <i class="fas fa-blog fa-4x opacity-50"></i>
+                    </div>
+                {% endif %}
+                
+                <div class="card-body">
+                    <!-- Category Badge -->
+                    {% if post.category %}
+                        <span class="badge bg-info mb-2">{{ post.category.name }}</span>
+                    {% endif %}
+
+                    <h5 class="card-title fw-bold">
+                        <a href="{% url 'core:blog_detail' post.id %}" class="text-decoration-none text-dark">
+                            {{ post.title|truncatechars:60 }}
+                        </a>
+                    </h5>
+                    
+                    <!-- Preview Content -->
+                    <p class="card-text text-muted small">
+                        {{ post.content|striptags|truncatewords:25 }}
+                    </p>
+
+                    <!-- Meta Info -->
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <small class="text-muted">
+                            <i class="far fa-user me-1"></i>{{ post.author.get_full_name|default:"Admin" }}
+                        </small>
+                        <small class="text-muted">
+                            <i class="far fa-calendar me-1"></i>{{ post.created_at|date:"M d, Y" }}
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="far fa-eye me-1"></i>{{ post.views }} views
+                        <span class="mx-2">•</span>
+                        <i class="far fa-comment me-1"></i>{{ post.comments.count }} comments
+                    </small>
+                    <a href="{% url 'core:blog_detail' post.id %}" class="btn btn-sm btn-outline-primary">
+                        Read More <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-blog fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Blog Posts Found</h5>
+                    <p class="text-muted mb-3">There are no blog posts matching your criteria.</p>
+                    {% if request.user.user_type in 'admin,staff' %}
+                        <a href="{% url 'core:blog_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create First Post
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if blogs.has_other_pages %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Blog pagination">
+                <ul class="pagination justify-content-center">
+                    {% if blogs.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ blogs.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                        </li>
+                    {% endif %}
+
+                    {% for i in blogs.paginator.page_range %}
+                        {% if blogs.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% elif i > blogs.number|add:'-3' and i < blogs.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if blogs.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ blogs.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.hover-card {
+    transition: all 0.3s ease-in-out;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.hover-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 1rem 2rem rgba(0,0,0,.15)!important;
+}
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.opacity-50 {
+    opacity: 0.5;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit on filter change
+    document.querySelectorAll('select[name="category"], select[name="sort"]').forEach(select => {
+        select.addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+    });
+
+    // Debounced search
+    let searchTimeout;
+    document.querySelector('input[name="search"]').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            document.getElementById('filterForm').submit();
+        }, 500);
+    });
+});
+</script>
+{% endblock %}

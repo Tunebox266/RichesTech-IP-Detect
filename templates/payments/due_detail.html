@@ -1,0 +1,403 @@
+<!-- templates/payments/due_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ due.title }} - Payment Due - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-credit-card me-2"></i>{{ due.title }}
+        </h1>
+        <div>
+            <a href="{% url 'payments:due_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to Dues
+            </a>
+            {% if request.user.user_type in 'admin,staff' %}
+                <a href="{% url 'payments:due_edit' due.id %}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Due Details -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Due Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <span class="d-block h4 mb-0">GHS {{ due.amount|floatformat:2 }}</span>
+                                <small class="text-muted">Amount</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <span class="d-block h4 mb-0">{{ due.get_due_type_display }}</span>
+                                <small class="text-muted">Due Type</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <span class="d-block h4 mb-0">{{ due.deadline|date:"M d, Y" }}</span>
+                                <small class="text-muted">Deadline</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <span class="d-block h4 mb-0">
+                                    {% if due.is_active %}
+                                        <span class="text-success">Active</span>
+                                    {% else %}
+                                        <span class="text-danger">Inactive</span>
+                                    {% endif %}
+                                </span>
+                                <small class="text-muted">Status</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold">Description</h6>
+                    <p class="mb-4">{{ due.description|linebreaks }}</p>
+
+                    <h6 class="fw-bold">Target Levels</h6>
+                    <div class="mb-4">
+                        {% for level in due.target_levels %}
+                            <span class="badge bg-info p-2 me-1">Level {{ level }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <h6 class="fw-bold">Academic Year</h6>
+                    <p>{{ due.academic_setting.academic_year }} - Semester {{ due.academic_setting.current_semester }}</p>
+
+                    {% if due.created_by %}
+                        <p class="text-muted small mb-0">
+                            <i class="fas fa-user me-1"></i>Created by: {{ due.created_by.get_full_name }} on {{ due.created_at|date:"M d, Y H:i" }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Payment Statistics (for admin/staff) -->
+            {% if request.user.user_type in 'admin,staff' %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar me-1"></i>Payment Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-0">{{ total_students }}</h3>
+                                    <small>Target Students</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-0">{{ paid_count }}</h3>
+                                    <small>Paid</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-0">GHS {{ total_collected|floatformat:2 }}</h3>
+                                    <small>Collected</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h6 class="fw-bold">Collection Rate</h6>
+                        <div class="progress mb-2" style="height: 20px;">
+                            <div class="progress-bar bg-success" style="width: {{ collection_rate }}%">
+                                {{ collection_rate|floatformat:1 }}%
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted small">
+                            <span>{{ paid_count }} students paid</span>
+                            <span>{{ total_students|add:paid_count }} students total</span>
+                        </div>
+                    </div>
+
+                    <!-- Export Buttons -->
+                    <div class="mt-4">
+                        <a href="{% url 'payments:export_payments' %}?due={{ due.id }}" class="btn btn-sm btn-success">
+                            <i class="fas fa-file-excel me-1"></i>Export Payments
+                        </a>
+                        <a href="{% url 'payments:export_unpaid' %}?due={{ due.id }}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-file-excel me-1"></i>Export Unpaid Students
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Payments -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-history me-1"></i>Recent Payments
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Reference</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in recent_payments|slice:":10" %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if payment.student.profile_image %}
+                                                <img src="{{ payment.student.profile_image.url }}" class="rounded-circle me-2" width="30" height="30">
+                                            {% else %}
+                                                <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
+                                                    <i class="fas fa-user text-white"></i>
+                                                </div>
+                                            {% endif %}
+                                            {{ payment.student.get_full_name }}
+                                        </div>
+                                    </td>
+                                    <td>GHS {{ payment.amount|floatformat:2 }}</td>
+                                    <td>{{ payment.created_at|date:"M d, Y H:i" }}</td>
+                                    <td><small class="text-muted">{{ payment.reference|truncatechars:12 }}</small></td>
+                                    <td>
+                                        <span class="badge bg-{% if payment.status == 'success' %}success{% elif payment.status == 'pending' %}warning{% else %}danger{% endif %}">
+                                            {{ payment.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">
+                                        <p class="text-muted mb-0">No payments yet</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Payment Status Card -->
+            <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-credit-card me-1"></i>Your Payment Status
+            </h6>
+        </div>
+ 
+    <div class="card-body">
+
+        {% if request.user.is_authenticated %}
+
+            {% if request.user.user_type == 'executive' %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Executives are exempted from paying dues.
+                </div>
+
+            {% elif request.user.user_type == 'student' %}
+
+                {% if paid %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        You have successfully paid this due.
+                    </div>
+
+                    <div class="text-center">
+                        <button class="btn btn-success mb-3" disabled>
+                            <i class="fas fa-check-circle me-1"></i>Paid
+                        </button>
+
+                        {% if payment %}
+                        <a href="{% url 'payments:payment_receipt' payment.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-receipt me-1"></i>View Receipt
+                        </a>
+                        {% endif %}
+                    </div>
+
+                {% elif due.deadline < current_date %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Payment deadline has passed.
+                    </div>
+
+                {% else %}
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-clock me-2"></i>
+                        Payment deadline: {{ due.deadline|date:"F d, Y" }}
+                    </div>
+
+                    <!-- Payment Details -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Amount Due:</span>
+                            <span class="fw-bold text-primary">
+                                GHS {{ due.amount|floatformat:2 }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Pay Now Button -->
+                    <form method="POST" action="{% url 'payments:make_payment' due.id %}" id="paymentForm">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-lg w-100 mb-3">
+                            <i class="fas fa-credit-card me-2"></i>Pay Now
+                        </button>
+                    </form>
+
+                    <p class="text-muted small text-center">
+                        <i class="fas fa-lock me-1"></i>
+                        Secured by Paystack
+                    </p>
+
+                {% endif %}
+
+            {% endif %}
+
+        {% else %}
+            <p class="text-muted text-center mb-0">
+                <i class="fas fa-info-circle me-1"></i>
+                Login as a student to make payment.
+            </p>
+        {% endif %}
+
+      </div>
+   </div>
+
+            <!-- Payment Methods -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-credit-card me-1"></i>Payment Methods
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-credit-card fa-2x text-primary me-3"></i>
+                            <div>
+                                <h6 class="mb-0">Card Payment</h6>
+                                <small class="text-muted">Visa, Mastercard, Verve</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-mobile-alt fa-2x text-success me-3"></i>
+                            <div>
+                                <h6 class="mb-0">Mobile Money</h6>
+                                <small class="text-muted">MTN, Vodafone, AirtelTigo</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="text-center">
+                        <img src="{% static 'img/paystack-2.svg' %}" alt="Paystack" height="30">
+                        <p class="text-muted small mt-2">
+                            Payments are processed securely by Paystack
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Need Help? -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-question-circle me-1"></i>Need Help?
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="small">If you're having trouble with your payment:</p>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <a href="mailto:finance@meltsa.edu">finance@meltsa.edu</a>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            +233 (0) 59 1907870
+                        </li>
+                        <li>
+                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                            Finance Office, Lab | Patron Office
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Confirmation Modal -->
+<div class="modal fade" id="paymentConfirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>Confirm Payment
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>You are about to make a payment of <strong class="text-primary">GHS {{ due.amount|floatformat:2 }}</strong> for:</p>
+                <p class="fw-bold">{{ due.title }}</p>
+                <p class="small text-muted">You will be redirected to Paystack's secure payment page.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="document.getElementById('paymentForm').submit();">
+                    <i class="fas fa-credit-card me-1"></i>Proceed to Payment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentForm = document.getElementById('paymentForm');
+    if (paymentForm) {
+        paymentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            new bootstrap.Modal(document.getElementById('paymentConfirmModal')).show();
+        });
+    }
+});
+</script>
+{% endblock %}

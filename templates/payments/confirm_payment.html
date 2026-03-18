@@ -1,0 +1,398 @@
+<!-- templates/payments/confirm_payment.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirm Payment - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-credit-card me-2"></i>Confirm Payment
+        </h1>
+        <a href="{% url 'payments:due_detail' due.id %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Due Details
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <!-- Warning Message if Deadline Passed -->
+            {% if due.deadline < now %}
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Warning:</strong> The payment deadline has passed. Please contact the finance office.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endif %}
+
+            <!-- Payment Summary Card -->
+            <div class="card shadow mb-4 {% if due.deadline < now %}border-danger{% endif %}">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 text-center">
+                        <i class="fas fa-shopping-cart me-2"></i>Payment Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Due Details -->
+                    <div class="text-center mb-4">
+                        <h4>{{ due.title }}</h4>
+                        <p class="text-muted">{{ due.description|truncatechars:100 }}</p>
+                    </div>
+
+                    <!-- Amount Card -->
+                    <div class="bg-light rounded p-4 mb-4 text-center">
+                        <span class="text-muted small">Amount to Pay</span>
+                        <h1 class="display-4 text-primary fw-bold mb-0">GHS {{ due.amount|floatformat:2 }}</h1>
+                    </div>
+
+                    <!-- Payment Details -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3">Payment Details</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>Due Type:</td>
+                                <td class="fw-bold">{{ due.get_due_type_display }}</td>
+                            </tr>
+                            <tr>
+                                <td>Academic Year:</td>
+                                <td class="fw-bold">{{ due.academic_setting.academic_year }}</td>
+                            </tr>
+                            <tr>
+                                <td>Deadline:</td>
+                                <td class="fw-bold {% if due.deadline < now %}text-danger{% endif %}">
+                                    {{ due.deadline|date:"F d, Y" }}
+                                    {% if due.deadline > now %}
+                                        <span class="badge bg-success ms-2">{{ due.deadline|timeuntil }} left</span>
+                                    {% elif due.deadline == now %}
+                                        <span class="badge bg-warning ms-2">Due today</span>
+                                    {% else %}
+                                        <span class="badge bg-danger ms-2">{{ due.deadline|timesince }} overdue</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Payment Method:</td>
+                                <td class="fw-bold">Paystack (Card/Mobile Money)</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Student Information -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3">Student Information</h6>
+                        <div class="d-flex align-items-center">
+                            {% if request.user.profile_image %}
+                                <img src="{{ request.user.profile_image.url }}" class="rounded-circle me-3" width="50" height="50">
+                            {% else %}
+                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 50px; height: 50px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-1">{{ request.user.get_full_name }}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-id-card me-1"></i>{{ request.user.student_id }}<br>
+                                    <i class="fas fa-envelope me-1"></i>{{ request.user.email }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reference Number (will be generated) -->
+                    <div class="alert alert-info small py-2 mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        A unique payment reference will be generated upon proceeding.
+                    </div>
+
+                    <!-- Terms and Conditions -->
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                            <label class="form-check-label small" for="termsCheck">
+                                I confirm that the payment details are correct and I agree to the 
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">terms and conditions</a>.
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        <form method="POST" action="{% url 'payments:make_payment' due.id %}" id="paymentForm">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-lg w-100" id="payNowBtn" 
+                                    {% if due.deadline < now %}disabled{% endif %}>
+                                <i class="fas fa-credit-card me-2"></i>Proceed to Paystack
+                            </button>
+                        </form>
+                        <a href="{% url 'payments:due_detail' due.id %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+
+                    <!-- Security Note -->
+                    <div class="text-center mt-4">
+                        <p class="small text-muted mb-1">
+                            <i class="fas fa-lock text-success me-1"></i>
+                            Secured by <strong>Paystack</strong>
+                        </p>
+                        <p class="small text-muted">
+                            <i class="fas fa-shield-alt text-primary me-1"></i>
+                            Your payment information is encrypted and secure
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accepted Payment Methods -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Accepted Payment Methods</h6>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <i class="fab fa-cc-visa fa-2x text-primary mb-2"></i>
+                            <small class="d-block">Visa</small>
+                        </div>
+                        <div class="col-4">
+                            <i class="fab fa-cc-mastercard fa-2x text-danger mb-2"></i>
+                            <small class="d-block">Mastercard</small>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-mobile-alt fa-2x text-success mb-2"></i>
+                            <small class="d-block">Mobile Money</small>
+                        </div>
+                        <div class="col-4 mt-3">
+                            <i class="fab fa-cc-amex fa-2x text-info mb-2"></i>
+                            <small class="d-block">Amex</small>
+                        </div>
+                        <div class="col-4 mt-3">
+                            <i class="fas fa-university fa-2x text-warning mb-2"></i>
+                            <small class="d-block">Bank Transfer</small>
+                        </div>
+                        <div class="col-4 mt-3">
+                            <i class="fas fa-qrcode fa-2x text-secondary mb-2"></i>
+                            <small class="d-block">QR Code</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Need Help? -->
+            <div class="text-center mt-4">
+                <small class="text-muted">
+                    <i class="fas fa-question-circle me-1"></i>
+                    Having trouble? <a href="{% url 'core:contact' %}">Contact Support</a>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms and Conditions Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-contract me-2"></i>Terms and Conditions
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>1. Payment Processing</h6>
+                <p class="small">All payments are processed securely through Paystack. MELTSA-TaTU does not store any payment card information. By proceeding, you consent to the processing of your payment through Paystack's secure platform.</p>
+                
+                <h6>2. Confirmation</h6>
+                <p class="small">A payment receipt will be generated and sent to your email upon successful payment confirmation. Please retain this receipt for your records.</p>
+                
+                <h6>3. Refund Policy</h6>
+                <p class="small">Payments are non-refundable except in cases of duplicate transactions or system errors. Contact the finance office within 7 days for any discrepancies.</p>
+                
+                <h6>4. Accuracy</h6>
+                <p class="small">You are responsible for ensuring that the payment amount and details are correct before proceeding. Double-check the due amount and type before confirming.</p>
+                
+                <h6>5. Receipt</h6>
+                <p class="small">The generated receipt serves as official proof of payment for MELTSA-TaTU dues. Download or print it for your records.</p>
+                
+                <h6>6. Late Payments</h6>
+                <p class="small">Payments made after the deadline may incur additional charges. Please contact the finance office if the deadline has passed.</p>
+                
+                <h6>7. Privacy</h6>
+                <p class="small">Your personal information will be used solely for payment processing and record-keeping in accordance with our privacy policy.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="acceptTerms()">
+                    <i class="fas fa-check me-2"></i>Accept Terms
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Processing Modal -->
+<div class="modal fade" id="processingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center p-5">
+                <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5>Redirecting to Paystack</h5>
+                <p class="text-muted small mb-2">Please wait while we redirect you to the secure payment page...</p>
+                <p class="text-muted small" id="redirectMessage">Initializing secure connection...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Payment Error
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="errorMessage">
+                <p>An error occurred while processing your payment. Please try again.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{% url 'payments:due_list' %}" class="btn btn-primary">Back to Dues</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+#payNowBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.border-danger {
+    border: 2px solid #dc3545 !important;
+}
+
+/* Animation for processing modal */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.spinner-border {
+    animation: spinner-border 0.75s linear infinite, pulse 2s ease infinite;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const termsCheck = document.getElementById('termsCheck');
+    const payNowBtn = document.getElementById('payNowBtn');
+    const paymentForm = document.getElementById('paymentForm');
+    
+    // FIXED: Use Django template to set this variable properly
+    const deadlinePassed = {% if due.deadline < now %}true{% else %}false{% endif %};
+    
+    // Enable/disable pay button based on terms acceptance
+    if (termsCheck) {
+        termsCheck.addEventListener('change', function() {
+            payNowBtn.disabled = !this.checked || deadlinePassed;
+        });
+    }
+    
+    // Show processing modal on form submit
+    if (paymentForm) {
+        paymentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (termsCheck.checked && !deadlinePassed) {
+                // Show processing modal
+                const processingModal = new bootstrap.Modal(document.getElementById('processingModal'));
+                processingModal.show();
+                
+                // Update redirect message with animation
+                const messages = [
+                    'Initializing secure connection...',
+                    'Contacting payment gateway...',
+                    'Preparing secure transaction...',
+                    'Almost there...'
+                ];
+                let index = 0;
+                const messageInterval = setInterval(function() {
+                    document.getElementById('redirectMessage').textContent = messages[index];
+                    index = (index + 1) % messages.length;
+                }, 800);
+                
+                // Submit the form after a short delay
+                setTimeout(function() {
+                    clearInterval(messageInterval);
+                    
+                    // Uncomment this line in production to actually submit
+                    paymentForm.submit();
+                    
+                    // For demo/testing purposes, you can show success
+                    // processingModal.hide();
+                    // showTestSuccess();
+                }, 2000);
+            } else if (deadlinePassed) {
+                alert('Cannot proceed: Payment deadline has passed.');
+            } else {
+                alert('Please accept the terms and conditions to proceed.');
+            }
+        });
+    }
+    
+    // Check for URL parameters (for testing/demo)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('error') === 'true') {
+        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        document.getElementById('errorMessage').innerHTML = '<p>' + (urlParams.get('message') || 'An error occurred') + '</p>';
+        errorModal.show();
+    }
+});
+
+function acceptTerms() {
+    document.getElementById('termsCheck').checked = true;
+    document.getElementById('payNowBtn').disabled = false;
+    bootstrap.Modal.getInstance(document.getElementById('termsModal')).hide();
+}
+
+function showTestSuccess() {
+    const toastHtml = `
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+            <div class="toast align-items-center text-white bg-success border-0 show" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Redirect successful! (Demo mode)
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', toastHtml);
+}
+
+// Countdown timer for deadline (optional)
+{% if due.deadline > now %}
+    function updateCountdown() {
+        const deadline = new Date("{{ due.deadline|date:'Y-m-d' }}T23:59:59").getTime();
+        const now = new Date().getTime();
+        const distance = deadline - now;
+        
+        if (distance < 0) {
+            location.reload();
+        }
+    }
+    setInterval(updateCountdown, 60000); // Update every minute
+{% endif %}
+</script>
+{% endblock %}

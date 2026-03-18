@@ -1,0 +1,94 @@
+<!-- templates/events/print_attendance.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance List - {{ session.name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { margin: 0; color: #333; }
+        .header h2 { margin: 5px 0; color: #666; font-weight: normal; }
+        .info { margin-bottom: 20px; padding: 10px; background: #f5f5f5; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #333; color: white; padding: 10px; text-align: left; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; }
+        .checked-in { color: green; font-weight: bold; }
+        .pending { color: orange; }
+        .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #666; }
+        .summary { margin-top: 20px; padding: 10px; background: #e8f4f8; border-radius: 5px; }
+        @media print {
+            .no-print { display: none; }
+            body { margin: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>MELTSA-TaTU</h1>
+        <h2>Attendance List</h2>
+    </div>
+
+    <div class="info">
+        <p><strong>Event:</strong> {{ session.event.title }}</p>
+        <p><strong>Session:</strong> {{ session.name }}</p>
+        <p><strong>Date:</strong> {{ session.start_time|date:"l, F d, Y" }}</p>
+        <p><strong>Time:</strong> {{ session.start_time|date:"h:i A" }} - {{ session.end_time|date:"h:i A" }}</p>
+        <p><strong>Venue:</strong> {{ session.venue|default:session.event.venue }}</p>
+    </div>
+
+    <div class="summary">
+        <p><strong>Summary:</strong> {{ checked_in_count }} out of {{ total_count }} attendees checked in 
+        ({% widthratio checked_in_count total_count 100 %}%)</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Level</th>
+                <th>Program</th>
+                <th>Status</th>
+                <th>Check-in Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for attendee in attendees %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ attendee.user.student_id }}</td>
+                <td>{{ attendee.user.get_full_name }}</td>
+                <td>Level {{ attendee.user.level }}</td>
+                <td>{{ attendee.user.get_program_type_display }}</td>
+                <td>
+                    {% if attendee.checked_in %}
+                        <span class="checked-in">✓ Checked In</span>
+                    {% else %}
+                        <span class="pending">○ Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if attendee.checked_in_at %}
+                        {{ attendee.checked_in_at|date:"h:i A" }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>Generated on: {{ now|date:"F d, Y H:i:s" }}</p>
+        <p>© MELTSA-TaTU - Official Attendance Record</p>
+    </div>
+
+    <div class="no-print" style="text-align: center; margin-top: 20px;">
+        <button onclick="window.print()" style="padding: 10px 20px; background: #4e73df; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Print Attendance List
+        </button>
+    </div>
+</body>
+</html>

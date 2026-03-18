@@ -1,0 +1,363 @@
+<!-- templates/events/event_attendees.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Event Attendees - {{ event.title }} - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-users me-2"></i>Event Attendees: {{ event.title }}
+        </h1>
+        <div>
+            <a href="{% url 'events:event_detail' event.id %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to Event
+            </a>
+            <button class="btn btn-success btn-sm" onclick="exportAttendees()">
+                <i class="fas fa-download me-1"></i>Export
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ total_registered }}</div>
+                            <div class="small">Total Registered</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ total_checked_in }}</div>
+                            <div class="small">Checked In</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ total_registered|add:total_checked_in }}</div>
+                            <div class="small">Not Checked In</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ attendance_rate|floatformat:1 }}%</div>
+                            <div class="small">Attendance Rate</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {% if status == 'all' %}active{% endif %}" 
+                       href="?status=all">
+                        <i class="fas fa-list me-1"></i>All ({{ total_registered }})
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if status == 'checked_in' %}active{% endif %}" 
+                       href="?status=checked_in">
+                        <i class="fas fa-check-circle me-1"></i>Checked In ({{ total_checked_in }})
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if status == 'pending' %}active{% endif %}" 
+                       href="?status=pending">
+                        <i class="fas fa-clock me-1"></i>Pending ({{ total_registered|add:total_checked_in }})
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Search -->
+        <div class="card-body border-bottom">
+            <form method="GET" action="{% url 'events:event_attendees' event.id %}" id="searchForm">
+                <input type="hidden" name="status" value="{{ status }}">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" name="search" class="form-control" 
+                                   placeholder="Search by name or ID..." value="{{ search_query }}">
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <select name="session" class="form-select">
+                            <option value="">All Sessions</option>
+                            {% for session in sessions %}
+                                <option value="{{ session.id }}" {% if session_filter == session.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ session.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i>Apply
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Attendees Table -->
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th width="50">
+                                <input type="checkbox" class="form-check-input" id="selectAll">
+                            </th>
+                            <th>Student</th>
+                            <th>ID</th>
+                            <th>Level</th>
+                            <th>Program</th>
+                            <th>Registered</th>
+                            <th>Status</th>
+                            <th>Check-in Time</th>
+                            <th>Sessions</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for attendee in attendees %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="form-check-input attendee-checkbox" value="{{ attendee.id }}">
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if attendee.user.profile_image %}
+                                        <img src="{{ attendee.user.profile_image.url }}" class="rounded-circle me-2" width="30" height="30">
+                                    {% else %}
+                                        <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
+                                            <i class="fas fa-user text-white"></i>
+                                        </div>
+                                    {% endif %}
+                                    {{ attendee.user.get_full_name }}
+                                </div>
+                            </td>
+                            <td>{{ attendee.user.student_id }}</td>
+                            <td>Level {{ attendee.user.level }}</td>
+                            <td>{{ attendee.user.get_program_type_display }}</td>
+                            <td>{{ attendee.registered_at|date:"M d, H:i" }}</td>
+                            <td>
+                                {% if attendee.attended %}
+                                    <span class="badge bg-success">Checked In</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if attendee.checked_in_at %}
+                                    {{ attendee.checked_in_at|date:"M d, H:i" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% with attended_sessions=attendee.session_attendance %}
+                                    {% if attended_sessions %}
+                                        <span class="badge bg-info">{{ attended_sessions }}/{{ sessions|length }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">0/{{ sessions|length }}</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td>
+                                {% if not attendee.attended %}
+                                    <form method="POST" action="{% url 'events:mark_attendance' attendee.id %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                                <a href="{% url 'directory:student_detail' attendee.user.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-center py-4">
+                                <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
+                                <p class="text-muted mb-0">No attendees found</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        {% if attendees %}
+        <div class="card-footer">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <span id="selectedCount" class="text-muted">0 selected</span>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-success" onclick="markSelectedAttendance()">
+                        <i class="fas fa-check me-1"></i>Mark Checked In
+                    </button>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-info" onclick="sendMessageSelected()">
+                        <i class="fas fa-envelope me-1"></i>Send Message
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if attendees.has_other_pages %}
+    <nav aria-label="Attendees pagination">
+        <ul class="pagination justify-content-center">
+            {% if attendees.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ attendees.previous_page_number }}&status={{ status }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for i in attendees.paginator.page_range %}
+                {% if attendees.number == i %}
+                    <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                {% elif i > attendees.number|add:'-3' and i < attendees.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ i }}&status={{ status }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ i }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if attendees.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ attendees.next_page_number }}&status={{ status }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.attendee-checkbox');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => {
+                cb.checked = this.checked;
+            });
+            updateSelectedCount();
+        });
+    }
+    
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateSelectedCount);
+    });
+    
+    function updateSelectedCount() {
+        const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+        selectedCount.textContent = checked + ' selected';
+    }
+});
+
+function markSelectedAttendance() {
+    const selected = Array.from(document.querySelectorAll('.attendee-checkbox:checked'))
+        .map(cb => cb.value);
+    
+    if (selected.length === 0) {
+        alert('Please select attendees to mark attendance.');
+        return;
+    }
+    
+    if (confirm('Mark attendance for ' + selected.length + ' attendee(s)?')) {
+        // Implement bulk attendance marking
+        fetch('{% url "events:bulk_mark_attendance" event.id %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ attendee_ids: selected })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function sendMessageSelected() {
+    const selected = Array.from(document.querySelectorAll('.attendee-checkbox:checked'))
+        .map(cb => cb.value);
+    
+    if (selected.length === 0) {
+        alert('Please select attendees to message.');
+        return;
+    }
+    
+    // Redirect to compose with selected recipients
+    window.location.href = '{% url "messaging:compose" %}?recipients=' + selected.join(',');
+}
+
+function exportAttendees() {
+    window.location.href = '{% url "events:export_attendees" event.id %}?status={{ status }}' + 
+        (searchQuery ? '&search={{ search_query }}' : '');
+}
+</script>
+{% endblock %}

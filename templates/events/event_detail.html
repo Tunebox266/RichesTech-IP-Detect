@@ -1,0 +1,281 @@
+<!-- templates/events/event_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load core_tags %}
+
+{% block title %}{{ event.title }} - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-calendar-alt me-2"></i>{{ event.title }}
+        </h1>
+        <div>
+            <a href="{% url 'events:event_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to Events
+            </a>
+            {% if request.user.user_type in 'admin,staff,executive' %}
+                <a href="{% url 'events:event_edit' event.id %}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </a>
+                <a href="{% url 'events:session_create' event.id %}" class="btn btn-info btn-sm">
+                    <i class="fas fa-plus-circle me-1"></i>Add Session
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Event Poster/Banner -->
+            {% if event.poster %}
+            <div class="card shadow mb-4">
+                <img src="{{ event.poster.url }}" class="card-img-top" alt="{{ event.title }}" style="max-height: 300px; object-fit: cover;">
+            </div>
+            {% endif %}
+
+            <!-- Event Details -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Event Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-calendar fa-2x text-primary mb-2"></i>
+                                <span class="d-block h6 mb-0">{{ event.start_date|date:"M d, Y" }}</span>
+                                <small class="text-muted">Date</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-clock fa-2x text-success mb-2"></i>
+                                <span class="d-block h6 mb-0">{{ event.start_date|date:"h:i A" }}</span>
+                                <small class="text-muted">Start Time</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-clock fa-2x text-danger mb-2"></i>
+                                <span class="d-block h6 mb-0">{{ event.end_date|date:"h:i A" }}</span>
+                                <small class="text-muted">End Time</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-map-marker-alt fa-2x text-info mb-2"></i>
+                                <span class="d-block h6 mb-0">{{ event.venue }}</span>
+                                <small class="text-muted">Venue</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold">Description</h6>
+                    <p class="mb-4">{{ event.description|linebreaks }}</p>
+
+                    <h6 class="fw-bold">Event Type</h6>
+                    <p class="mb-2">
+                        <span class="badge bg-{{ event.event_type|event_color }} p-2">
+                            {{ event.get_event_type_display }}
+                        </span>
+                    </p>
+
+                    {% if event.max_attendees %}
+                    <h6 class="fw-bold mt-3">Capacity</h6>
+                    <p>{{ event.get_attendee_count }} / {{ event.max_attendees }} attendees</p>
+                    <div class="progress mb-3" style="height: 10px;">
+                        <div class="progress-bar bg-success" style="width: {{ event.attendance_percentage }}%"></div>
+                    </div>
+                    {% endif %}
+
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-user me-1"></i>Organized by: {{ event.created_by.get_full_name }} on {{ event.created_at|date:"M d, Y H:i" }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Event Sessions -->
+            {% if sessions %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-clock me-1"></i>Event Sessions
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for session in sessions %}
+                        <div class="list-group-item">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <div class="session-icon bg-info text-white rounded-circle p-2">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <h6 class="mb-1">{{ session.name }}</h6>
+                                    <small class="text-muted d-block">
+                                        <i class="fas fa-calendar me-1"></i>{{ session.start_time|date:"M d, Y" }} |
+                                        <i class="fas fa-clock me-1"></i>{{ session.start_time|date:"h:i A" }} - {{ session.end_time|date:"h:i A" }}
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ session.venue|default:event.venue }}
+                                    </small>
+                                </div>
+                                <div class="col-auto">
+                                    <span class="badge bg-{{ session.get_session_type_display|lower }} me-2">
+                                        {{ session.get_session_type_display }}
+                                    </span>
+                                    {% if session.id in user_attendance %}
+                                        <span class="badge bg-success">Checked In</span>
+                                    {% endif %}
+                                    <a href="{% url 'events:session_detail' session.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Registration Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-ticket-alt me-1"></i>Registration
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if request.user.is_authenticated %}
+                        {% if is_registered %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle me-2"></i>
+                                You are registered for this event.
+                                {% if has_attended %}
+                                    <br><span class="badge bg-success mt-2">Attendance Marked</span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if not has_attended and event.start_date > now %}
+                                <form method="POST" action="{% url 'events:event_unregister' event.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Are you sure you want to unregister?')">
+                                        <i class="fas fa-times-circle me-1"></i>Unregister
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            {% if event.is_full %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    This event is full.
+                                </div>
+                            {% elif event.start_date < now %}
+                                <div class="alert alert-secondary">
+                                    <i class="fas fa-clock me-2"></i>
+                                    This event has already passed.
+                                </div>
+                            {% else %}
+                                <form method="POST" action="{% url 'events:event_register' event.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success btn-lg w-100">
+                                        <i class="fas fa-check me-2"></i>Register Now
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Please <a href="{% url 'accounts:login' %}?next={{ request.path }}">login</a> to register.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Event Stats -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar me-1"></i>Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Total Registrations:</span>
+                            <span class="fw-bold">{{ event.get_attendee_count }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Checked In:</span>
+                            <span class="fw-bold">{{ event.get_checked_in_count }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Sessions:</span>
+                            <span class="fw-bold">{{ sessions|length }}</span>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6 class="fw-bold">Attendance Rate</h6>
+                    <div class="progress mb-3" style="height: 20px;">
+                        <div class="progress-bar bg-success" style="width: {{ event.attendance_rate }}%">
+                            {{ event.attendance_rate|floatformat:1 }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Check-in Info -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-qrcode me-1"></i>Check-in Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="small mb-2">
+                        <i class="fas fa-info-circle text-info me-1"></i>
+                        How to check in:
+                    </p>
+                    <ul class="small">
+                        <li>Scan QR code at the venue</li>
+                        <li>Use the check-in code provided</li>
+                        <li>Ask organizers for manual check-in</li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <p class="small text-muted mb-0">
+                        <i class="fas fa-clock me-1"></i>
+                        Check-in opens 30 minutes before the event.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.session-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+{% endblock %}

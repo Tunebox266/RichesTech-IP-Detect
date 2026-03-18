@@ -1,0 +1,702 @@
+<!-- templates/accounts/admin/user_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load core_tags %}
+
+{% block title %}{{ profile_user.get_full_name }} - User Details - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-user-circle me-2"></i>User Details
+        </h1>
+        <div>
+            <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to Users
+            </a>
+            <a href="{% url 'accounts:user_edit' profile_user.id %}" class="btn btn-warning btn-sm">
+                <i class="fas fa-edit me-1"></i>Edit User
+            </a>
+            <button class="btn btn-danger btn-sm" onclick="confirmDelete({{ profile_user.id }})">
+                <i class="fas fa-trash me-1"></i>Delete User
+            </button>
+        </div>
+    </div>
+
+    <!-- User Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ registered_courses|length }}</div>
+                            <div class="small">Registered Courses</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-book-open fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-success text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">GHS {{ total_paid|floatformat:2 }}</div>
+                            <div class="small">Total Paid</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-credit-card fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-info text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ successful_payments }}</div>
+                            <div class="small">Successful Payments</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white shadow h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="h5 mb-0">{{ pending_payments }}</div>
+                            <div class="small">Pending Payments</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - User Profile Card -->
+        <div class="col-xl-4 col-lg-5 mb-4">
+            <div class="card glass-card shadow h-100">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-id-card me-1"></i>User Information
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    <!-- Profile Image -->
+                    <div class="mb-4">
+                        {% if profile_user.profile_image %}
+                            <img src="{{ profile_user.profile_image.url }}" class="rounded-circle img-thumbnail" 
+                                 width="150" height="150" style="object-fit: cover;">
+                        {% else %}
+                            <div class="bg-gradient-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" 
+                                 style="width: 150px; height: 150px; font-size: 3rem;">
+                                {{ profile_user.first_name|first|upper }}{{ profile_user.last_name|first|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <h4 class="mb-1">{{ profile_user.get_full_name }}</h4>
+                    <p class="text-primary mb-2">
+                        <i class="fas fa-id-card me-1"></i>
+                        {% if profile_user.student_id %}{{ profile_user.student_id }}{% else %}{{ profile_user.staff_id }}{% endif %}
+                    </p>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-{% if profile_user.user_type == 'student' %}info{% elif profile_user.user_type == 'staff' %}success{% elif profile_user.user_type == 'executive' %}warning{% else %}primary{% endif %} p-2">
+                            <i class="fas 
+                                {% if profile_user.user_type == 'student' %}fa-user-graduate
+                                {% elif profile_user.user_type == 'staff' %}fa-chalkboard-teacher
+                                {% elif profile_user.user_type == 'executive' %}fa-user-tie
+                                {% else %}fa-user-shield{% endif %} me-1"></i>
+                            {{ profile_user.get_user_type_display }}
+                        </span>
+                        
+                        {% if profile_user.is_active %}
+                            <span class="badge bg-success ms-1 p-2">
+                                <i class="fas fa-check-circle me-1"></i>Active
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger ms-1 p-2">
+                                <i class="fas fa-times-circle me-1"></i>Inactive
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="text-start mt-4">
+                        <h6 class="fw-bold border-bottom pb-2">Contact Information</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th width="35%"><i class="fas fa-envelope text-primary me-2"></i>Email:</th>
+                                <td>
+                                    <a href="mailto:{{ profile_user.email }}">{{ profile_user.email }}</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-phone text-success me-2"></i>Phone:</th>
+                                <td>{{ profile_user.phone_number|default:"Not provided" }}</td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-map-marker-alt text-danger me-2"></i>Address:</th>
+                                <td>{{ profile_user.address|default:"Not provided" }}</td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-birthday-cake text-info me-2"></i>DOB:</th>
+                                <td>{{ profile_user.date_of_birth|date:"M d, Y"|default:"Not provided" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Account Information -->
+                    <div class="text-start mt-3">
+                        <h6 class="fw-bold border-bottom pb-2">Account Information</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th width="35%"><i class="fas fa-user me-2"></i>Username:</th>
+                                <td><code>{{ profile_user.username }}</code></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-calendar-plus me-2"></i>Joined:</th>
+                                <td>{{ profile_user.date_joined|date:"M d, Y H:i" }}</td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-clock me-2"></i>Last Login:</th>
+                                <td>{{ profile_user.last_login|date:"M d, Y H:i"|default:"Never" }}</td>
+                            </tr>
+                            {% if profile_user.requires_password_change %}
+                            <tr>
+                                <th><i class="fas fa-key me-2"></i>Password:</th>
+                                <td><span class="badge bg-warning">Change Required</span></td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+
+                    <!-- Security Information (Admin Only) -->
+                    {% if request.user.user_type == 'admin' %}
+                    <div class="text-start mt-3">
+                        <h6 class="fw-bold border-bottom pb-2">Security Information</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th width="35%"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Failed Logins:</th>
+                                <td>{{ profile_user.failed_login_attempts }}</td>
+                            </tr>
+                            {% if profile_user.account_locked_until %}
+                            <tr>
+                                <th><i class="fas fa-lock text-danger me-2"></i>Locked Until:</th>
+                                <td>{{ profile_user.account_locked_until|date:"M d, Y H:i" }}</td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                        
+                        <div class="d-grid gap-2 mt-3">
+                            <button class="btn btn-sm btn-warning" onclick="unlockAccount({{ profile_user.id }})">
+                                <i class="fas fa-unlock me-1"></i>Unlock Account
+                            </button>
+                            <button class="btn btn-sm btn-info" onclick="resetPassword({{ profile_user.id }})">
+                                <i class="fas fa-key me-1"></i>Reset Password
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Detailed Information -->
+        <div class="col-xl-8 col-lg-7">
+            <!-- Academic Information (for students/executives) -->
+            {% if profile_user.user_type in 'student,executive' %}
+            <div class="card glass-card shadow mb-4">
+                <div class="card-header bg-gradient-info text-white py-3">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-graduation-cap me-1"></i>Academic Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table">
+                                <tr>
+                                    <th width="40%">Program Type:</th>
+                                    <td>{{ profile_user.get_program_type_display|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Current Level:</th>
+                                    <td>
+                                        {% if profile_user.level %}
+                                            Level {{ profile_user.level }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Year of Admission:</th>
+                                    <td>{{ profile_user.year_of_admission|default:"-" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table">
+                                <tr>
+                                    <th width="40%">Department:</th>
+                                    <td>Medical Laboratory Science</td>
+                                </tr>
+                                <tr>
+                                    <th>Current Semester:</th>
+                                    <td>{{ current_academic.current_semester|default:"First" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Academic Year:</th>
+                                    <td>{{ current_academic.academic_year|default:"2024/2025" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Executive Profile (if applicable) -->
+            {% if executive_profile %}
+            <div class="card glass-card shadow mb-4">
+                <div class="card-header bg-gradient-warning text-white py-3">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-user-tie me-1"></i>Executive Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table">
+                                <tr>
+                                    <th width="40%">Position:</th>
+                                    <td>
+                                        <span class="badge bg-warning p-2">{{ executive_profile.get_position_display }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Executive Level:</th>
+                                    <td>{{ executive_profile.get_executive_level_display }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Tenure Start:</th>
+                                    <td>{{ executive_profile.tenure_start_date|date:"M d, Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Tenure End:</th>
+                                    <td>{{ executive_profile.tenure_end_date|date:"M d, Y" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table">
+                                <tr>
+                                    <th width="40%">Status:</th>
+                                    <td>
+                                        <span class="badge bg-{% if executive_profile.tenure_status == 'active' %}success{% else %}secondary{% endif %}">
+                                            {{ executive_profile.get_tenure_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Remaining Days:</th>
+                                    <td>{{ executive_profile.remaining_tenure_days }} days</td>
+                                </tr>
+                                <tr>
+                                    <th>Official Email:</th>
+                                    <td>
+                                        {% if executive_profile.official_email %}
+                                            <a href="mailto:{{ executive_profile.official_email }}">{{ executive_profile.official_email }}</a>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Office Hours:</th>
+                                    <td>{{ executive_profile.office_hours|default:"Not specified" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    {% if executive_profile.manifesto %}
+                    <div class="mt-3">
+                        <h6 class="fw-bold">Manifesto:</h6>
+                        <p class="small">{{ executive_profile.manifesto }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if executive_profile.achievements %}
+                    <div class="mt-3">
+                        <h6 class="fw-bold">Achievements:</h6>
+                        <p class="small">{{ executive_profile.achievements }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Registered Courses -->
+            {% if registered_courses %}
+            <div class="card glass-card shadow mb-4">
+                <div class="card-header bg-gradient-success text-white py-3">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-book-open me-1"></i>Registered Courses ({{ registered_courses|length }})
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Course Code</th>
+                                    <th>Course Title</th>
+                                    <th>Level</th>
+                                    <th>Semester</th>
+                                    <th>Credit Hours</th>
+                                    <th>Registered On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for registration in registered_courses %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'courses:course_detail' registration.course.id %}">
+                                            {{ registration.course.code }}
+                                        </a>
+                                    </td>
+                                    <td>{{ registration.course.title }}</td>
+                                    <td>Level {{ registration.course.level }}</td>
+                                    <td>{{ registration.course.get_semester_display }}</td>
+                                    <td>{{ registration.course.credit_hours }}</td>
+                                    <td>{{ registration.registered_at|date:"M d, Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Payment History -->
+            {% if payments %}
+            <div class="card glass-card shadow mb-4">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-credit-card me-1"></i>Payment History
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Due</th>
+                                    <th>Amount</th>
+                                    <th>Reference</th>
+                                    <th>Status</th>
+                                    <th>Paid At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in payments %}
+                                <tr>
+                                    <td>{{ payment.created_at|date:"M d, Y" }}</td>
+                                    <td>{{ payment.due.title }}</td>
+                                    <td>GHS {{ payment.amount|floatformat:2 }}</td>
+                                    <td>
+                                        <small class="text-muted">{{ payment.reference|truncatechars:12 }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if payment.status == 'success' %}success{% elif payment.status == 'pending' %}warning{% else %}danger{% endif %}">
+                                            {{ payment.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ payment.paid_at|date:"M d, Y H:i"|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Recent Activity -->
+            {% if recent_activity %}
+            <div class="card glass-card shadow">
+                <div class="card-header bg-gradient-secondary text-white py-3">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-history me-1"></i>Recent Activity
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for activity in recent_activity %}
+                        <div class="list-group-item">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <div class="activity-icon bg-{{ activity.action_type|activity_color }} text-white rounded-circle p-2">
+                                        <i class="fas fa-{{ activity.action_type|activity_icon }}"></i>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ activity.get_action_type_display }}</h6>
+                                        <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                                    </div>
+                                    <p class="mb-1 small">{{ activity.details|default:"" }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ activity.ip_address }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content glass-modal">
+            <div class="modal-header bg-gradient-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Delete User
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>{{ profile_user.get_full_name }}</strong>?</p>
+                <p class="small text-muted">This action cannot be undone. All user data including courses, payments, and activity logs will be permanently deleted.</p>
+                
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    This will also delete:
+                    <ul class="mb-0 mt-2">
+                        <li>{{ registered_courses|length }} course registrations</li>
+                        <li>{{ payments|length }} payment records</li>
+                        <li>All activity logs and session data</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Delete User</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content glass-modal">
+            <div class="modal-header bg-gradient-warning text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-key me-2"></i>Reset Password
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'accounts:reset_user_password' profile_user.id %}" id="resetPasswordForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Reset password for <strong>{{ profile_user.get_full_name }}</strong>?</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">New Password</label>
+                        <input type="password" name="new_password" class="form-control" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Confirm Password</label>
+                        <input type="password" name="confirm_password" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="require_change" id="requireChange" checked>
+                        <label class="form-check-label" for="requireChange">
+                            Require password change on next login
+                        </label>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        The user will receive an email with the new password.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Reset Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Unlock Account Modal -->
+<div class="modal fade" id="unlockAccountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content glass-modal">
+            <div class="modal-header bg-gradient-info text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-unlock me-2"></i>Unlock Account
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'accounts:unlock_user_account' profile_user.id %}" id="unlockAccountForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Unlock account for <strong>{{ profile_user.get_full_name }}</strong>?</p>
+                    <p class="small text-muted">This will reset failed login attempts and remove any account lock.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-info">Unlock Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-bs-theme="dark"] .glass-card {
+    background: rgba(30, 30, 47, 0.7);
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+}
+
+.bg-gradient-danger {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.table td, .table th {
+    padding: 0.75rem;
+    vertical-align: middle;
+}
+
+.list-group-item {
+    transition: all 0.3s ease;
+}
+
+.list-group-item:hover {
+    background-color: var(--hover-bg);
+}
+</style>
+
+<script>
+function confirmDelete(userId) {
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    document.getElementById('confirmDeleteBtn').href = `/accounts/users/${userId}/delete/`;
+    modal.show();
+}
+
+function resetPassword(userId) {
+    new bootstrap.Modal(document.getElementById('resetPasswordModal')).show();
+}
+
+function unlockAccount(userId) {
+    new bootstrap.Modal(document.getElementById('unlockAccountModal')).show();
+}
+
+// Form validation for password reset
+document.getElementById('resetPasswordForm')?.addEventListener('submit', function(e) {
+    const password = this.querySelector('input[name="new_password"]').value;
+    const confirm = this.querySelector('input[name="confirm_password"]').value;
+    
+    if (password !== confirm) {
+        e.preventDefault();
+        alert('Passwords do not match!');
+        return;
+    }
+    
+    if (password.length < 8) {
+        e.preventDefault();
+        alert('Password must be at least 8 characters long!');
+        return;
+    }
+});
+
+// Toggle user active status
+function toggleUserStatus(userId, currentStatus) {
+    const action = currentStatus ? 'deactivate' : 'activate';
+    
+    if (confirm(`Are you sure you want to ${action} this user?`)) {
+        fetch(`/accounts/users/${userId}/toggle-status/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to update user status');
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

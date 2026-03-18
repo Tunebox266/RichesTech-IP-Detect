@@ -1,0 +1,282 @@
+<!-- templates/payments/due_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Due - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-credit-card me-2"></i>{{ action }} Due
+        </h1>
+        <a href="{% url 'payments:due_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Dues
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Due Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-edit me-1"></i>Due Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="dueForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Title -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-heading me-1"></i>Title <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                e.g., Academic Dues 2024/2025, Association Dues
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-align-left me-1"></i>Description
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Amount and Type -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-dollar-sign me-1"></i>Amount (GHS) <span class="text-danger">*</span>
+                                </label>
+                                {{ form.amount }}
+                                {% if form.amount.errors %}
+                                    <div class="text-danger small mt-1">{{ form.amount.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-tag me-1"></i>Due Type <span class="text-danger">*</span>
+                                </label>
+                                {{ form.due_type }}
+                                {% if form.due_type.errors %}
+                                    <div class="text-danger small mt-1">{{ form.due_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Academic Setting and Deadline -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-calendar-alt me-1"></i>Academic Setting <span class="text-danger">*</span>
+                                </label>
+                                {{ form.academic_setting }}
+                                {% if form.academic_setting.errors %}
+                                    <div class="text-danger small mt-1">{{ form.academic_setting.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-hourglass-end me-1"></i>Deadline <span class="text-danger">*</span>
+                                </label>
+                                {{ form.deadline }}
+                                {% if form.deadline.errors %}
+                                    <div class="text-danger small mt-1">{{ form.deadline.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Target Levels -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-layer-group me-1"></i>Target Levels <span class="text-danger">*</span>
+                            </label>
+                            <div class="row">
+                                {% for value, label in form.target_levels.field.choices %}
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="target_levels" value="{{ value }}" 
+                                               class="form-check-input" id="level_{{ value }}"
+                                               {% if value|stringformat:"s" in form.target_levels.value %}checked{% endif %}>
+                                        <label class="form-check-label" for="level_{{ value }}">
+                                            {{ label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.target_levels.errors %}
+                                <div class="text-danger small mt-1">{{ form.target_levels.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Active Status -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    <i class="fas fa-check-circle text-success me-1"></i>
+                                    Due is active (visible to students)
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Executive Exemption Note -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> Student executives are automatically exempted from paying dues.
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <hr>
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'payments:due_list' %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>{{ action }} Due
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Guidelines Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Amount must be greater than zero
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Deadline must be a future date
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Select at least one target level
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Executives are automatically exempted
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Statistics Card (for edit mode) -->
+            {% if action == 'Edit' and due %}
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar me-1"></i>Due Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <span class="text-muted">Target Students:</span>
+                        <span class="fw-bold float-end">{{ due.get_total_students }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">Paid Students:</span>
+                        <span class="fw-bold float-end">{{ due.get_paid_students }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">Total Collected:</span>
+                        <span class="fw-bold float-end">GHS {{ due.get_total_paid|floatformat:2 }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">Collection Rate:</span>
+                        <span class="fw-bold float-end">
+                            {% widthratio due.get_paid_students due.get_total_students 100 %}%
+                        </span>
+                    </div>
+                    <hr>
+                    <a href="{% url 'payments:due_detail' due.id %}" class="btn btn-info w-100">
+                        <i class="fas fa-eye me-1"></i>View Full Stats
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deadlineInput = document.getElementById('id_deadline');
+    const amountInput = document.getElementById('id_amount');
+
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    if (deadlineInput) {
+        deadlineInput.setAttribute('min', today);
+    }
+
+    // Validate amount
+    if (amountInput) {
+        amountInput.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            if (value < 0) this.value = 0;
+        });
+    }
+
+    // Form validation
+    document.getElementById('dueForm').addEventListener('submit', function(e) {
+        const targetLevels = document.querySelectorAll('input[name="target_levels"]:checked');
+        
+        if (targetLevels.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one target level.');
+            return;
+        }
+
+        const amount = parseFloat(amountInput.value);
+        if (amount <= 0) {
+            e.preventDefault();
+            alert('Amount must be greater than zero.');
+            return;
+        }
+
+        const deadline = new Date(deadlineInput.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (deadline < today) {
+            e.preventDefault();
+            alert('Deadline must be a future date.');
+            return;
+        }
+    });
+});
+</script>
+{% endblock %}

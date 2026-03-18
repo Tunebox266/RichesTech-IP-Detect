@@ -1,0 +1,324 @@
+<!-- templates/core/faq.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Frequently Asked Questions - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Hero Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="hero-section position-relative overflow-hidden mb-5" 
+                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 300px;">
+                <div class="container h-100">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-lg-8 text-white py-5" data-aos="fade-right">
+                            <h1 class="display-4 fw-bold mb-4">Frequently Asked Questions</h1>
+                            <p class="lead mb-4">Find answers to common questions about MELTSA-TaTU, membership, events, and more.</p>
+                        </div>
+                        <div class="col-lg-4 d-none d-lg-block" data-aos="fade-left">
+                            <i class="fas fa-question-circle fa-8x text-white opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- Wave SVG -->
+                <svg class="position-absolute bottom-0 w-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
+                    <path fill="#ffffff" fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <!-- Search and Filter -->
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto">
+                <div class="card glass-card border-0 shadow-lg" data-aos="fade-up">
+                    <div class="card-body p-4">
+                        <form method="GET" action="{% url 'core:faq' %}" id="faqSearchForm">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-transparent border-end-0">
+                                            <i class="fas fa-search text-primary"></i>
+                                        </span>
+                                        {{ search_form.query }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    {{ search_form.category }}
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-filter me-1"></i>Filter
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="row mb-5">
+            <div class="col-md-4" data-aos="fade-up">
+                <div class="card glass-card border-0 text-center p-4">
+                    <i class="fas fa-question-circle fa-3x text-primary mb-3"></i>
+                    <h3 class="fw-bold">{{ total_faqs }}</h3>
+                    <p class="text-muted mb-0">Total FAQs</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="card glass-card border-0 text-center p-4">
+                    <i class="fas fa-folder fa-3x text-success mb-3"></i>
+                    <h3 class="fw-bold">{{ categories|length }}</h3>
+                    <p class="text-muted mb-0">Categories</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="card glass-card border-0 text-center p-4">
+                    <i class="fas fa-star fa-3x text-warning mb-3"></i>
+                    <h3 class="fw-bold">{{ featured_count|default:"0" }}</h3>
+                    <p class="text-muted mb-0">Featured FAQs</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Categories -->
+        <div class="row">
+            <div class="col-12">
+                <!-- Category Navigation -->
+                <div class="category-nav mb-5" data-aos="fade-up">
+                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                        <a href="#all" class="btn btn-outline-primary category-filter active" data-category="all">All</a>
+                        {% for category, faqs_list in categories.items %}
+                        <a href="#{{ category|slugify }}" class="btn btn-outline-primary category-filter" data-category="{{ category|slugify }}">
+                            {{ category }}
+                            <span class="badge bg-primary ms-2">{{ faqs_list|length }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- FAQ Accordion by Category -->
+                <div class="faq-container">
+                    {% for category, faqs_list in categories.items %}
+                    <div class="category-section mb-5" id="category-{{ category|slugify }}" data-category="{{ category|slugify }}">
+                        <h2 class="fw-bold mb-4 pb-2 border-bottom" data-aos="fade-right">
+                            <i class="fas fa-folder-open text-primary me-2"></i>
+                            {{ category }}
+                        </h2>
+                        
+                        <div class="accordion" id="accordion-{{ category|slugify }}">
+                            {% for faq in faqs_list %}
+                            <div class="accordion-item glass-card mb-3 border-0" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:'50' }}">
+                                <h2 class="accordion-header" id="heading-{{ category|slugify }}-{{ forloop.counter }}">
+                                    <button class="accordion-button collapsed bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ category|slugify }}-{{ forloop.counter }}" aria-expanded="false">
+                                        <div class="d-flex align-items-center">
+                                            {% if faq.is_featured %}
+                                                <span class="badge bg-warning me-2">Featured</span>
+                                            {% endif %}
+                                            <span>{{ faq.question }}</span>
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="collapse-{{ category|slugify }}-{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ category|slugify }}-{{ forloop.counter }}" data-bs-parent="#accordion-{{ category|slugify }}">
+                                    <div class="accordion-body">
+                                        {{ faq.answer|safe }}
+                                        
+                                        {% if faq.updated_at != faq.created_at %}
+                                            <small class="text-muted d-block mt-3">
+                                                <i class="fas fa-clock me-1"></i>
+                                                Last updated: {{ faq.updated_at|date:"M d, Y" }}
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5" data-aos="fade-up">
+                        <i class="fas fa-question-circle fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">No FAQs found</h4>
+                        <p class="text-muted">Try adjusting your search or filter criteria.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Still Have Questions? -->
+        <div class="row mt-5">
+            <div class="col-lg-8 mx-auto">
+                <div class="card glass-card border-0 shadow-lg text-center p-5" data-aos="zoom-in">
+                    <i class="fas fa-headset fa-4x text-primary mb-4"></i>
+                    <h3 class="fw-bold mb-3">Still Have Questions?</h3>
+                    <p class="text-muted mb-4">Can't find the answer you're looking for? Please reach out to our support team.</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'core:contact' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-envelope me-2"></i>Contact Us
+                        </a>
+                        <a href="mailto:{{ contact_info.primary_email|default:'info@meltsa.edu' }}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-envelope me-2"></i>Email Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+[data-bs-theme="dark"] .glass-card {
+    background: rgba(30, 30, 47, 0.7);
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+.category-filter {
+    border-radius: 30px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.category-filter.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+}
+
+.accordion-item {
+    overflow: hidden;
+}
+
+.accordion-button:not(.collapsed) {
+    color: inherit;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: transparent;
+}
+
+.accordion-button::after {
+    background-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.hero-section svg {
+    pointer-events: none;
+}
+
+#faqSearchForm input, #faqSearchForm select {
+    border: 1px solid rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+[data-bs-theme="dark"] #faqSearchForm input,
+[data-bs-theme="dark"] #faqSearchForm select {
+    background: rgba(30, 30, 47, 0.8);
+    border-color: rgba(255,255,255,0.1);
+    color: white;
+}
+
+#faqSearchForm input:focus, #faqSearchForm select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+</style>
+
+<!-- AOS Animation -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<script>
+    AOS.init({
+        duration: 800,
+        once: true
+    });
+
+    // Category filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryLinks = document.querySelectorAll('.category-filter');
+        const categorySections = document.querySelectorAll('.category-section');
+        
+        // Check URL hash on load
+        const hash = window.location.hash.substring(1);
+        if (hash && hash !== 'all') {
+            filterByCategory(hash);
+            activateLink(hash);
+        }
+        
+        categoryLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const category = this.dataset.category;
+                
+                filterByCategory(category);
+                activateLink(category);
+                
+                // Update URL hash
+                window.location.hash = category;
+            });
+        });
+        
+        function filterByCategory(category) {
+            if (category === 'all') {
+                categorySections.forEach(section => {
+                    section.style.display = 'block';
+                });
+            } else {
+                categorySections.forEach(section => {
+                    if (section.dataset.category === category) {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+            }
+        }
+        
+        function activateLink(category) {
+            categoryLinks.forEach(link => {
+                if (link.dataset.category === category) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+    });
+
+    // Search form auto-submit with debounce
+    let searchTimeout;
+    document.querySelector('input[name="query"]')?.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            document.getElementById('faqSearchForm').submit();
+        }, 500);
+    });
+
+    // Category select auto-submit
+    document.querySelector('select[name="category"]')?.addEventListener('change', function() {
+        document.getElementById('faqSearchForm').submit();
+    });
+</script>
+{% endblock %}

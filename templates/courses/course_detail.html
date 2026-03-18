@@ -1,0 +1,269 @@
+<!-- templates/courses/course_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load core_tags %}
+
+{% block title %}{{ course.code }} - {{ course.title }} - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-book me-2"></i>{{ course.code }} - {{ course.title }}
+        </h1>
+        <div>
+            {% if request.user.user_type in 'staff,admin' %}
+                <a href="{% url 'courses:course_edit' course.id %}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </a>
+                <a href="{% url 'courses:upload_material' %}?course={{ course.id }}" class="btn btn-success btn-sm">
+                    <i class="fas fa-upload me-1"></i>Upload Material
+                </a>
+            {% endif %}
+            {% if not is_registered and request.user.user_type == 'student' %}
+                <a href="{% url 'courses:register_course' course.id %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i>Register
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Course Overview -->
+    <div class="row">
+        <!-- Course Info -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Course Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <span class="d-block h4 mb-0">{{ course.code }}</span>
+                                <small class="text-muted">Course Code</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <span class="d-block h4 mb-0">Level {{ course.level }}</span>
+                                <small class="text-muted">Level</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <span class="d-block h4 mb-0">{{ course.get_semester_display }}</span>
+                                <small class="text-muted">Semester</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <span class="d-block h4 mb-0">{{ course.credit_hours }}</span>
+                                <small class="text-muted">Credit Hours</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h6 class="fw-bold">Course Description</h6>
+                    <p class="mb-4">{{ course.description|linebreaks|default:"No description available." }}</p>
+                    
+                    {% if course.objectives %}
+                    <h6 class="fw-bold">Learning Objectives</h6>
+                    <p class="mb-4">{{ course.objectives|linebreaks }}</p>
+                    {% endif %}
+                    
+                    {% if course.assessment %}
+                    <h6 class="fw-bold">Assessment Methods</h6>
+                    <p>{{ course.assessment|linebreaks }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Course Materials -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-file-alt me-1"></i>Course Materials
+                    </h6>
+                    {% if request.user.user_type in 'staff,admin' %}
+                        <a href="{% url 'courses:upload_material' %}?course={{ course.id }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus me-1"></i>Add Material
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for material in materials %}
+                        <div class="list-group-item">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <div class="material-icon bg-{{ material.material_type|material_color }} text-white rounded-circle p-2">
+                                        <i class="fas fa-{{ material.material_type|material_icon }}"></i>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <h6 class="mb-1">{{ material.title }}</h6>
+                                    <small class="text-muted d-block">
+                                        <i class="fas fa-clock me-1"></i>{{ material.uploaded_at|date:"M d, Y" }} |
+                                        <i class="fas fa-user me-1"></i>{{ material.uploaded_by.get_full_name }} |
+                                        <i class="fas fa-download me-1"></i>{{ material.downloads }} downloads
+                                    </small>
+                                    {% if material.description %}
+                                        <small class="text-muted d-block">{{ material.description|truncatechars:100 }}</small>
+                                    {% endif %}
+                                </div>
+                                <div class="col-auto">
+                                    <span class="badge bg-secondary me-2">{{ material.get_material_type_display }}</span>
+                                    {% if is_registered or request.user.user_type in 'staff,admin' %}
+                                        <a href="{% url 'courses:download_material' material.id %}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    {% endif %}
+                                    <a href="{% url 'courses:material_detail' material.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center py-4">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No materials available for this course.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Lecturer Info -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chalkboard-teacher me-1"></i>Course Lecturer
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    {% if course.staff %}
+                        {% if course.staff.profile_image %}
+                            <img src="{{ course.staff.profile_image.url }}" class="rounded-circle mb-3" width="100" height="100">
+                        {% else %}
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
+                                 style="width: 100px; height: 100px; font-size: 2rem;">
+                                {{ course.staff.first_name|first|default:"L" }}
+                            </div>
+                        {% endif %}
+                                                <p class="text-muted mb-2">{{ course.staff.title|default:"Lecturer" }}</p>
+                        <p class="small">
+                        <h5>{{ course.staff.get_full_name }}</h5>
+
+                            <i class="fas fa-envelope me-1"></i>{{ course.staff.email }}<br>
+                            <i class="fas fa-phone me-1"></i>{{ course.staff.phone_number|default:"Not available" }}
+                        </p>
+                        <a href="{% url 'messaging:compose' %}?to={{ course.staff.id }}" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-envelope me-1"></i>Contact Lecturer
+                        </a>
+                    {% else %}
+                        <p class="text-muted mb-0">No lecturer assigned yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Registration Info -->
+            {% if request.user.user_type == 'student' %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-users me-1"></i>Registration Status
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if is_registered %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            You are registered for this course.
+                        </div>
+                        <div class="d-grid">
+                            <a href="{% url 'courses:my_courses' %}" class="btn btn-outline-primary">
+                                View My Courses
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            You are not registered for this course.
+                        </div>
+                       {% if request.user.is_authenticated and course.level == request.user.level %}
+                            <div class="d-grid">
+                                <a href="{% url 'courses:register_course' course.id %}" class="btn btn-primary">
+                                    Register Now
+                                </a>
+                            </div>
+                        {% else %}
+                            <p class="text-muted small">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                This course is for Level {{ course.level }} students only.
+                            </p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Quick Stats -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar me-1"></i>Course Stats
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Registered Students</span>
+                            <span class="fw-bold">{{ registered_students|default:"0" }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Total Materials</span>
+                            <span class="fw-bold">{{ total_materials|default:"0" }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Total Downloads</span>
+                            <span class="fw-bold">{{ total_downloads|default:"0" }}</span>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6 class="fw-bold">Recent Activity</h6>
+                    <div class="small">
+                        {% for activity in recent_activity %}
+                            <p class="mb-1">
+                                <i class="fas fa-circle text-{{ activity.type }} me-1" style="font-size: 0.5rem;"></i>
+                                {{ activity.description }} - {{ activity.time|timesince }} ago
+                            </p>
+                        {% empty %}
+                            <p class="text-muted mb-0">No recent activity.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.material-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+{% endblock %}

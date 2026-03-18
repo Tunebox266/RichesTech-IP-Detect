@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Terms of Service - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-file-contract me-2"></i>Terms of Service
+        </h1>
+        <div>
+            {% if request.user.user_type == 'admin' %}
+                <a href="{% url 'core:terms_of_service_edit' %}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit me-1"></i>Edit Terms
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Last Updated -->
+            <div class="alert alert-info mb-4">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Last Updated:</strong> {{ terms.effective_date|date:"F d, Y" }}
+                <span class="mx-2">|</span>
+                <strong>Version:</strong> {{ terms.version }}
+            </div>
+
+            <!-- Terms Content -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-file-alt me-1"></i>{{ terms.title }}
+                    </h6>
+                </div>
+                <div class="card-body terms-content">
+                    {{ terms.content|safe }}
+                </div>
+            </div>
+
+            <!-- Acceptance -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <p class="mb-0">
+                        <i class="fas fa-hand-pointer text-primary me-2"></i>
+                        By using MELTSA-TaTU, you acknowledge that you have read and understood these terms.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.terms-content h1,
+.terms-content h2,
+.terms-content h3 {
+    color: #1e3c72;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.terms-content h1 {
+    font-size: 2rem;
+    border-bottom: 2px solid #4e73df;
+    padding-bottom: 0.5rem;
+}
+
+.terms-content h2 {
+    font-size: 1.5rem;
+    border-bottom: 1px solid #e3e6f0;
+    padding-bottom: 0.3rem;
+}
+
+.terms-content h3 {
+    font-size: 1.2rem;
+}
+
+.terms-content p {
+    line-height: 1.8;
+    margin-bottom: 1rem;
+}
+
+.terms-content ul,
+.terms-content ol {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+}
+
+.terms-content li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+</style>
+{% endblock %}

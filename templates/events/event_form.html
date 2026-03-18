@@ -1,0 +1,304 @@
+<!-- templates/events/event_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Event - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-calendar-alt me-2"></i>{{ action }} Event
+        </h1>
+        <a href="{% url 'events:event_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Events
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Event Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-edit me-1"></i>Event Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="eventForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Title -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-heading me-1"></i>Event Title <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Event Type -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-tag me-1"></i>Event Type <span class="text-danger">*</span>
+                            </label>
+                            {{ form.event_type }}
+                            {% if form.event_type.errors %}
+                                <div class="text-danger small mt-1">{{ form.event_type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-align-left me-1"></i>Description <span class="text-danger">*</span>
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                Provide detailed information about the event
+                            </div>
+                        </div>
+
+                        <!-- Date and Time -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-calendar me-1"></i>Start Date & Time <span class="text-danger">*</span>
+                                </label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <div class="text-danger small mt-1">{{ form.start_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-calendar me-1"></i>End Date & Time <span class="text-danger">*</span>
+                                </label>
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                    <div class="text-danger small mt-1">{{ form.end_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Venue -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-map-marker-alt me-1"></i>Venue <span class="text-danger">*</span>
+                            </label>
+                            {{ form.venue }}
+                            {% if form.venue.errors %}
+                                <div class="text-danger small mt-1">{{ form.venue.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Poster -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-image me-1"></i>Event Poster
+                            </label>
+                            {% if event.poster %}
+                                <div class="mb-2">
+                                    <img src="{{ event.poster.url }}" alt="Current poster" class="img-thumbnail" style="max-height: 100px;">
+                                    <small class="text-muted d-block">Current poster</small>
+                                </div>
+                            {% endif %}
+                            {{ form.poster }}
+                            {% if form.poster.errors %}
+                                <div class="text-danger small mt-1">{{ form.poster.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                Upload an image for the event poster (JPG, PNG, GIF. Max 5MB)
+                            </div>
+                        </div>
+
+                        <!-- Max Attendees -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-users me-1"></i>Maximum Attendees
+                            </label>
+                            {{ form.max_attendees }}
+                            {% if form.max_attendees.errors %}
+                                <div class="text-danger small mt-1">{{ form.max_attendees.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                Leave blank for unlimited attendees
+                            </div>
+                        </div>
+
+                        <!-- Options -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    {{ form.requires_attendance_tracking }}
+                                    <label class="form-check-label" for="{{ form.requires_attendance_tracking.id_for_label }}">
+                                        <i class="fas fa-clipboard-check text-info me-1"></i>
+                                        Track attendance
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                        <i class="fas fa-check-circle text-success me-1"></i>
+                                        Event is active
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'events:event_list' %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>{{ action }} Event
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Tips Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-lightbulb me-1"></i>Event Tips
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Choose a clear, descriptive title
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Include all relevant details in description
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Upload an eye-catching poster
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Set attendance tracking for multi-session events
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            You can add sessions after creating the event
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Quick Stats (for edit mode) -->
+            {% if action == 'Edit' and event %}
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar me-1"></i>Event Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <span class="text-muted">Registered Attendees:</span>
+                        <span class="fw-bold float-end">{{ event.get_attendee_count }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">Sessions Created:</span>
+                        <span class="fw-bold float-end">{{ event.attendance_sessions.count }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">Days Duration:</span>
+                        <span class="fw-bold float-end">{{ event.duration_days }}</span>
+                    </div>
+                    <hr>
+                    <a href="{% url 'events:event_attendees' event.id %}" class="btn btn-sm btn-info w-100">
+                        <i class="fas fa-users me-1"></i>Manage Attendees
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+#id_start_date, #id_end_date {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #2c3e50;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #d1d3e2;
+    border-radius: 0.35rem;
+}
+
+#id_description {
+    min-height: 120px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startDate = document.getElementById('id_start_date');
+    const endDate = document.getElementById('id_end_date');
+    
+    function validateDates() {
+        if (startDate.value && endDate.value) {
+            const start = new Date(startDate.value);
+            const end = new Date(endDate.value);
+            
+            if (end <= start) {
+                endDate.setCustomValidity('End date must be after start date');
+            } else {
+                endDate.setCustomValidity('');
+            }
+        }
+    }
+    
+    startDate.addEventListener('change', validateDates);
+    endDate.addEventListener('change', validateDates);
+    
+    // Poster preview
+    const posterInput = document.getElementById('id_poster');
+    if (posterInput) {
+        posterInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    this.value = '';
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

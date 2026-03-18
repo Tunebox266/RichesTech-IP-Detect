@@ -1,0 +1,408 @@
+<!-- templates/payments/due_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dues & Payments - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-credit-card me-2"></i>Dues & Payments
+        </h1>
+        <div>
+            <span class="badge bg-info me-2">
+                <i class="fas fa-calendar me-1"></i>{{ current_academic.academic_year|default:"2024/2025" }}
+            </span>
+            {% if request.user.user_type == 'student' %}
+                <a href="{% url 'payments:payment_history' %}" class="btn btn-sm btn-primary shadow-sm">
+                    <i class="fas fa-history me-1"></i>My Payment History
+                </a>
+            {% endif %}
+            {% if request.user.user_type in 'admin,staff' %}
+                <a href="{% url 'payments:due_create' %}" class="btn btn-sm btn-success shadow-sm">
+                    <i class="fas fa-plus me-1"></i>Create New Due
+                </a>
+                <a href="{% url 'payments:payment_reports' %}" class="btn btn-sm btn-info shadow-sm">
+                    <i class="fas fa-chart-bar me-1"></i>Reports
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Dues
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_dues_count|default:dues.count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Paid Dues
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ paid_count|default:"0" }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Pending Dues
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ pending_count|default:"0" }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Total Amount
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">GHS {{ total_amount|floatformat:2|default:"0.00" }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <form method="get" action="{% url 'payments:due_list' %}" id="filterForm" class="row g-3">
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Due Type</label>
+                            <select name="type" class="form-select">
+                                <option value="">All Types</option>
+                                <option value="academic" {% if request.GET.type == 'academic' %}selected{% endif %}>Academic Due</option>
+                                <option value="association" {% if request.GET.type == 'association' %}selected{% endif %}>Association Due</option>
+                                <option value="other" {% if request.GET.type == 'other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="">All</option>
+                                <option value="paid" {% if request.GET.status == 'paid' %}selected{% endif %}>Paid</option>
+                                <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="overdue" {% if request.GET.status == 'overdue' %}selected{% endif %}>Overdue</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Target Level</label>
+                            <select name="level" class="form-select">
+                                <option value="">All Levels</option>
+                                <option value="100" {% if request.GET.level == '100' %}selected{% endif %}>Level 100</option>
+                                <option value="200" {% if request.GET.level == '200' %}selected{% endif %}>Level 200</option>
+                                <option value="300" {% if request.GET.level == '300' %}selected{% endif %}>Level 300</option>
+                                <option value="400" {% if request.GET.level == '400' %}selected{% endif %}>Level 400</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Sort By</label>
+                            <select name="sort" class="form-select">
+                                <option value="deadline" {% if request.GET.sort == 'deadline' or not request.GET.sort %}selected{% endif %}>Deadline (Soonest)</option>
+                                <option value="-deadline" {% if request.GET.sort == '-deadline' %}selected{% endif %}>Deadline (Latest)</option>
+                                <option value="amount" {% if request.GET.sort == 'amount' %}selected{% endif %}>Amount (Low to High)</option>
+                                <option value="-amount" {% if request.GET.sort == '-amount' %}selected{% endif %}>Amount (High to Low)</option>
+                                <option value="title" {% if request.GET.sort == 'title' %}selected{% endif %}>Title (A-Z)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Academic Year</label>
+                            <select name="academic_year" class="form-select">
+                                <option value="">All</option>
+                                {% for year in academic_years %}
+                                    <option value="{{ year.id }}" {% if request.GET.academic_year == year.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ year.academic_year }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter me-1"></i>Apply Filters
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dues List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-list me-1"></i>Active Dues
+                    </h6>
+                    <span class="text-muted small">{{ dues.count }} item(s) found</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for due in dues %}
+                        <div class="list-group-item p-4 {% if due.paid %}bg-light{% endif %}">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    <div class="d-flex">
+                                        <div class="due-icon bg-{% if due.paid %}success{% elif due.is_overdue %}danger{% else %}warning{% endif %} text-white rounded-circle p-3 me-3">
+                                            <i class="fas fa-{% if due.paid %}check-circle{% elif due.is_overdue %}exclamation-circle{% else %}credit-card{% endif %} fa-lg"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1">
+                                                <a href="{% url 'payments:due_detail' due.id %}" class="text-decoration-none text-dark">
+                                                    {{ due.title }}
+                                                </a>
+                                            </h5>
+                                            <p class="text-muted mb-2">{{ due.description|truncatewords:20 }}</p>
+                                            <div class="d-flex flex-wrap">
+                                                <span class="badge bg-info me-2 mb-2">
+                                                    <i class="fas fa-tag me-1"></i>{{ due.get_due_type_display }}
+                                                </span>
+                                                <span class="badge bg-secondary me-2 mb-2">
+                                                    <i class="fas fa-users me-1"></i>Level 
+                                                    {% for level in due.target_levels %}
+                                                        {{ level }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </span>
+                                                {% if due.paid %}
+                                                    <span class="badge bg-success me-2 mb-2">
+                                                        <i class="fas fa-check-circle me-1"></i>Paid
+                                                    </span>
+                                                {% elif due.is_overdue %}
+                                                    <span class="badge bg-danger me-2 mb-2">
+                                                        <i class="fas fa-exclamation-circle me-1"></i>Overdue
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-warning me-2 mb-2">
+                                                        <i class="fas fa-clock me-1"></i>Pending
+                                                    </span>
+                                                {% endif %}
+                                                <span class="badge bg-light text-dark me-2 mb-2">
+                                                    <i class="fas fa-calendar me-1"></i>{{ due.deadline|date:"M d, Y" }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-2">
+                                    <div class="text-center">
+                                        <h4 class="text-primary mb-1">GHS {{ due.amount|floatformat:2 }}</h4>
+                                        <small class="text-muted">
+                                            {% if due.deadline > today %}
+                                                <span class="text-success">{{ due.deadline|timeuntil }} left</span>
+                                            {% elif due.deadline == today %}
+                                                <span class="text-warning">Due today</span>
+                                            {% elif due.deadline < today %}
+                                                <span class="text-danger">{{ due.deadline|timesince }} overdue</span>
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 text-lg-end">
+                                    {% if request.user.user_type == 'student' %}
+                                        {% if due.paid %}
+                                            <button class="btn btn-success" disabled>
+                                                <i class="fas fa-check-circle me-1"></i>Paid
+                                            </button>
+                                            {% if due.payment_id %}
+                                                <a href="{% url 'payments:payment_receipt' due.payment_id %}" class="btn btn-outline-primary mt-2 mt-lg-0 ms-lg-2">
+                                                    <i class="fas fa-receipt"></i>
+                                                </a>
+                                            {% endif %}
+                                        {% elif due.is_overdue %}
+                                            <button class="btn btn-danger" disabled>
+                                                <i class="fas fa-times-circle me-1"></i>Deadline Passed
+                                            </button>
+                                        {% else %}
+                                            <a href="{% url 'payments:make_payment' due.id %}" class="btn btn-primary">
+                                                <i class="fas fa-credit-card me-1"></i>Pay Now
+                                            </a>
+                                            <a href="{% url 'payments:due_detail' due.id %}" class="btn btn-outline-secondary mt-2 mt-lg-0 ms-lg-2">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                        {% endif %}
+                                    {% elif request.user.user_type in 'admin,staff' %}
+                                        <a href="{% url 'payments:due_detail' due.id %}" class="btn btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>View Details
+                                        </a>
+                                        <a href="{% url 'payments:due_edit' due.id %}" class="btn btn-outline-warning mt-2 mt-lg-0 ms-lg-2">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'payments:due_detail' due.id %}" class="btn btn-outline-primary">
+                                            <i class="fas fa-info-circle me-1"></i>Details
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Progress Bar for Payment Collection (Admin/Staff only) -->
+                            {% if request.user.user_type in 'admin,staff' and due.collection_rate %}
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <small class="text-muted">Collection Progress</small>
+                                        <small class="fw-bold text-success">{{ due.collection_rate|floatformat:1 }}%</small>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: {{ due.collection_rate }}%"></div>
+                                    </div>
+                                    <small class="text-muted">{{ due.paid_count }}/{{ due.total_students }} students paid</small>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center py-5">
+                            <i class="fas fa-credit-card fa-4x text-muted mb-3"></i>
+                            <h5>No Dues Available</h5>
+                            <p class="text-muted">There are no active dues at the moment.</p>
+                            {% if request.user.user_type in 'admin,staff' %}
+                                <a href="{% url 'payments:due_create' %}" class="btn btn-primary mt-3">
+                                    <i class="fas fa-plus me-2"></i>Create New Due
+                                </a>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                {% if dues.has_other_pages %}
+                <div class="card-footer">
+                    <nav aria-label="Dues pagination">
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if dues.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ dues.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {% for i in dues.paginator.page_range %}
+                                {% if dues.number == i %}
+                                    <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                                {% elif i > dues.number|add:'-3' and i < dues.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if dues.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ dues.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-primary {
+    border-left: 4px solid #4e73df;
+}
+.border-left-success {
+    border-left: 4px solid #1cc88a;
+}
+.border-left-warning {
+    border-left: 4px solid #f6c23e;
+}
+.border-left-danger {
+    border-left: 4px solid #e74a3b;
+}
+.due-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.list-group-item {
+    transition: background-color 0.2s ease;
+}
+.list-group-item:hover {
+    background-color: #f8f9fc;
+}
+.progress {
+    border-radius: 10px;
+}
+@media (max-width: 768px) {
+    .due-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+    .due-icon i {
+        font-size: 1rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit on filter change
+    const filterSelects = document.querySelectorAll('#filterForm select');
+    filterSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+    });
+});
+</script>
+{% endblock %}

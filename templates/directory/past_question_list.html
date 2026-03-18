@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Past Questions - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-history me-2"></i>Past Questions
+        </h1>
+        <div>
+            <span class="badge bg-primary me-2">
+                <i class="fas fa-file-pdf me-1"></i>Total: {{ total_count }}
+            </span>
+            {% if request.user.user_type in 'admin,staff,executive' %}
+                <a href="{% url 'directory:past_question_upload' %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-upload me-1"></i>Upload Past Question
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="GET" action="{% url 'directory:past_question_list' %}" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" name="query" class="form-control" 
+                                   placeholder="Search by course code or title..." value="{{ request.GET.query|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="level" class="form-select">
+                            <option value="">All Levels</option>
+                            <option value="100" {% if request.GET.level == '100' %}selected{% endif %}>Level 100</option>
+                            <option value="200" {% if request.GET.level == '200' %}selected{% endif %}>Level 200</option>
+                            <option value="300" {% if request.GET.level == '300' %}selected{% endif %}>Level 300</option>
+                            <option value="400" {% if request.GET.level == '400' %}selected{% endif %}>Level 400</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="semester" class="form-select">
+                            <option value="">All Semesters</option>
+                            <option value="1" {% if request.GET.semester == '1' %}selected{% endif %}>First Semester</option>
+                            <option value="2" {% if request.GET.semester == '2' %}selected{% endif %}>Second Semester</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        {{ search_form.year }}
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i>Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Past Questions Grid -->
+    <div class="row">
+        {% for pq in past_questions %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary">{{ pq.course_code }}</span>
+                        <small class="text-muted">{{ pq.exam_year }}</small>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">{{ pq.title|default:pq.course_code }}</h5>
+                    {% if pq.course_name %}
+                        <p class="card-text small text-muted">{{ pq.course_name }}</p>
+                    {% endif %}
+                    <div class="mb-2">
+                        <span class="badge bg-info me-1">Level {{ pq.get_level_display }}</span>
+                        <span class="badge bg-secondary">{{ pq.get_semester_display }}</span>
+                    </div>
+                    <p class="card-text small text-muted">
+                        <i class="fas fa-calendar me-1"></i>Academic Year: {{ pq.academic_year }}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-download me-1"></i>{{ pq.downloads }} downloads
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-eye me-1"></i>{{ pq.views }} views
+                        </small>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100">
+                        <a href="{% url 'directory:past_question_detail' pq.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-info-circle me-1"></i>Details
+                        </a>
+                        <a href="{% url 'directory:download_past_question' pq.id %}" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-download me-1"></i>Download
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-file-pdf fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Past Questions Found</h5>
+                    <p class="text-muted">Try adjusting your search filters.</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if past_questions.has_other_pages %}
+    <nav aria-label="Past questions pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if past_questions.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ past_questions.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for i in past_questions.paginator.page_range %}
+                {% if past_questions.number == i %}
+                    <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                {% elif i > past_questions.number|add:'-3' and i < past_questions.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if past_questions.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ past_questions.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<style>
+.hover-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,450 @@
+<!-- templates/courses/material_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Course Material - MELTSA-TaTU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-file-alt me-2"></i>{{ action }} Course Material
+        </h1>
+        <a href="{% url 'courses:material_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Materials
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Material Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-edit me-1"></i>Material Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="materialForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Course Selection -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-book me-1"></i>Course <span class="text-danger">*</span>
+                            </label>
+                            {{ form.course }}
+                            {% if form.course.errors %}
+                                <div class="text-danger small mt-1">{{ form.course.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                Select the course this material belongs to
+                            </div>
+                        </div>
+
+                        <!-- Title -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-heading me-1"></i>Title <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                e.g., Chapter 1 Lecture Notes, Past Questions 2024, Lab Manual
+                            </div>
+                        </div>
+
+                        <!-- Material Type -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-tag me-1"></i>Material Type <span class="text-danger">*</span>
+                            </label>
+                            {{ form.material_type }}
+                            {% if form.material_type.errors %}
+                                <div class="text-danger small mt-1">{{ form.material_type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-file me-1"></i>File {% if action == 'Create' %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            
+                            {% if action == 'Edit' and material.file %}
+                                <div class="current-file mb-2 p-3 bg-light rounded">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-file-{% if material.file.name|slice:'-3:' == 'pdf' %}pdf text-danger
+                                            {% elif material.file.name|slice:'-3:' == 'doc' or material.file.name|slice:'-4:' == 'docx' %}word text-primary
+                                            {% elif material.file.name|slice:'-3:' == 'ppt' or material.file.name|slice:'-4:' == 'pptx' %}powerpoint text-warning
+                                            {% elif material.file.name|slice:'-3:' == 'xls' or material.file.name|slice:'-4:' == 'xlsx' %}excel text-success
+                                            {% else %}alt text-secondary{% endif %} fa-2x me-3"></i>
+                                        <div>
+                                            <strong>Current file:</strong> {{ material.filename }}<br>
+                                            <small class="text-muted">Size: {{ material.file.size|filesizeformat }}</small>
+                                        </div>
+                                        <div class="ms-auto">
+                                            <a href="{{ material.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                                <i class="fas fa-eye me-1"></i>View
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" name="clear_file" id="clearFile">
+                                    <label class="form-check-label text-danger" for="clearFile">
+                                        <i class="fas fa-trash-alt me-1"></i>Remove current file and upload new one
+                                    </label>
+                                </div>
+                            {% endif %}
+
+                            <div class="upload-area" id="dropArea" {% if action == 'Edit' and material.file and not form.clear_file.value %}style="display: none;"{% endif %}>
+                                <input type="file" name="file" id="fileInput" class="d-none" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt">
+                                <div class="text-center p-5">
+                                    <i class="fas fa-cloud-upload-alt fa-4x text-primary mb-3"></i>
+                                    <h6>Drag and drop your file here or <a href="#" id="browseLink">browse</a></h6>
+                                    <p class="text-muted small mb-0">
+                                        Supported formats: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT (Max 50MB)
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div id="filePreview" class="mt-3" style="display: none;">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-file me-2"></i>
+                                    <span id="fileName"></span> 
+                                    (<span id="fileSize"></span>)
+                                    <button type="button" class="btn-close float-end" onclick="removeFile()"></button>
+                                </div>
+                            </div>
+                            
+                            {% if form.file.errors %}
+                                <div class="text-danger small mt-1">{{ form.file.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-align-left me-1"></i>Description
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                Optional: Add a brief description of the material
+                            </div>
+                        </div>
+
+                        <!-- Version (Optional) -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-code-branch me-1"></i>Version (Optional)
+                            </label>
+                            {{ form.version }}
+                            {% if form.version.errors %}
+                                <div class="text-danger small mt-1">{{ form.version.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                e.g., v1.0, 2024 Edition, Updated Version
+                            </div>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-tags me-1"></i>Tags
+                            </label>
+                            <input type="text" name="tags" class="form-control" id="tagsInput" 
+                                   placeholder="Enter tags separated by commas" value="{{ material.tags|default:'' }}">
+                            <div class="form-text text-muted">
+                                e.g., lecture, exam, important, revision
+                            </div>
+                        </div>
+
+                        <!-- Visibility Options -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    {{ form.is_published }}
+                                    <label class="form-check-label" for="{{ form.is_published.id_for_label }}">
+                                        <i class="fas fa-globe text-success me-1"></i>
+                                        Published (visible to students)
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    {{ form.allow_comments }}
+                                    <label class="form-check-label" for="{{ form.allow_comments.id_for_label }}">
+                                        <i class="fas fa-comments text-info me-1"></i>
+                                        Allow comments
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <hr>
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'courses:material_list' %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>{{ action }} Material
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Guidelines Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-1"></i>Upload Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h6 class="fw-bold">File Types:</h6>
+                    <ul class="small text-muted mb-3">
+                        <li><i class="fas fa-file-pdf text-danger me-2"></i>PDF Documents</li>
+                        <li><i class="fas fa-file-word text-primary me-2"></i>Word Documents (.doc, .docx)</li>
+                        <li><i class="fas fa-file-powerpoint text-warning me-2"></i>Presentations (.ppt, .pptx)</li>
+                        <li><i class="fas fa-file-excel text-success me-2"></i>Spreadsheets (.xls, .xlsx)</li>
+                        <li><i class="fas fa-file-alt text-secondary me-2"></i>Text Files (.txt)</li>
+                    </ul>
+
+                    <h6 class="fw-bold">Best Practices:</h6>
+                    <ul class="small text-muted mb-0">
+                        <li>Use clear, descriptive titles</li>
+                        <li>Add tags for easy searching</li>
+                        <li>Include version numbers for updates</li>
+                        <li>Keep file size under 50MB</li>
+                        <li>Scan files for viruses before uploading</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar me-1"></i>Storage Stats
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Used Storage:</span>
+                            <span class="fw-bold">{{ used_storage|default:"0 MB" }}</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" style="width: {{ storage_percentage|default:'0' }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">Total Files:</span>
+                        <span class="fw-bold float-end">{{ total_files|default:"0" }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">This Month:</span>
+                        <span class="fw-bold float-end">{{ monthly_uploads|default:"0" }}</span>
+                    </div>
+                    <hr>
+                    <div class="alert alert-info small mb-0">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Max file size: <strong>50MB</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.upload-area {
+    border: 2px dashed #4e73df;
+    border-radius: 10px;
+    background-color: #f8f9fc;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.upload-area:hover {
+    border-color: #224abe;
+    background-color: #eaecf4;
+}
+.upload-area.dragover {
+    border-color: #1cc88a;
+    background-color: #d4edda;
+}
+#id_description {
+    min-height: 100px;
+}
+.current-file {
+    border: 1px solid #d1d3e2;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('fileInput');
+    const browseLink = document.getElementById('browseLink');
+    const filePreview = document.getElementById('filePreview');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const clearFileCheckbox = document.getElementById('clearFile');
+    const tagsInput = document.getElementById('tagsInput');
+
+    // Handle clear file checkbox
+    if (clearFileCheckbox) {
+        clearFileCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                dropArea.style.display = 'block';
+                fileInput.required = true;
+            } else {
+                dropArea.style.display = 'none';
+                fileInput.required = false;
+            }
+        });
+    }
+
+    // Browse file
+    if (browseLink) {
+        browseLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            fileInput.click();
+        });
+    }
+
+    if (dropArea) {
+        dropArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        // Drag and drop events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => {
+                dropArea.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => {
+                dropArea.classList.remove('dragover');
+            });
+        });
+
+        dropArea.addEventListener('drop', function(e) {
+            const file = e.dataTransfer.files[0];
+            handleFile(file);
+        });
+    }
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            handleFile(file);
+        });
+    }
+
+    function handleFile(file) {
+        if (file) {
+            // Validate file size (50MB)
+            if (file.size > 50 * 1024 * 1024) {
+                alert('File size exceeds 50MB limit');
+                fileInput.value = '';
+                return;
+            }
+
+            // Display file preview
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.style.display = 'block';
+            if (dropArea) dropArea.style.display = 'none';
+        }
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Tags input enhancement
+    if (tagsInput) {
+        tagsInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const tags = this.value.split(',').map(tag => tag.trim());
+                if (tags.length > 0) {
+                    // Could add tag styling here
+                }
+            }
+        });
+    }
+
+    // Form validation
+    document.getElementById('materialForm')?.addEventListener('submit', function(e) {
+        {% if action == 'Create' %}
+            if (!fileInput.files.length) {
+                e.preventDefault();
+                alert('Please select a file to upload.');
+            }
+        {% endif %}
+
+        // Validate file size again
+        if (fileInput.files.length) {
+            const file = fileInput.files[0];
+            if (file.size > 50 * 1024 * 1024) {
+                e.preventDefault();
+                alert('File size exceeds 50MB limit');
+            }
+        }
+    });
+});
+
+function removeFile() {
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+    const dropArea = document.getElementById('dropArea');
+    
+    fileInput.value = '';
+    filePreview.style.display = 'none';
+    if (dropArea) dropArea.style.display = 'block';
+    
+    // Uncheck clear file if it exists
+    const clearFile = document.getElementById('clearFile');
+    if (clearFile) {
+        clearFile.checked = false;
+    }
+}
+</script>
+{% endblock %}
