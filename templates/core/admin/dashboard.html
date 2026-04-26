@@ -9,36 +9,36 @@
 <div class="container-fluid">
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
+        <h1 class="h3 mb-0 glass-title">
             <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
         </h1>
         <div>
-            <span class="badge bg-primary me-2">
+            <span class="glass-badge-primary me-2">
                 <i class="fas fa-calendar me-1"></i>{{ current_date|date:"F d, Y" }}
             </span>
-            <a href="{% url 'admin:index' %}" class="btn btn-sm btn-primary shadow-sm" target="_blank">
+            <a href="{% url 'admin:index' %}" class="btn glass-btn-outline-primary btn-sm shadow-sm" target="_blank">
                 <i class="fas fa-cog fa-sm me-1"></i>Django Admin
             </a>
         </div>
     </div>
 
-    <!-- Welcome Card -->
+    <!-- Welcome Card - Glass Morphism -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card bg-gradient-primary text-white shadow-lg">
-                <div class="card-body">
+            <div class="glass-welcome-card">
+                <div class="card-body p-4">
                     <div class="row align-items-center">
                         <div class="col-lg-8">
-                            <h4 class="mb-2">
+                            <h4 class="mb-2 text-white">
                                 <i class="fas fa-user-shield me-2"></i>Welcome back, {{ request.user.get_full_name }}!
                             </h4>
-                            <p class="mb-0">
+                            <p class="mb-0 text-white-50">
                                 <i class="fas fa-chart-line me-1"></i>
                                 System overview and management dashboard. Last login: {{ request.user.last_login|date:"F d, Y H:i" }}
                             </p>
                         </div>
                         <div class="col-lg-4 text-lg-end">
-                            <a href="{% url 'accounts:profile' %}" class="btn btn-light btn-sm">
+                            <a href="{% url 'accounts:profile' %}" class="btn glass-btn-light btn-sm">
                                 <i class="fas fa-user-circle me-1"></i>View Profile
                             </a>
                         </div>
@@ -48,18 +48,18 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
+    <!-- Statistics Cards - Glass Morphism -->
     <div class="row">
         <!-- Total Students -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
+            <div class="glass-stat-card border-left-glass-primary">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                 <i class="fas fa-users me-1"></i>Total Students
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_students|default:"0" }}</div>
+                            <div class="h5 mb-0 font-weight-bold glass-text-dark">{{ total_students|default:"0" }}</div>
                             <div class="mt-2 small">
                                 <span class="text-success">
                                     <i class="fas fa-arrow-up me-1"></i>{{ student_growth|default:"0" }}%
@@ -68,109 +68,117 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
+                            <div class="glass-icon-circle">
+                                <i class="fas fa-user-graduate fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="card-footer bg-transparent border-0 small">
-                    <a href="{% url 'accounts:user_list' %}?type=student" class="text-primary">View all students <i class="fas fa-arrow-right ms-1"></i></a>
+                <div class="card-footer glass-card-footer bg-transparent border-0">
+                    <a href="{% url 'accounts:user_list' %}?type=student" class="glass-link-primary">View all students <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
 
         <!-- Total Staff -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
+            <div class="glass-stat-card border-left-glass-success">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 <i class="fas fa-chalkboard-teacher me-1"></i>Total Staff
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_staff|default:"0" }}</div>
+                            <div class="h5 mb-0 font-weight-bold glass-text-dark">{{ total_staff|default:"0" }}</div>
                             <div class="mt-2 small">
                                 <span class="text-success">{{ active_staff|default:"0" }}</span>
                                 <span class="text-muted ms-2">active</span>
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-user-tie fa-2x text-gray-300"></i>
+                            <div class="glass-icon-circle">
+                                <i class="fas fa-user-tie fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="card-footer bg-transparent border-0 small">
-                    <a href="{% url 'accounts:user_list' %}?type=staff" class="text-success">View all staff <i class="fas fa-arrow-right ms-1"></i></a>
+                <div class="card-footer glass-card-footer bg-transparent border-0">
+                    <a href="{% url 'accounts:user_list' %}?type=staff" class="glass-link-success">View all staff <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
 
         <!-- Total Executives -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
+            <div class="glass-stat-card border-left-glass-info">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                 <i class="fas fa-user-tie me-1"></i>Executives
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_executives|default:"0" }}</div>
+                            <div class="h5 mb-0 font-weight-bold glass-text-dark">{{ total_executives|default:"0" }}</div>
                             <div class="mt-2 small">
                                 <span class="text-info">{{ active_executives|default:"0" }}</span>
                                 <span class="text-muted ms-2">active</span>
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-user-cog fa-2x text-gray-300"></i>
+                            <div class="glass-icon-circle">
+                                <i class="fas fa-user-cog fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="card-footer bg-transparent border-0 small">
-                    <a href="{% url 'accounts:user_list' %}?type=executive" class="text-info">Manage executives <i class="fas fa-arrow-right ms-1"></i></a>
+                <div class="card-footer glass-card-footer bg-transparent border-0">
+                    <a href="{% url 'accounts:user_list' %}?type=executive" class="glass-link-info">Manage executives <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
 
         <!-- Total Revenue -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
+            <div class="glass-stat-card border-left-glass-warning">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 <i class="fas fa-credit-card me-1"></i>Total Revenue
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">GHS {{ total_revenue|floatformat:2|default:"0.00" }}</div>
+                            <div class="h5 mb-0 font-weight-bold glass-text-dark">GHS {{ total_revenue|floatformat:2|default:"0.00" }}</div>
                             <div class="mt-2 small">
                                 <span class="text-success">{{ paid_students|default:"0" }}</span>
                                 <span class="text-muted ms-2">students paid</span>
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            <div class="glass-icon-circle">
+                                <i class="fas fa-dollar-sign fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="card-footer bg-transparent border-0 small">
-                    <a href="{% url 'payments:payment_reports' %}" class="text-warning">View reports <i class="fas fa-arrow-right ms-1"></i></a>
+                <div class="card-footer glass-card-footer bg-transparent border-0">
+                    <a href="{% url 'payments:payment_reports' %}" class="glass-link-warning">View reports <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Charts Row -->
+    <!-- Charts Row - Glass Cards -->
     <div class="row">
         <!-- Student Distribution by Level -->
         <div class="col-xl-6 col-lg-6 mb-4">
-            <div class="card shadow">
+            <div class="glass-card-chart">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
+                    <h6 class="m-0 font-weight-bold glass-text-primary">
                         <i class="fas fa-chart-pie me-1"></i>Students by Level
                     </h6>
                     <div class="dropdown no-arrow">
-                        <button class="btn btn-sm btn-link dropdown-toggle" type="button" id="levelChartDropdown" data-bs-toggle="dropdown">
+                        <button class="btn btn-sm btn-link glass-dropdown-toggle" type="button" id="levelChartDropdown" data-bs-toggle="dropdown">
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
-                        <div class="dropdown-menu dropdown-menu-right">
+                        <div class="dropdown-menu glass-dropdown-menu dropdown-menu-right">
                             <a class="dropdown-item" href="#" onclick="exportChart('level', 'png')">Export as PNG</a>
                             <a class="dropdown-item" href="#" onclick="exportChart('level', 'csv')">Export as CSV</a>
                         </div>
@@ -184,16 +192,16 @@
 
         <!-- Payment Collection Rate -->
         <div class="col-xl-6 col-lg-6 mb-4">
-            <div class="card shadow">
+            <div class="glass-card-chart">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
+                    <h6 class="m-0 font-weight-bold glass-text-primary">
                         <i class="fas fa-chart-line me-1"></i>Payment Collection Rate
                     </h6>
                     <div class="dropdown no-arrow">
-                        <button class="btn btn-sm btn-link dropdown-toggle" type="button" id="paymentChartDropdown" data-bs-toggle="dropdown">
+                        <button class="btn btn-sm btn-link glass-dropdown-toggle" type="button" id="paymentChartDropdown" data-bs-toggle="dropdown">
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
-                        <div class="dropdown-menu dropdown-menu-right">
+                        <div class="dropdown-menu glass-dropdown-menu dropdown-menu-right">
                             <a class="dropdown-item" href="#" onclick="exportChart('payment', 'png')">Export as PNG</a>
                             <a class="dropdown-item" href="#" onclick="exportChart('payment', 'csv')">Export as CSV</a>
                         </div>
@@ -210,16 +218,16 @@
     <div class="row">
         <!-- Recent Activities -->
         <div class="col-lg-6 mb-4">
-            <div class="card shadow">
+            <div class="glass-card-activity">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
+                    <h6 class="m-0 font-weight-bold glass-text-primary">
                         <i class="fas fa-clock me-1"></i>Recent Activities
                     </h6>
                 </div>
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
+                    <div class="list-group list-group-flush glass-list-group">
                         {% for activity in recent_activities|slice:":10" %}
-                        <div class="list-group-item">
+                        <div class="list-group-item glass-list-item">
                             <div class="row align-items-center">
                                 <div class="col-auto">
                                     <div class="activity-icon bg-{{ activity.action_type|activity_color }} text-white rounded-circle p-2">
@@ -228,11 +236,11 @@
                                 </div>
                                 <div class="col">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">{{ activity.user.get_full_name|default:activity.user.username }}</h6>
-                                        <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                                        <h6 class="mb-1 glass-text">{{ activity.user.get_full_name|default:activity.user.username }}</h6>
+                                        <small class="glass-text-muted">{{ activity.timestamp|timesince }} ago</small>
                                     </div>
-                                    <p class="mb-1">{{ activity.get_action_type_display }}</p>
-                                    <small class="text-muted">
+                                    <p class="mb-1 glass-text-muted">{{ activity.get_action_type_display }}</p>
+                                    <small class="glass-text-muted-light">
                                         <i class="fas fa-map-marker-alt me-1"></i>{{ activity.ip_address }}
                                     </small>
                                 </div>
@@ -240,14 +248,14 @@
                         </div>
                         {% empty %}
                         <div class="list-group-item text-center py-4">
-                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                            <p class="text-muted mb-0">No recent activities</p>
+                            <i class="fas fa-inbox fa-3x glass-text-muted mb-3"></i>
+                            <p class="glass-text-muted mb-0">No recent activities</p>
                         </div>
                         {% endfor %}
                     </div>
                 </div>
-                <div class="card-footer bg-transparent">
-                    <a href="{% url 'accounts:activity_logs' %}" class="btn btn-sm btn-primary">
+                <div class="card-footer glass-card-footer bg-transparent">
+                    <a href="{% url 'accounts:activity_logs' %}" class="btn glass-btn-primary btn-sm">
                         View All Activities <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
@@ -259,43 +267,43 @@
             <div class="row">
                 <!-- Pending Dues -->
                 <div class="col-12 mb-4">
-                    <div class="card shadow">
+                    <div class="glass-card-pending">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">
+                            <h6 class="m-0 font-weight-bold glass-text-primary">
                                 <i class="fas fa-exclamation-triangle me-1"></i>Pending Items
                             </h6>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <div class="card bg-light">
+                                    <div class="glass-mini-card">
                                         <div class="card-body text-center">
-                                            <h3 class="text-warning mb-2">{{ pending_payments|default:"0" }}</h3>
-                                            <span class="text-muted">Pending Payments</span>
+                                            <h3 class="glass-text-warning mb-2">{{ pending_payments|default:"0" }}</h3>
+                                            <span class="glass-text-muted">Pending Payments</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <div class="card bg-light">
+                                    <div class="glass-mini-card">
                                         <div class="card-body text-center">
-                                            <h3 class="text-info mb-2">{{ pending_complaints|default:"0" }}</h3>
-                                            <span class="text-muted">Open Complaints</span>
+                                            <h3 class="glass-text-info mb-2">{{ pending_complaints|default:"0" }}</h3>
+                                            <span class="glass-text-muted">Open Complaints</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <div class="card bg-light">
+                                    <div class="glass-mini-card">
                                         <div class="card-body text-center">
-                                            <h3 class="text-danger mb-2">{{ expired_dues|default:"0" }}</h3>
-                                            <span class="text-muted">Expired Dues</span>
+                                            <h3 class="glass-text-danger mb-2">{{ expired_dues|default:"0" }}</h3>
+                                            <span class="glass-text-muted">Expired Dues</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <div class="card bg-light">
+                                    <div class="glass-mini-card">
                                         <div class="card-body text-center">
-                                            <h3 class="text-success mb-2">{{ upcoming_events|default:"0" }}</h3>
-                                            <span class="text-muted">Upcoming Events</span>
+                                            <h3 class="glass-text-success mb-2">{{ upcoming_events|default:"0" }}</h3>
+                                            <span class="glass-text-muted">Upcoming Events</span>
                                         </div>
                                     </div>
                                 </div>
@@ -306,41 +314,41 @@
 
                 <!-- Quick Actions -->
                 <div class="col-12">
-                    <div class="card shadow">
+                    <div class="glass-card-actions">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">
+                            <h6 class="m-0 font-weight-bold glass-text-primary">
                                 <i class="fas fa-bolt me-1"></i>Quick Actions
                             </h6>
                         </div>
                         <div class="card-body">
                             <div class="row g-2">
                                 <div class="col-md-6">
-                                    <a href="{% url 'accounts:user_create' %}" class="btn btn-outline-primary w-100 mb-2">
+                                    <a href="{% url 'accounts:user_create' %}" class="btn glass-btn-outline-primary w-100 mb-2">
                                         <i class="fas fa-user-plus me-2"></i>Add New User
                                     </a>
                                 </div>
                                 <div class="col-md-6">
-                                    <a href="{% url 'accounts:bulk_upload_students' %}" class="btn btn-outline-success w-100 mb-2">
+                                    <a href="{% url 'accounts:bulk_upload_students' %}" class="btn glass-btn-outline-success w-100 mb-2">
                                         <i class="fas fa-upload me-2"></i>Bulk Upload Students
                                     </a>
                                 </div>
                                 <div class="col-md-6">
-                                    <a href="{% url 'payments:due_create' %}" class="btn btn-outline-warning w-100 mb-2">
+                                    <a href="{% url 'payments:due_create' %}" class="btn glass-btn-outline-warning w-100 mb-2">
                                         <i class="fas fa-plus-circle me-2"></i>Create New Due
                                     </a>
                                 </div>
                                 <div class="col-md-6">
-                                    <a href="{% url 'events:event_create' %}" class="btn btn-outline-info w-100 mb-2">
+                                    <a href="{% url 'events:event_create' %}" class="btn glass-btn-outline-info w-100 mb-2">
                                         <i class="fas fa-calendar-plus me-2"></i>Create Event
                                     </a>
                                 </div>
                                 <div class="col-md-6">
-                                    <a href="{% url 'core:announcement_create' %}" class="btn btn-outline-secondary w-100 mb-2">
+                                    <a href="{% url 'core:announcement_create' %}" class="btn glass-btn-outline-secondary w-100 mb-2">
                                         <i class="fas fa-bullhorn me-2"></i>Make Announcement
                                     </a>
                                 </div>
                                 <div class="col-md-6">
-                                    <a href="{% url 'accounts:export_users' %}" class="btn btn-outline-danger w-100 mb-2">
+                                    <a href="{% url 'accounts:export_users' %}" class="btn glass-btn-outline-danger w-100 mb-2">
                                         <i class="fas fa-file-export me-2"></i>Export Data
                                     </a>
                                 </div>
@@ -355,19 +363,19 @@
     <!-- Recent Payments Table -->
     <div class="row">
         <div class="col-12 mb-4">
-            <div class="card shadow">
+            <div class="glass-card-table">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
+                    <h6 class="m-0 font-weight-bold glass-text-primary">
                         <i class="fas fa-credit-card me-1"></i>Recent Payments
                     </h6>
-                    <a href="{% url 'payments:payment_reports' %}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'payments:payment_reports' %}" class="btn glass-btn-primary btn-sm">
                         View All <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="bg-light">
+                        <table class="table glass-table mb-0">
+                            <thead class="glass-table-header">
                                 <tr>
                                     <th>Student</th>
                                     <th>Due</th>
@@ -379,14 +387,14 @@
                             </thead>
                             <tbody>
                                 {% for payment in recent_payments|slice:":10" %}
-                                <tr>
+                                <tr class="glass-table-row">
                                     <td>
                                         <div class="d-flex align-items-center">
                                             {% if payment.student.profile_image %}
-                                                <img src="{{ payment.student.profile_image.url }}" class="rounded-circle me-2" width="30" height="30">
+                                                <img src="{{ payment.student.profile_image.url }}" class="rounded-circle me-2 glass-avatar" width="30" height="30">
                                             {% else %}
-                                                <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
-                                                    <i class="fas fa-user text-white"></i>
+                                                <div class="glass-avatar-placeholder rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
+                                                    <i class="fas fa-user text-white fa-xs"></i>
                                                 </div>
                                             {% endif %}
                                             {{ payment.student.get_full_name }}
@@ -396,17 +404,17 @@
                                     <td>GHS {{ payment.amount|floatformat:2 }}</td>
                                     <td>{{ payment.created_at|date:"M d, Y H:i" }}</td>
                                     <td>
-                                        <span class="badge bg-{% if payment.status == 'success' %}success{% elif payment.status == 'pending' %}warning{% else %}danger{% endif %}">
+                                        <span class="glass-badge-{% if payment.status == 'success' %}success{% elif payment.status == 'pending' %}warning{% else %}danger{% endif %}">
                                             {{ payment.get_status_display }}
                                         </span>
                                     </td>
-                                    <td><small class="text-muted">{{ payment.reference|truncatechars:10 }}</small></td>
+                                    <td><small class="glass-text-muted">{{ payment.reference|truncatechars:10 }}</small></td>
                                 </tr>
                                 {% empty %}
                                 <tr>
                                     <td colspan="6" class="text-center py-4">
-                                        <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted mb-0">No recent payments</p>
+                                        <i class="fas fa-credit-card fa-3x glass-text-muted mb-3"></i>
+                                        <p class="glass-text-muted mb-0">No recent payments</p>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -441,6 +449,9 @@ document.addEventListener('DOMContentLoaded', function() {
             plugins: {
                 legend: {
                     position: 'bottom',
+                    labels: {
+                        color: getComputedStyle(document.documentElement).getPropertyValue('--bs-body-color')
+                    }
                 }
             },
             cutout: '70%',
@@ -456,17 +467,18 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'Collection Rate (%)',
                 data: {{ payment_data|safe }},
-                backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
                 borderColor: '#4e73df',
-                pointRadius: 3,
+                pointRadius: 4,
                 pointBackgroundColor: '#4e73df',
-                pointBorderColor: '#4e73df',
-                pointHoverRadius: 5,
+                pointBorderColor: '#fff',
+                pointHoverRadius: 6,
                 pointHoverBackgroundColor: '#4e73df',
-                pointHoverBorderColor: '#4e73df',
+                pointHoverBorderColor: '#fff',
                 pointHitRadius: 10,
                 pointBorderWidth: 2,
-                tension: 0.1,
+                tension: 0.3,
+                fill: true,
             }],
         },
         options: {
@@ -478,7 +490,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     ticks: {
                         callback: function(value) {
                             return value + '%';
-                        }
+                        },
+                        color: getComputedStyle(document.documentElement).getPropertyValue('--bs-body-color')
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: getComputedStyle(document.documentElement).getPropertyValue('--bs-body-color')
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
                     }
                 }
             },
@@ -488,6 +512,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         label: function(context) {
                             return context.raw + '%';
                         }
+                    }
+                },
+                legend: {
+                    labels: {
+                        color: getComputedStyle(document.documentElement).getPropertyValue('--bs-body-color')
                     }
                 }
             }
@@ -502,33 +531,499 @@ function exportChart(type, format) {
 </script>
 
 <style>
-.border-left-primary {
+/* Glass Morphism Core Styles for Admin Dashboard */
+
+/* Welcome Card */
+.glass-welcome-card {
+    background: linear-gradient(135deg, rgba(78, 115, 223, 0.95), rgba(34, 66, 190, 0.95));
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.glass-welcome-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Stat Cards */
+.glass-stat-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+[data-bs-theme="dark"] .glass-stat-card {
+    background: rgba(30, 30, 47, 0.6);
+}
+
+.glass-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.border-left-glass-primary {
     border-left: 4px solid #4e73df;
 }
-.border-left-success {
+
+.border-left-glass-success {
     border-left: 4px solid #1cc88a;
 }
-.border-left-info {
+
+.border-left-glass-info {
     border-left: 4px solid #36b9cc;
 }
-.border-left-warning {
+
+.border-left-glass-warning {
     border-left: 4px solid #f6c23e;
 }
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+
+.glass-icon-circle {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
 }
+
+.glass-stat-card:hover .glass-icon-circle {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Chart Cards */
+.glass-card-chart {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.glass-card-chart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Activity Card */
+.glass-card-activity {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.glass-list-group {
+    background: transparent;
+}
+
+.glass-list-item {
+    background: transparent !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    transition: all 0.3s ease;
+}
+
+.glass-list-item:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    transform: translateX(5px);
+}
+
+/* Pending Items Card */
+.glass-card-pending {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.glass-mini-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+}
+
+.glass-mini-card:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Quick Actions Card */
+.glass-card-actions {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+/* Table Card */
+.glass-card-table {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.glass-table {
+    color: var(--bs-body-color);
+}
+
+.glass-table-header {
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-table-row {
+    transition: all 0.3s ease;
+}
+
+.glass-table-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.glass-avatar {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.glass-avatar:hover {
+    transform: scale(1.1);
+}
+
+.glass-avatar-placeholder {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Glass Text Styles */
+.glass-text {
+    color: var(--bs-body-color);
+}
+
+.glass-text-dark {
+    color: #1f2937;
+}
+
+[data-bs-theme="dark"] .glass-text-dark {
+    color: #f3f4f6;
+}
+
+.glass-text-muted {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+[data-bs-theme="dark"] .glass-text-muted {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.glass-text-muted-light {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+[data-bs-theme="dark"] .glass-text-muted-light {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.glass-text-primary {
+    color: #4e73df;
+}
+
+.glass-text-success {
+    color: #1cc88a;
+}
+
+.glass-text-warning {
+    color: #f6c23e;
+}
+
+.glass-text-info {
+    color: #36b9cc;
+}
+
+.glass-text-danger {
+    color: #e74a3b;
+}
+
+/* Glass Badges */
+.glass-badge-primary,
+.glass-badge-success,
+.glass-badge-warning,
+.glass-badge-danger,
+.glass-badge-info {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.glass-badge-primary {
+    background: rgba(78, 115, 223, 0.2);
+    border: 1px solid rgba(78, 115, 223, 0.5);
+    color: #4e73df;
+}
+
+.glass-badge-success {
+    background: rgba(28, 200, 138, 0.2);
+    border: 1px solid rgba(28, 200, 138, 0.5);
+    color: #1cc88a;
+}
+
+.glass-badge-warning {
+    background: rgba(246, 194, 62, 0.2);
+    border: 1px solid rgba(246, 194, 62, 0.5);
+    color: #f6c23e;
+}
+
+.glass-badge-danger {
+    background: rgba(231, 74, 59, 0.2);
+    border: 1px solid rgba(231, 74, 59, 0.5);
+    color: #e74a3b;
+}
+
+.glass-badge-info {
+    background: rgba(54, 185, 204, 0.2);
+    border: 1px solid rgba(54, 185, 204, 0.5);
+    color: #36b9cc;
+}
+
+/* Glass Buttons */
+.glass-btn-primary,
+.glass-btn-outline-primary,
+.glass-btn-outline-success,
+.glass-btn-outline-warning,
+.glass-btn-outline-info,
+.glass-btn-outline-secondary,
+.glass-btn-outline-danger,
+.glass-btn-light {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-primary {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border: none;
+    color: white;
+}
+
+.glass-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(78, 115, 223, 0.3);
+}
+
+.glass-btn-outline-primary {
+    background: rgba(78, 115, 223, 0.1);
+    border: 1px solid rgba(78, 115, 223, 0.5);
+    color: #4e73df;
+}
+
+.glass-btn-outline-primary:hover {
+    background: rgba(78, 115, 223, 0.2);
+    transform: translateY(-2px);
+}
+
+.glass-btn-outline-success {
+    background: rgba(28, 200, 138, 0.1);
+    border: 1px solid rgba(28, 200, 138, 0.5);
+    color: #1cc88a;
+}
+
+.glass-btn-outline-success:hover {
+    background: rgba(28, 200, 138, 0.2);
+    transform: translateY(-2px);
+}
+
+.glass-btn-outline-warning {
+    background: rgba(246, 194, 62, 0.1);
+    border: 1px solid rgba(246, 194, 62, 0.5);
+    color: #f6c23e;
+}
+
+.glass-btn-outline-warning:hover {
+    background: rgba(246, 194, 62, 0.2);
+    transform: translateY(-2px);
+}
+
+.glass-btn-outline-info {
+    background: rgba(54, 185, 204, 0.1);
+    border: 1px solid rgba(54, 185, 204, 0.5);
+    color: #36b9cc;
+}
+
+.glass-btn-outline-info:hover {
+    background: rgba(54, 185, 204, 0.2);
+    transform: translateY(-2px);
+}
+
+.glass-btn-outline-secondary {
+    background: rgba(108, 117, 125, 0.1);
+    border: 1px solid rgba(108, 117, 125, 0.5);
+    color: #6c757d;
+}
+
+.glass-btn-outline-secondary:hover {
+    background: rgba(108, 117, 125, 0.2);
+    transform: translateY(-2px);
+}
+
+.glass-btn-outline-danger {
+    background: rgba(231, 74, 59, 0.1);
+    border: 1px solid rgba(231, 74, 59, 0.5);
+    color: #e74a3b;
+}
+
+.glass-btn-outline-danger:hover {
+    background: rgba(231, 74, 59, 0.2);
+    transform: translateY(-2px);
+}
+
+.glass-btn-light {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.glass-btn-light:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Glass Links */
+.glass-link-primary {
+    color: #4e73df;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.glass-link-primary:hover {
+    transform: translateX(5px);
+    color: #224abe;
+}
+
+.glass-link-success {
+    color: #1cc88a;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.glass-link-success:hover {
+    transform: translateX(5px);
+    color: #17a673;
+}
+
+.glass-link-info {
+    color: #36b9cc;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.glass-link-info:hover {
+    transform: translateX(5px);
+    color: #2c9faf;
+}
+
+.glass-link-warning {
+    color: #f6c23e;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.glass-link-warning:hover {
+    transform: translateX(5px);
+    color: #dda20a;
+}
+
+/* Glass Title */
+.glass-title {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+}
+
+.glass-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #4e73df, #224abe);
+    border-radius: 3px;
+}
+
+/* Dropdown Menu */
+.glass-dropdown-toggle {
+    color: var(--bs-body-color);
+    text-decoration: none;
+}
+
+.glass-dropdown-menu {
+    background: rgba(30, 30, 47, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
+
+.glass-dropdown-menu .dropdown-item {
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.glass-dropdown-menu .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+/* Card Footer */
+.glass-card-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+}
+
+/* Activity Icon */
 .activity-icon {
     width: 40px;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: transform 0.3s ease;
 }
-.card {
-    transition: transform 0.2s ease;
+
+.glass-list-item:hover .activity-icon {
+    transform: scale(1.05);
 }
-.card:hover {
-    transform: translateY(-2px);
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .glass-stat-card {
+        margin-bottom: 1rem;
+    }
+    
+    .glass-title::after {
+        width: 40px;
+    }
+    
+    .glass-icon-circle {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .glass-icon-circle i {
+        font-size: 1.5rem;
+    }
 }
 </style>
 

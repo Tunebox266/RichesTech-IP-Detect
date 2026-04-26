@@ -4,264 +4,695 @@
 
 {% block title %}{{ action }} Event - MELTSA-TaTU{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Event Form */
+    .glass-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+        padding-bottom: 2rem;
+    }
+    
+    .glass-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #224abe);
+        border-radius: 3px;
+    }
+    
+    /* Glass Card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-card-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Glass Form Elements */
+    .glass-form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .glass-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--bs-body-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .glass-label i {
+        margin-right: 0.5rem;
+        color: #4e73df;
+    }
+    
+    .glass-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    .glass-textarea:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-select {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-select:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    .glass-file-input {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        width: 100%;
+    }
+    
+    .glass-file-input::-webkit-file-upload-button {
+        background: rgba(78, 115, 223, 0.2);
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        color: #4e73df;
+        cursor: pointer;
+        margin-right: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-file-input::-webkit-file-upload-button:hover {
+        background: rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-datetime-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-datetime-input:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    /* Glass Checkbox */
+    .glass-checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+    }
+    
+    .glass-checkbox {
+        position: relative;
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-checkbox input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    .glass-checkbox.checked {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-color: #4e73df;
+    }
+    
+    .glass-checkbox.checked::after {
+        content: '\f00c';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 10px;
+        color: white;
+    }
+    
+    /* Glass Alert */
+    .glass-alert-danger {
+        background: rgba(231, 74, 59, 0.15);
+        border: 1px solid rgba(231, 74, 59, 0.3);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: #e74a3b;
+        margin-bottom: 1.25rem;
+    }
+    
+    .glass-alert-danger i {
+        margin-right: 0.5rem;
+    }
+    
+    .glass-text-muted {
+        font-size: 0.75rem;
+        color: rgba(0, 0, 0, 0.6);
+        margin-top: 0.25rem;
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Glass Buttons */
+    .glass-btn-secondary {
+        background: rgba(108, 117, 125, 0.2);
+        border: 1px solid rgba(108, 117, 125, 0.5);
+        color: #6c757d;
+        border-radius: 12px;
+        padding: 0.6rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-secondary:hover {
+        background: rgba(108, 117, 125, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.6rem 1.25rem;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(78, 115, 223, 0.3);
+    }
+    
+    /* Glass Tips Card */
+    .glass-tips-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-tips-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-tip-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-tip-item:hover {
+        transform: translateX(5px);
+        background: rgba(78, 115, 223, 0.05);
+        padding-left: 0.5rem;
+        border-radius: 8px;
+    }
+    
+    .glass-tip-item:last-child {
+        border-bottom: none;
+    }
+    
+    /* Glass Stats Card */
+    .glass-stats-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-stats-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-stat-row:last-child {
+        border-bottom: none;
+    }
+    
+    /* Glass Poster Preview */
+    .glass-poster-preview {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 12px;
+        padding: 0.5rem;
+        margin-bottom: 0.75rem;
+        display: inline-block;
+    }
+    
+    .glass-poster-preview img {
+        border-radius: 8px;
+        max-height: 100px;
+    }
+    
+    @media (max-width: 768px) {
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-card-body {
+            padding: 1rem;
+        }
+        
+        .glass-btn-secondary,
+        .glass-btn-primary {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-card,
+    [data-bs-theme="dark"] .glass-tips-card,
+    [data-bs-theme="dark"] .glass-stats-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-calendar-alt me-2"></i>{{ action }} Event
-        </h1>
-        <a href="{% url 'events:event_list' %}" class="btn btn-secondary btn-sm">
-            <i class="fas fa-arrow-left me-1"></i>Back to Events
-        </a>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Event Form -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-edit me-1"></i>Event Details
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data" id="eventForm">
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {% for error in form.non_field_errors %}
-                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        
-                        <!-- Title -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-heading me-1"></i>Event Title <span class="text-danger">*</span>
-                            </label>
-                            {{ form.title }}
-                            {% if form.title.errors %}
-                                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Event Type -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-tag me-1"></i>Event Type <span class="text-danger">*</span>
-                            </label>
-                            {{ form.event_type }}
-                            {% if form.event_type.errors %}
-                                <div class="text-danger small mt-1">{{ form.event_type.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Description -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-align-left me-1"></i>Description <span class="text-danger">*</span>
-                            </label>
-                            {{ form.description }}
-                            {% if form.description.errors %}
-                                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
-                            {% endif %}
-                            <div class="form-text text-muted">
-                                Provide detailed information about the event
-                            </div>
-                        </div>
-
-                        <!-- Date and Time -->
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-calendar me-1"></i>Start Date & Time <span class="text-danger">*</span>
-                                </label>
-                                {{ form.start_date }}
-                                {% if form.start_date.errors %}
-                                    <div class="text-danger small mt-1">{{ form.start_date.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-calendar me-1"></i>End Date & Time <span class="text-danger">*</span>
-                                </label>
-                                {{ form.end_date }}
-                                {% if form.end_date.errors %}
-                                    <div class="text-danger small mt-1">{{ form.end_date.errors }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Venue -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-map-marker-alt me-1"></i>Venue <span class="text-danger">*</span>
-                            </label>
-                            {{ form.venue }}
-                            {% if form.venue.errors %}
-                                <div class="text-danger small mt-1">{{ form.venue.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Poster -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-image me-1"></i>Event Poster
-                            </label>
-                            {% if event.poster %}
-                                <div class="mb-2">
-                                    <img src="{{ event.poster.url }}" alt="Current poster" class="img-thumbnail" style="max-height: 100px;">
-                                    <small class="text-muted d-block">Current poster</small>
-                                </div>
-                            {% endif %}
-                            {{ form.poster }}
-                            {% if form.poster.errors %}
-                                <div class="text-danger small mt-1">{{ form.poster.errors }}</div>
-                            {% endif %}
-                            <div class="form-text text-muted">
-                                Upload an image for the event poster (JPG, PNG, GIF. Max 5MB)
-                            </div>
-                        </div>
-
-                        <!-- Max Attendees -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-users me-1"></i>Maximum Attendees
-                            </label>
-                            {{ form.max_attendees }}
-                            {% if form.max_attendees.errors %}
-                                <div class="text-danger small mt-1">{{ form.max_attendees.errors }}</div>
-                            {% endif %}
-                            <div class="form-text text-muted">
-                                Leave blank for unlimited attendees
-                            </div>
-                        </div>
-
-                        <!-- Options -->
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="form-check">
-                                    {{ form.requires_attendance_tracking }}
-                                    <label class="form-check-label" for="{{ form.requires_attendance_tracking.id_for_label }}">
-                                        <i class="fas fa-clipboard-check text-info me-1"></i>
-                                        Track attendance
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="form-check">
-                                    {{ form.is_active }}
-                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
-                                        <i class="fas fa-check-circle text-success me-1"></i>
-                                        Event is active
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr>
-
-                        <!-- Submit Buttons -->
-                        <div class="d-flex justify-content-end">
-                            <a href="{% url 'events:event_list' %}" class="btn btn-secondary me-2">
-                                <i class="fas fa-times me-1"></i>Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-1"></i>{{ action }} Event
-                            </button>
-                        </div>
-                    </form>
-                </div>
+<div class="glass-container">
+    <div class="container-fluid">
+        <!-- Page Heading - Glass Style -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-calendar-alt me-2"></i>{{ action }} Event
+                </h1>
+                <p class="glass-text-muted mt-2">{{ action }} event details and settings</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <a href="{% url 'events:event_list' %}" class="btn glass-btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Events
+                </a>
             </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Tips Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-lightbulb me-1"></i>Event Tips
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled mb-0">
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Choose a clear, descriptive title
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Include all relevant details in description
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Upload an eye-catching poster
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Set attendance tracking for multi-session events
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            You can add sessions after creating the event
-                        </li>
-                    </ul>
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Event Form - Glass Card -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-edit me-1"></i>Event Details
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <form method="POST" enctype="multipart/form-data" id="eventForm">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                                <div class="glass-alert-danger">
+                                    {% for error in form.non_field_errors %}
+                                        <i class="fas fa-exclamation-circle"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Title -->
+                            <div class="glass-form-group">
+                                <label class="glass-label">
+                                    <i class="fas fa-heading"></i>Event Title <span class="text-danger">*</span>
+                                </label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                    <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Event Type -->
+                            <div class="glass-form-group">
+                                <label class="glass-label">
+                                    <i class="fas fa-tag"></i>Event Type <span class="text-danger">*</span>
+                                </label>
+                                {{ form.event_type }}
+                                {% if form.event_type.errors %}
+                                    <div class="text-danger small mt-1">{{ form.event_type.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Description -->
+                            <div class="glass-form-group">
+                                <label class="glass-label">
+                                    <i class="fas fa-align-left"></i>Description <span class="text-danger">*</span>
+                                </label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                                {% endif %}
+                                <div class="glass-text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>Provide detailed information about the event
+                                </div>
+                            </div>
+
+                            <!-- Date and Time -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="glass-form-group">
+                                        <label class="glass-label">
+                                            <i class="fas fa-calendar"></i>Start Date & Time <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.start_date }}
+                                        {% if form.start_date.errors %}
+                                            <div class="text-danger small mt-1">{{ form.start_date.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="glass-form-group">
+                                        <label class="glass-label">
+                                            <i class="fas fa-calendar"></i>End Date & Time <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.end_date }}
+                                        {% if form.end_date.errors %}
+                                            <div class="text-danger small mt-1">{{ form.end_date.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Venue -->
+                            <div class="glass-form-group">
+                                <label class="glass-label">
+                                    <i class="fas fa-map-marker-alt"></i>Venue <span class="text-danger">*</span>
+                                </label>
+                                {{ form.venue }}
+                                {% if form.venue.errors %}
+                                    <div class="text-danger small mt-1">{{ form.venue.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Poster -->
+                            <div class="glass-form-group">
+                                <label class="glass-label">
+                                    <i class="fas fa-image"></i>Event Poster
+                                </label>
+                                {% if event.poster %}
+                                    <div class="glass-poster-preview mb-2">
+                                        <img src="{{ event.poster.url }}" alt="Current poster">
+                                        <small class="glass-text-muted d-block mt-1">Current poster</small>
+                                    </div>
+                                {% endif %}
+                                {{ form.poster }}
+                                {% if form.poster.errors %}
+                                    <div class="text-danger small mt-1">{{ form.poster.errors }}</div>
+                                {% endif %}
+                                <div class="glass-text-muted">
+                                    <i class="fas fa-upload me-1"></i>Upload an image for the event poster (JPG, PNG, GIF. Max 5MB)
+                                </div>
+                            </div>
+
+                            <!-- Max Attendees -->
+                            <div class="glass-form-group">
+                                <label class="glass-label">
+                                    <i class="fas fa-users"></i>Maximum Attendees
+                                </label>
+                                {{ form.max_attendees }}
+                                {% if form.max_attendees.errors %}
+                                    <div class="text-danger small mt-1">{{ form.max_attendees.errors }}</div>
+                                {% endif %}
+                                <div class="glass-text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>Leave blank for unlimited attendees
+                                </div>
+                            </div>
+
+                            <!-- Options -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="glass-checkbox-wrapper">
+                                        <label class="glass-checkbox" id="attendanceCheckbox">
+                                            {{ form.requires_attendance_tracking }}
+                                            <span class="glass-checkbox-custom"></span>
+                                        </label>
+                                        <label class="glass-label" style="margin-bottom: 0; cursor: pointer;" for="{{ form.requires_attendance_tracking.id_for_label }}">
+                                            <i class="fas fa-clipboard-check text-info me-1"></i>
+                                            Track attendance
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="glass-checkbox-wrapper">
+                                        <label class="glass-checkbox" id="activeCheckbox">
+                                            {{ form.is_active }}
+                                            <span class="glass-checkbox-custom"></span>
+                                        </label>
+                                        <label class="glass-label" style="margin-bottom: 0; cursor: pointer;" for="{{ form.is_active.id_for_label }}">
+                                            <i class="fas fa-check-circle text-success me-1"></i>
+                                            Event is active
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="glass-divider">
+
+                            <!-- Submit Buttons -->
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'events:event_list' %}" class="btn glass-btn-secondary">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn glass-btn-primary">
+                                    <i class="fas fa-save me-1"></i>{{ action }} Event
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
 
-            <!-- Quick Stats (for edit mode) -->
-            {% if action == 'Edit' and event %}
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-bar me-1"></i>Event Statistics
-                    </h6>
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Tips Card - Glass -->
+                <div class="glass-tips-card mb-4">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-lightbulb me-1"></i>Event Tips
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="glass-tip-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <span class="glass-text-muted">Choose a clear, descriptive title</span>
+                        </div>
+                        <div class="glass-tip-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <span class="glass-text-muted">Include all relevant details in description</span>
+                        </div>
+                        <div class="glass-tip-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <span class="glass-text-muted">Upload an eye-catching poster</span>
+                        </div>
+                        <div class="glass-tip-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <span class="glass-text-muted">Set attendance tracking for multi-session events</span>
+                        </div>
+                        <div class="glass-tip-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <span class="glass-text-muted">You can add sessions after creating the event</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="mb-2">
-                        <span class="text-muted">Registered Attendees:</span>
-                        <span class="fw-bold float-end">{{ event.get_attendee_count }}</span>
+
+                <!-- Quick Stats (for edit mode) - Glass Card -->
+                {% if action == 'Edit' and event %}
+                <div class="glass-stats-card">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-chart-bar me-1"></i>Event Statistics
+                        </h6>
                     </div>
-                    <div class="mb-2">
-                        <span class="text-muted">Sessions Created:</span>
-                        <span class="fw-bold float-end">{{ event.attendance_sessions.count }}</span>
+                    <div class="card-body">
+                        <div class="glass-stat-row">
+                            <span class="glass-text-muted">Registered Attendees:</span>
+                            <span class="fw-bold glass-text">{{ event.get_attendee_count }}</span>
+                        </div>
+                        <div class="glass-stat-row">
+                            <span class="glass-text-muted">Sessions Created:</span>
+                            <span class="fw-bold glass-text">{{ event.attendance_sessions.count }}</span>
+                        </div>
+                        <div class="glass-stat-row">
+                            <span class="glass-text-muted">Days Duration:</span>
+                            <span class="fw-bold glass-text">{{ event.duration_days }}</span>
+                        </div>
+                        <hr class="glass-divider">
+                        <a href="{% url 'events:event_attendees' event.id %}" class="btn glass-btn-primary w-100">
+                            <i class="fas fa-users me-1"></i>Manage Attendees
+                        </a>
                     </div>
-                    <div class="mb-2">
-                        <span class="text-muted">Days Duration:</span>
-                        <span class="fw-bold float-end">{{ event.duration_days }}</span>
-                    </div>
-                    <hr>
-                    <a href="{% url 'events:event_attendees' event.id %}" class="btn btn-sm btn-info w-100">
-                        <i class="fas fa-users me-1"></i>Manage Attendees
-                    </a>
                 </div>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
     </div>
 </div>
 
 <style>
-#id_start_date, #id_end_date {
-    display: block;
-    width: 100%;
-    padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #2c3e50;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #d1d3e2;
-    border-radius: 0.35rem;
+/* Additional Styles */
+.glass-divider {
+    margin: 1rem 0;
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
-#id_description {
-    min-height: 120px;
+.glass-text {
+    color: var(--bs-body-color);
+}
+
+.glass-checkbox-custom {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 6px;
+}
+
+/* Hide default checkbox */
+input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Custom checkbox styling */
+.glass-checkbox {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+}
+
+.glass-checkbox input:checked + .glass-checkbox-custom {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border-color: #4e73df;
+}
+
+.glass-checkbox input:checked + .glass-checkbox-custom::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    color: white;
+}
+
+.glass-checkbox-custom {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.glass-checkbox-custom:hover {
+    border-color: #4e73df;
 }
 </style>
 
@@ -299,6 +730,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Custom checkbox styling
+    const checkboxes = document.querySelectorAll('.glass-checkbox');
+    checkboxes.forEach(checkbox => {
+        const input = checkbox.querySelector('input');
+        const customSpan = checkbox.querySelector('.glass-checkbox-custom');
+        
+        if (input && customSpan) {
+            input.addEventListener('change', function() {
+                if (this.checked) {
+                    customSpan.style.background = 'linear-gradient(135deg, #4e73df, #224abe)';
+                    customSpan.style.borderColor = '#4e73df';
+                } else {
+                    customSpan.style.background = 'rgba(255, 255, 255, 0.08)';
+                    customSpan.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                }
+            });
+        }
+    });
 });
 </script>
 {% endblock %}

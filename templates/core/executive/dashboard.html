@@ -6,55 +6,56 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Page Heading -->
+    <!-- Page Heading - Glass Style -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
+        <h1 class="glass-title-purple">
             <i class="fas fa-user-tie me-2"></i>Executive Dashboard
         </h1>
-        <div>
-            <span class="badge bg-purple me-2">
+        <div class="glass-badge-group">
+            <span class="glass-badge-purple">
                 <i class="fas fa-calendar me-1"></i>{{ current_date|date:"F d, Y" }}
             </span>
-            <a href="{% url 'accounts:profile' %}" class="btn btn-sm btn-purple shadow-sm">
+            <a href="{% url 'accounts:profile' %}" class="btn glass-btn-purple btn-sm">
                 <i class="fas fa-user-circle fa-sm me-1"></i>My Profile
             </a>
         </div>
     </div>
 
-    <!-- Executive Info Card -->
+    <!-- Executive Info Card - Glass Morphism -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card bg-gradient-purple text-white shadow-lg">
-                <div class="card-body">
+            <div class="glass-executive-welcome-card">
+                <div class="card-body p-4">
                     <div class="row align-items-center">
                         <div class="col-lg-8">
-                            <div class="d-flex align-items-center">
-                                <div class="me-3">
+                            <div class="d-flex align-items-center flex-wrap gap-3">
+                                <div class="glass-executive-avatar">
                                     {% if executive_profile.executive_image %}
-                                        <img src="{{ executive_profile.executive_image.url }}" class="rounded-circle border border-3" width="70" height="70">
+                                        <img src="{{ executive_profile.executive_image.url }}" class="rounded-circle glass-avatar-border" width="70" height="70">
                                     {% else %}
-                                        <div class="bg-white text-purple rounded-circle d-flex align-items-center justify-content-center" style="width:70px;height:70px;">
+                                        <div class="glass-executive-icon">
                                             <i class="fas fa-user-tie fa-3x"></i>
                                         </div>
                                     {% endif %}
                                 </div>
                                 <div>
-                                    <h4 class="mb-1">Welcome, {{ request.user.get_full_name }}!</h4>
-                     {% if tenure %}               <p class="mb-0">
-                                        <i class="fas fa-briefcase me-1"></i>{{ tenure.position|title}} | 
+                                    <h4 class="mb-1 text-white">Welcome, {{ request.user.get_full_name }}!</h4>
+                                    {% if tenure %}
+                                    <p class="mb-1 text-white-50">
+                                        <i class="fas fa-briefcase me-1"></i>{{ tenure.position|title }} | 
                                         <i class="fas fa-calendar-alt me-1"></i>Tenure: {{ tenure.start_date|date:"M Y" }} - {{ tenure.end_date|date:"M Y" }}
                                     </p>
-                                    <span class="badge bg-warning text-dark mt-2">
+                                    <span class="glass-badge-warning mt-2">
                                         <i class="fas fa-hourglass-half me-1"></i>{{ tenure.remaining_days }} days remaining
                                     </span>
                                     {% else %}
-      <p>You do not have an executive position assigned yet.</p>
-    {% endif %}
+                                    <p class="text-white-50 mb-0">You do not have an executive position assigned yet.</p>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4 text-lg-end">
-                            <a href="{% url 'accounts:executive_meeting_create' %}" class="btn btn-light">
+                        <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                            <a href="{% url 'accounts:executive_meeting_create' %}" class="btn glass-btn-light">
                                 <i class="fas fa-plus-circle me-1"></i>Schedule Meeting
                             </a>
                         </div>
@@ -64,92 +65,100 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
+    <!-- Statistics Cards - Glass Morphism -->
     <div class="row">
         <!-- Upcoming Meetings -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-purple shadow h-100 py-2">
+            <div class="glass-stat-card-purple border-left-glass-purple">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-purple text-uppercase mb-1">
+                            <div class="glass-stat-label-purple">
                                 <i class="fas fa-users me-1"></i>Upcoming Meetings
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ upcoming_meetings|default:"0" }}</div>
+                            <div class="glass-stat-value">{{ upcoming_meetings|default:"0" }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                            <div class="glass-stat-icon">
+                                <i class="fas fa-calendar-check fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="card-footer bg-transparent border-0 small">
-                    <a href="{% url 'accounts:executive_meeting_list' %}" class="text-purple">View All <i class="fas fa-arrow-right ms-1"></i></a>
+                <div class="card-footer glass-card-footer bg-transparent border-0">
+                    <a href="{% url 'accounts:executive_meeting_list' %}" class="glass-link-purple">View All <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
 
         <!-- Pending Tasks -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
+            <div class="glass-stat-card-warning border-left-glass-warning">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            <div class="glass-stat-label-warning">
                                 <i class="fas fa-tasks me-1"></i>Pending Tasks
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ pending_tasks|default:"0" }}</div>
+                            <div class="glass-stat-value">{{ pending_tasks|default:"0" }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            <div class="glass-stat-icon">
+                                <i class="fas fa-clipboard-list fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="card-footer bg-transparent border-0 small">
-                    <a href="{% url 'accounts:executive_task_list' %}" class="text-warning">View Tasks <i class="fas fa-arrow-right ms-1"></i></a>
+                <div class="card-footer glass-card-footer bg-transparent border-0">
+                    <a href="{% url 'accounts:executive_task_list' %}" class="glass-link-warning">View Tasks <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
 
         <!-- Events Organized -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
+            <div class="glass-stat-card-success border-left-glass-success">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            <div class="glass-stat-label-success">
                                 <i class="fas fa-calendar-alt me-1"></i>Events Organized
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ events_organized|default:"0" }}</div>
+                            <div class="glass-stat-value">{{ events_organized|default:"0" }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-calendar-plus fa-2x text-gray-300"></i>
+                            <div class="glass-stat-icon">
+                                <i class="fas fa-calendar-plus fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="card-footer bg-transparent border-0 small">
-                    <a href="{% url 'events:event_list' %}?organizer=me" class="text-success">View Events <i class="fas fa-arrow-right ms-1"></i></a>
+                <div class="card-footer glass-card-footer bg-transparent border-0">
+                    <a href="{% url 'events:event_list' %}?organizer=me" class="glass-link-success">View Events <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
 
         <!-- Pending Complaints -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-danger shadow h-100 py-2">
+            <div class="glass-stat-card-danger border-left-glass-danger">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                            <div class="glass-stat-label-danger">
                                 <i class="fas fa-exclamation-triangle me-1"></i>Pending Complaints
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ pending_complaints|default:"0" }}</div>
+                            <div class="glass-stat-value">{{ pending_complaints|default:"0" }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-comment-dots fa-2x text-gray-300"></i>
+                            <div class="glass-stat-icon">
+                                <i class="fas fa-comment-dots fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="card-footer bg-transparent border-0 small">
-                    <a href="{% url 'complaints:complaint_list' %}" class="text-danger">Review <i class="fas fa-arrow-right ms-1"></i></a>
+                <div class="card-footer glass-card-footer bg-transparent border-0">
+                    <a href="{% url 'complaints:complaint_list' %}" class="glass-link-danger">Review <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
@@ -157,52 +166,52 @@
 
     <!-- Main Content Row -->
     <div class="row">
-        <!-- Upcoming Meetings -->
+        <!-- Upcoming Meetings Glass Card -->
         <div class="col-lg-6 mb-4">
-            <div class="card shadow">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-purple">
+            <div class="glass-meetings-card">
+                <div class="card-header glass-card-header-purple d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-calendar-alt me-1"></i>Upcoming Meetings
                     </h6>
-                    <a href="{% url 'accounts:executive_meeting_create' %}" class="btn btn-sm btn-purple">
+                    <a href="{% url 'accounts:executive_meeting_create' %}" class="btn glass-btn-light btn-sm">
                         <i class="fas fa-plus me-1"></i>Schedule
                     </a>
                 </div>
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
+                    <div class="glass-list-group">
                         {% for meeting in upcoming_meetings_list|slice:":5" %}
-                        <div class="list-group-item">
+                        <div class="glass-list-item">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="flex-grow-1">
-                                    <h6 class="mb-1">{{ meeting.title }}</h6>
-                                    <small class="text-muted d-block">
+                                    <h6 class="mb-1 glass-text">{{ meeting.title }}</h6>
+                                    <small class="glass-text-muted d-block">
                                         <i class="fas fa-clock me-1"></i>{{ meeting.date|date:"M d, Y" }} | {{ meeting.start_time|time:"h:i A" }} - {{ meeting.end_time|time:"h:i A" }}
                                     </small>
-                                    <small class="text-muted d-block">
+                                    <small class="glass-text-muted d-block">
                                         <i class="fas fa-map-marker-alt me-1"></i>{{ meeting.venue }}
                                         {% if meeting.is_virtual %}
-                                            <span class="badge bg-info ms-2">Virtual</span>
+                                            <span class="glass-badge-info-sm ms-2">Virtual</span>
                                         {% endif %}
                                     </small>
                                     <div class="mt-2">
-                                        <span class="badge bg-secondary">{{ meeting.participants.count }} participants</span>
+                                        <span class="glass-badge-secondary-sm">{{ meeting.participants.count }} participants</span>
                                         {% if meeting.id in attended_meetings %}
-                                            <span class="badge bg-success">Checked In</span>
+                                            <span class="glass-badge-success-sm ms-1">Checked In</span>
                                         {% endif %}
                                     </div>
                                 </div>
                                 <div>
-                                    <a href="{% url 'accounts:executive_meeting_detail' meeting.id %}" class="btn btn-sm btn-outline-purple">
+                                    <a href="{% url 'accounts:executive_meeting_detail' meeting.id %}" class="btn glass-btn-icon-purple" title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                 </div>
                             </div>
                         </div>
                         {% empty %}
-                        <div class="list-group-item text-center py-4">
-                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                            <p class="text-muted mb-0">No upcoming meetings</p>
-                            <a href="{% url 'accounts:executive_meeting_create' %}" class="btn btn-purple btn-sm mt-3">Schedule Meeting</a>
+                        <div class="glass-empty-state">
+                            <i class="fas fa-calendar-times fa-3x glass-text-muted mb-3"></i>
+                            <p class="glass-text-muted mb-0">No upcoming meetings</p>
+                            <a href="{% url 'accounts:executive_meeting_create' %}" class="btn glass-btn-outline-purple btn-sm mt-3">Schedule Meeting</a>
                         </div>
                         {% endfor %}
                     </div>
@@ -210,21 +219,21 @@
             </div>
         </div>
 
-        <!-- Assigned Tasks -->
+        <!-- Assigned Tasks Glass Card -->
         <div class="col-lg-6 mb-4">
-            <div class="card shadow">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-purple">
+            <div class="glass-tasks-card">
+                <div class="card-header glass-card-header-purple d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-tasks me-1"></i>My Tasks
                     </h6>
-                    <a href="{% url 'accounts:executive_task_list' %}" class="btn btn-sm btn-purple">
+                    <a href="{% url 'accounts:executive_task_list' %}" class="btn glass-btn-light btn-sm">
                         View All <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
+                    <div class="glass-list-group">
                         {% for task in assigned_tasks|slice:":5" %}
-                        <div class="list-group-item">
+                        <div class="glass-list-item">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="flex-grow-1">
                                     <h6 class="mb-1">
@@ -235,32 +244,42 @@
                                         {% else %}
                                             <i class="fas fa-exclamation-circle text-info me-1"></i>
                                         {% endif %}
-                                        {{ task.title }}
+                                        <span class="glass-text">{{ task.title }}</span>
                                     </h6>
-                                    <small class="text-muted d-block">{{ task.description|truncatechars:60 }}</small>
+                                    <small class="glass-text-muted d-block">{{ task.description|truncatechars:60 }}</small>
                                     <div class="mt-2">
-                                        <span class="badge bg-{% if task.priority == 'high' %}danger{% elif task.priority == 'medium' %}warning{% else %}info{% endif %} me-1">
-                                            {{ task.get_priority_display }}
-                                        </span>
-                                        <span class="badge bg-{% if task.status == 'pending' %}secondary{% elif task.status == 'in_progress' %}primary{% else %}success{% endif %}">
-                                            {{ task.get_status_display }}
-                                        </span>
-                                        <small class="text-muted ms-2">
+                                        {% if task.priority == 'high' %}
+                                            <span class="glass-badge-danger-sm me-1">{{ task.get_priority_display }}</span>
+                                        {% elif task.priority == 'medium' %}
+                                            <span class="glass-badge-warning-sm me-1">{{ task.get_priority_display }}</span>
+                                        {% else %}
+                                            <span class="glass-badge-info-sm me-1">{{ task.get_priority_display }}</span>
+                                        {% endif %}
+                                        
+                                        {% if task.status == 'pending' %}
+                                            <span class="glass-badge-secondary-sm me-1">{{ task.get_status_display }}</span>
+                                        {% elif task.status == 'in_progress' %}
+                                            <span class="glass-badge-purple-sm me-1">{{ task.get_status_display }}</span>
+                                        {% else %}
+                                            <span class="glass-badge-success-sm me-1">{{ task.get_status_display }}</span>
+                                        {% endif %}
+                                        
+                                        <small class="glass-text-muted ms-2">
                                             <i class="fas fa-calendar me-1"></i>Due: {{ task.due_date|date:"M d" }}
                                         </small>
                                     </div>
                                 </div>
                                 <div>
-                                    <a href="{% url 'accounts:executive_task_detail' task.id %}" class="btn btn-sm btn-outline-purple">
+                                    <a href="{% url 'accounts:executive_task_detail' task.id %}" class="btn glass-btn-icon-purple" title="View Task">
                                         <i class="fas fa-chevron-right"></i>
                                     </a>
                                 </div>
                             </div>
                         </div>
                         {% empty %}
-                        <div class="list-group-item text-center py-4">
+                        <div class="glass-empty-state">
                             <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                            <p class="text-muted mb-0">No pending tasks. Great job!</p>
+                            <p class="glass-text-muted mb-0">No pending tasks. Great job!</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -271,21 +290,21 @@
 
     <!-- Second Row -->
     <div class="row">
-        <!-- Recent Discussions -->
+        <!-- Recent Discussions Glass Card -->
         <div class="col-lg-6 mb-4">
-            <div class="card shadow">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-purple">
+            <div class="glass-discussions-card">
+                <div class="card-header glass-card-header-purple d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-comments me-1"></i>Recent Discussions
                     </h6>
-                    <a href="{% url 'accounts:executive_discussion_create' %}" class="btn btn-sm btn-purple">
+                    <a href="{% url 'accounts:executive_discussion_create' %}" class="btn glass-btn-light btn-sm">
                         <i class="fas fa-plus me-1"></i>New Topic
                     </a>
                 </div>
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
+                    <div class="glass-list-group">
                         {% for discussion in recent_discussions|slice:":5" %}
-                        <div class="list-group-item">
+                        <div class="glass-list-item">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="flex-grow-1">
                                     <h6 class="mb-1">
@@ -295,27 +314,27 @@
                                         {% if discussion.is_announcement %}
                                             <i class="fas fa-bullhorn text-warning me-1"></i>
                                         {% endif %}
-                                        {{ discussion.title }}
+                                        <span class="glass-text">{{ discussion.title }}</span>
                                     </h6>
-                                    <small class="text-muted d-block">
+                                    <small class="glass-text-muted d-block">
                                         <i class="fas fa-user me-1"></i>{{ discussion.created_by.user.get_full_name }} |
                                         <i class="fas fa-clock me-1"></i>{{ discussion.created_at|timesince }} ago
                                     </small>
-                                    <small class="text-muted">
+                                    <small class="glass-text-muted">
                                         <i class="fas fa-comment me-1"></i>{{ discussion.comments.count }} comments
                                     </small>
                                 </div>
                                 <div>
-                                    <a href="{% url 'accounts:executive_discussion_detail' discussion.id %}" class="btn btn-sm btn-outline-purple">
+                                    <a href="{% url 'accounts:executive_discussion_detail' discussion.id %}" class="btn glass-btn-icon-purple" title="View Discussion">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                 </div>
                             </div>
                         </div>
                         {% empty %}
-                        <div class="list-group-item text-center py-4">
-                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
-                            <p class="text-muted mb-0">No discussions yet</p>
+                        <div class="glass-empty-state">
+                            <i class="fas fa-comments fa-3x glass-text-muted mb-3"></i>
+                            <p class="glass-text-muted mb-0">No discussions yet</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -323,22 +342,22 @@
             </div>
         </div>
 
-        <!-- Pending Complaints & Suggestions -->
+        <!-- Pending Complaints & Suggestions Glass Card -->
         <div class="col-lg-6 mb-4">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-purple">
+            <div class="glass-complaints-card">
+                <div class="card-header glass-card-header-purple">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-exclamation-circle me-1"></i>Pending Complaints
                     </h6>
                 </div>
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
+                    <div class="glass-list-group">
                         {% for complaint in pending_complaints_list|slice:":5" %}
-                        <div class="list-group-item">
+                        <div class="glass-list-item">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="flex-grow-1">
-                                    <h6 class="mb-1">{{ complaint.subject }}</h6>
-                                    <small class="text-muted d-block">
+                                    <h6 class="mb-1 glass-text">{{ complaint.subject }}</h6>
+                                    <small class="glass-text-muted d-block">
                                         <i class="fas fa-user me-1"></i>
                                         {% if complaint.is_anonymous %}
                                             Anonymous
@@ -347,49 +366,56 @@
                                         {% endif %}
                                         | <i class="fas fa-tag me-1"></i>{{ complaint.get_complaint_type_display }}
                                     </small>
-                                    <small class="text-muted">{{ complaint.description|truncatechars:60 }}</small>
+                                    <small class="glass-text-muted">{{ complaint.description|truncatechars:60 }}</small>
                                 </div>
-                                <div>
-                                    <span class="badge bg-warning me-2">Pending</span>
-                                    <a href="{% url 'complaints:complaint_detail' complaint.id %}" class="btn btn-sm btn-outline-purple">
+                                <div class="text-end">
+                                    <span class="glass-badge-warning-sm mb-2 d-inline-block">Pending</span>
+                                    <br>
+                                    <a href="{% url 'complaints:complaint_detail' complaint.id %}" class="btn glass-btn-icon-purple mt-1" title="Review Complaint">
                                         <i class="fas fa-reply"></i>
                                     </a>
                                 </div>
                             </div>
                         </div>
                         {% empty %}
-                        <div class="list-group-item text-center py-4">
+                        <div class="glass-empty-state">
                             <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                            <p class="text-muted mb-0">No pending complaints</p>
+                            <p class="glass-text-muted mb-0">No pending complaints</p>
                         </div>
                         {% endfor %}
                     </div>
                 </div>
-                <div class="card-footer bg-transparent">
-                    <a href="{% url 'complaints:complaint_list' %}" class="btn btn-sm btn-purple">Manage Complaints</a>
+                <div class="card-footer glass-card-footer bg-transparent">
+                    <a href="{% url 'complaints:complaint_list' %}" class="btn glass-btn-outline-purple btn-sm">Manage Complaints</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Attendance QR Code for Today's Meeting -->
+    <!-- Attendance QR Code for Today's Meeting - Glass Card -->
     {% if todays_meeting %}
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow bg-light">
-                <div class="card-body">
+            <div class="glass-qr-card">
+                <div class="card-body p-4">
                     <div class="row align-items-center">
                         <div class="col-md-2 text-center">
-                            <img src="{{ todays_meeting.qr_code.url }}" alt="Meeting QR Code" class="img-fluid" style="max-width: 120px;">
+                            {% if todays_meeting.qr_code %}
+                                <img src="{{ todays_meeting.qr_code.url }}" alt="Meeting QR Code" class="glass-qr-image">
+                            {% else %}
+                                <div class="glass-qr-placeholder">
+                                    <i class="fas fa-qrcode fa-4x"></i>
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="col-md-6">
-                            <h5 class="mb-2">Today's Meeting: {{ todays_meeting.title }}</h5>
-                            <p class="mb-1"><i class="fas fa-clock me-2"></i>{{ todays_meeting.start_time|time:"h:i A" }} - {{ todays_meeting.end_time|time:"h:i A" }}</p>
-                            <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i>{{ todays_meeting.venue }}</p>
-                            <p class="mb-0"><i class="fas fa-code me-2"></i>Meeting Code: <strong>{{ todays_meeting.meeting_code }}</strong></p>
+                            <h5 class="mb-2 glass-text-purple">Today's Meeting: {{ todays_meeting.title }}</h5>
+                            <p class="mb-1 glass-text-muted"><i class="fas fa-clock me-2"></i>{{ todays_meeting.start_time|time:"h:i A" }} - {{ todays_meeting.end_time|time:"h:i A" }}</p>
+                            <p class="mb-1 glass-text-muted"><i class="fas fa-map-marker-alt me-2"></i>{{ todays_meeting.venue }}</p>
+                            <p class="mb-0 glass-text-muted"><i class="fas fa-code me-2"></i>Meeting Code: <strong class="glass-text-purple">{{ todays_meeting.meeting_code }}</strong></p>
                         </div>
-                        <div class="col-md-4 text-md-end">
-                            <a href="{% url 'accounts:executive_meeting_attendance' todays_meeting.id %}" class="btn btn-purple">
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            <a href="{% url 'accounts:executive_meeting_attendance' todays_meeting.id %}" class="btn glass-btn-purple">
                                 <i class="fas fa-clipboard-list me-2"></i>Take Attendance
                             </a>
                         </div>
@@ -400,66 +426,50 @@
     </div>
     {% endif %}
 
-    <!-- Quick Actions -->
+    <!-- Quick Actions Glass Card -->
     <div class="row">
         <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-purple">
+            <div class="glass-actions-card">
+                <div class="card-header glass-card-header-purple">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-bolt me-1"></i>Executive Actions
                     </h6>
                 </div>
                 <div class="card-body">
-                    <div class="row g-2">
+                    <div class="glass-actions-grid">
                         {% if executive_profile.can_manage_events %}
-                        <div class="col-md-3">
-                            <a href="{% url 'events:event_create' %}" class="btn btn-outline-purple w-100 mb-2">
-                                <i class="fas fa-calendar-plus me-2"></i>Create Event
-                            </a>
-                        </div>
+                        <a href="{% url 'events:event_create' %}" class="glass-action-btn purple">
+                            <i class="fas fa-calendar-plus me-2"></i>Create Event
+                        </a>
                         {% endif %}
                         {% if executive_profile.can_upload_materials %}
-                        <div class="col-md-3">
-                            <a href="{% url 'courses:upload_material' %}" class="btn btn-outline-purple w-100 mb-2">
-                                <i class="fas fa-upload me-2"></i>Upload Material
-                            </a>
-                        </div>
+                        <a href="{% url 'courses:upload_material' %}" class="glass-action-btn purple">
+                            <i class="fas fa-upload me-2"></i>Upload Material
+                        </a>
                         {% endif %}
                         {% if executive_profile.can_send_announcements %}
-                        <div class="col-md-3">
-                            <a href="{% url 'announcements:create' %}" class="btn btn-outline-purple w-100 mb-2">
-                                <i class="fas fa-bullhorn me-2"></i>Make Announcement
-                            </a>
-                        </div>
+                        <a href="{% url 'announcements:create' %}" class="glass-action-btn purple">
+                            <i class="fas fa-bullhorn me-2"></i>Make Announcement
+                        </a>
                         {% endif %}
-                        <div class="col-md-3">
-                            <a href="{% url 'accounts:executive_meeting_create' %}" class="btn btn-outline-purple w-100 mb-2">
-                                <i class="fas fa-video me-2"></i>Schedule Meeting
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="{% url 'accounts:executive_discussion_create' %}" class="btn btn-outline-purple w-100 mb-2">
-                                <i class="fas fa-comment-dots me-2"></i>Start Discussion
-                            </a>
-                        </div>
+                        <a href="{% url 'accounts:executive_meeting_create' %}" class="glass-action-btn purple">
+                            <i class="fas fa-video me-2"></i>Schedule Meeting
+                        </a>
+                        <a href="{% url 'accounts:executive_discussion_create' %}" class="glass-action-btn purple">
+                            <i class="fas fa-comment-dots me-2"></i>Start Discussion
+                        </a>
                         {% if executive_profile.can_manage_complaints %}
-                        <div class="col-md-3">
-                            <a href="{% url 'complaints:complaint_list' %}" class="btn btn-outline-purple w-100 mb-2">
-                                <i class="fas fa-exclamation-triangle me-2"></i>Manage Complaints
-                            </a>
-                        </div>
+                        <a href="{% url 'complaints:complaint_list' %}" class="glass-action-btn purple">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Manage Complaints
+                        </a>
                         {% endif %}
-                        <div class="col-md-3">
-                            <a href="{% url 'messaging:compose' %}?type=broadcast" class="btn btn-outline-purple w-100 mb-2">
-                                <i class="fas fa-broadcast-tower me-2"></i>Broadcast Message
-                            </a>
-                        </div>
+                        <a href="{% url 'messaging:compose' %}?type=broadcast" class="glass-action-btn purple">
+                            <i class="fas fa-broadcast-tower me-2"></i>Broadcast Message
+                        </a>
                         {% if executive_profile.can_view_financial_reports %}
-                        <div class="col-md-3">
-                            <a href="{% url 'payments:payment_reports' %}" class="btn btn-outline-purple w-100 mb-2">
-                                <i class="fas fa-chart-line me-2"></i>Financial Reports
-                            </a>
-                        </div>
+                        <a href="{% url 'payments:payment_reports' %}" class="glass-action-btn purple">
+                            <i class="fas fa-chart-line me-2"></i>Financial Reports
+                        </a>
                         {% endif %}
                     </div>
                 </div>
@@ -469,47 +479,446 @@
 </div>
 
 <style>
-.border-left-purple {
-    border-left: 4px solid #6f42c1;
+/* Glass Morphism Styles for Executive Dashboard */
+
+/* Glass Title */
+.glass-title-purple {
+    font-size: 1.75rem;
+    font-weight: 800;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+    background: linear-gradient(135deg, #6f42c1, #4a2b8c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
-.border-left-danger {
-    border-left: 4px solid #e74a3b;
+
+.glass-title-purple::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #6f42c1, #4a2b8c);
+    border-radius: 3px;
 }
-.bg-gradient-purple {
-    background: linear-gradient(135deg, #6f42c1 0%, #4a2b8c 100%);
+
+/* Glass Badge Group */
+.glass-badge-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
 }
-.text-purple {
+
+.glass-badge-purple {
+    background: rgba(111, 66, 193, 0.2);
+    border: 1px solid rgba(111, 66, 193, 0.5);
     color: #6f42c1;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
 }
-.btn-purple {
-    color: #fff;
-    background-color: #6f42c1;
-    border-color: #6f42c1;
+
+/* Glass Buttons */
+.glass-btn-purple {
+    background: linear-gradient(135deg, #6f42c1, #4a2b8c);
+    border: none;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    color: white;
+    transition: all 0.3s ease;
 }
-.btn-purple:hover {
-    color: #fff;
-    background-color: #5a32a3;
-    border-color: #5a32a3;
-}
-.btn-outline-purple {
-    color: #6f42c1;
-    border-color: #6f42c1;
-}
-.btn-outline-purple:hover {
-    color: #fff;
-    background-color: #6f42c1;
-    border-color: #6f42c1;
-}
-.card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.card:hover {
+
+.glass-btn-purple:hover {
     transform: translateY(-2px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    box-shadow: 0 6px 20px rgba(111, 66, 193, 0.3);
 }
-.badge {
-    font-size: 0.75rem;
-    padding: 0.35em 0.65em;
+
+.glass-btn-light {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    border-radius: 10px;
+    padding: 0.35rem 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-light:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.glass-btn-outline-purple {
+    background: rgba(111, 66, 193, 0.1);
+    border: 1px solid rgba(111, 66, 193, 0.5);
+    color: #6f42c1;
+    border-radius: 10px;
+    padding: 0.35rem 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-outline-purple:hover {
+    background: rgba(111, 66, 193, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Glass Executive Welcome Card */
+.glass-executive-welcome-card {
+    background: linear-gradient(135deg, rgba(111, 66, 193, 0.95), rgba(74, 43, 140, 0.95));
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.glass-executive-welcome-card:hover {
+    transform: translateY(-2px);
+}
+
+.glass-executive-avatar {
+    display: inline-block;
+}
+
+.glass-avatar-border {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.glass-avatar-border:hover {
+    transform: scale(1.05);
+    border-color: white;
+}
+
+.glass-executive-icon {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+/* Glass Stat Cards */
+.glass-stat-card-purple,
+.glass-stat-card-warning,
+.glass-stat-card-success,
+.glass-stat-card-danger {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.glass-stat-card-purple { background: linear-gradient(135deg, rgba(111, 66, 193, 0.9), rgba(74, 43, 140, 0.9)); }
+.glass-stat-card-warning { background: linear-gradient(135deg, rgba(246, 194, 62, 0.9), rgba(218, 165, 32, 0.9)); }
+.glass-stat-card-success { background: linear-gradient(135deg, rgba(28, 200, 138, 0.9), rgba(19, 133, 92, 0.9)); }
+.glass-stat-card-danger { background: linear-gradient(135deg, rgba(231, 74, 59, 0.9), rgba(190, 38, 23, 0.9)); }
+
+.glass-stat-card-purple:hover,
+.glass-stat-card-warning:hover,
+.glass-stat-card-success:hover,
+.glass-stat-card-danger:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.border-left-glass-purple { border-left: 4px solid #6f42c1; }
+.border-left-glass-warning { border-left: 4px solid #f6c23e; }
+.border-left-glass-success { border-left: 4px solid #1cc88a; }
+.border-left-glass-danger { border-left: 4px solid #e74a3b; }
+
+.glass-stat-label-purple,
+.glass-stat-label-warning,
+.glass-stat-label-success,
+.glass-stat-label-danger {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.glass-stat-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: white;
+}
+
+.glass-stat-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.glass-stat-card-purple:hover .glass-stat-icon,
+.glass-stat-card-warning:hover .glass-stat-icon,
+.glass-stat-card-success:hover .glass-stat-icon,
+.glass-stat-card-danger:hover .glass-stat-icon {
+    transform: scale(1.1);
+}
+
+/* Glass Card Footer */
+.glass-card-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 1rem;
+}
+
+/* Glass Links */
+.glass-link-purple { color: #6f42c1; text-decoration: none; transition: all 0.3s ease; }
+.glass-link-purple:hover { transform: translateX(5px); color: #4a2b8c; }
+
+.glass-link-warning { color: #f6c23e; text-decoration: none; transition: all 0.3s ease; }
+.glass-link-warning:hover { transform: translateX(5px); color: #dda20a; }
+
+.glass-link-success { color: #1cc88a; text-decoration: none; transition: all 0.3s ease; }
+.glass-link-success:hover { transform: translateX(5px); color: #13855c; }
+
+.glass-link-danger { color: #e74a3b; text-decoration: none; transition: all 0.3s ease; }
+.glass-link-danger:hover { transform: translateX(5px); color: #be2617; }
+
+/* Glass Cards for Lists */
+.glass-meetings-card,
+.glass-tasks-card,
+.glass-discussions-card,
+.glass-complaints-card,
+.glass-actions-card,
+.glass-qr-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.glass-meetings-card:hover,
+.glass-tasks-card:hover,
+.glass-discussions-card:hover,
+.glass-complaints-card:hover,
+.glass-actions-card:hover,
+.glass-qr-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Glass Card Headers */
+.glass-card-header-purple {
+    background: linear-gradient(135deg, #6f42c1, #4a2b8c);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Glass List Group */
+.glass-list-group {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.glass-list-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.glass-list-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(5px);
+}
+
+/* Glass Text */
+.glass-text {
+    color: var(--bs-body-color);
+}
+
+.glass-text-muted {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+[data-bs-theme="dark"] .glass-text-muted {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.glass-text-purple {
+    color: #6f42c1;
+}
+
+/* Glass Badges */
+.glass-badge-warning,
+.glass-badge-warning-sm,
+.glass-badge-info-sm,
+.glass-badge-success-sm,
+.glass-badge-secondary-sm,
+.glass-badge-danger-sm,
+.glass-badge-purple-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.glass-badge-warning {
+    background: rgba(246, 194, 62, 0.2);
+    border: 1px solid rgba(246, 194, 62, 0.5);
+    color: #f6c23e;
+}
+
+.glass-badge-warning-sm {
+    background: rgba(246, 194, 62, 0.15);
+    color: #f6c23e;
+}
+
+.glass-badge-info-sm {
+    background: rgba(54, 185, 204, 0.15);
+    color: #36b9cc;
+}
+
+.glass-badge-success-sm {
+    background: rgba(28, 200, 138, 0.15);
+    color: #1cc88a;
+}
+
+.glass-badge-secondary-sm {
+    background: rgba(108, 117, 125, 0.15);
+    color: #adb5bd;
+}
+
+.glass-badge-danger-sm {
+    background: rgba(231, 74, 59, 0.15);
+    color: #e74a3b;
+}
+
+.glass-badge-purple-sm {
+    background: rgba(111, 66, 193, 0.15);
+    color: #6f42c1;
+}
+
+/* Glass Icon Buttons */
+.glass-btn-icon-purple {
+    background: rgba(111, 66, 193, 0.1);
+    border: 1px solid rgba(111, 66, 193, 0.3);
+    border-radius: 8px;
+    padding: 0.35rem 0.7rem;
+    color: #6f42c1;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-icon-purple:hover {
+    background: rgba(111, 66, 193, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Glass Empty State */
+.glass-empty-state {
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Glass QR Card */
+.glass-qr-image {
+    max-width: 120px;
+    border-radius: 12px;
+    background: white;
+    padding: 0.5rem;
+}
+
+.glass-qr-placeholder {
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+/* Glass Actions Grid */
+.glass-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.glass-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.glass-action-btn.purple {
+    background: rgba(111, 66, 193, 0.15);
+    border: 1px solid rgba(111, 66, 193, 0.4);
+    color: #6f42c1;
+}
+
+.glass-action-btn.purple:hover {
+    background: rgba(111, 66, 193, 0.25);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .glass-title-purple {
+        font-size: 1.25rem;
+    }
+    
+    .glass-badge-group {
+        flex-wrap: wrap;
+    }
+    
+    .glass-stat-value {
+        font-size: 1.25rem;
+    }
+    
+    .glass-stat-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .glass-stat-icon i {
+        font-size: 1.25rem;
+    }
+    
+    .glass-actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .glass-executive-avatar {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Dark Theme Adjustments */
+[data-bs-theme="dark"] .glass-meetings-card,
+[data-bs-theme="dark"] .glass-tasks-card,
+[data-bs-theme="dark"] .glass-discussions-card,
+[data-bs-theme="dark"] .glass-complaints-card,
+[data-bs-theme="dark"] .glass-actions-card,
+[data-bs-theme="dark"] .glass-qr-card {
+    background: rgba(0, 0, 0, 0.4);
 }
 </style>
 {% endblock %}

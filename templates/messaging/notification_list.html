@@ -1,269 +1,727 @@
 <!-- templates/core/notifications.html -->
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 {% load core_tags %}
 
 {% block title %}Notifications - MELTSA-TaTU{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Notifications */
+    .glass-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+        padding-bottom: 2rem;
+    }
+    
+    .glass-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #224abe);
+        border-radius: 3px;
+    }
+    
+    /* Glass Badges */
+    .glass-badge-primary {
+        background: rgba(78, 115, 223, 0.2);
+        border: 1px solid rgba(78, 115, 223, 0.5);
+        color: #4e73df;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-warning {
+        background: rgba(246, 194, 62, 0.2);
+        border: 1px solid rgba(246, 194, 62, 0.5);
+        color: #f6c23e;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    /* Glass Tabs Card */
+    .glass-tabs-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-tabs-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-tabs-header {
+        padding: 0.75rem 1.25rem 0 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.02);
+    }
+    
+    .glass-nav-tabs {
+        border-bottom: none;
+        gap: 0.25rem;
+    }
+    
+    .glass-nav-link {
+        padding: 0.6rem 1.25rem;
+        border-radius: 12px 12px 0 0;
+        color: var(--bs-body-color);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .glass-nav-link:hover {
+        background: rgba(78, 115, 223, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .glass-nav-link.active {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        color: white;
+    }
+    
+    /* Glass Form Elements */
+    .glass-input-group {
+        position: relative;
+    }
+    
+    .glass-input-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--bs-gray-500);
+        z-index: 1;
+    }
+    
+    .glass-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem 0.6rem 2.5rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-select {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-select:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    /* Glass Notification Item */
+    .glass-notification-item {
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(8px);
+        border-left: 3px solid transparent;
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-notification-item:hover {
+        background: rgba(78, 115, 223, 0.1);
+        transform: translateX(5px);
+    }
+    
+    .glass-notification-item.unread {
+        background: rgba(78, 115, 223, 0.12);
+        border-left-color: #4e73df;
+        font-weight: 500;
+    }
+    
+    /* Notification Icon */
+    .glass-notification-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-notification-icon:hover {
+        transform: scale(1.05);
+    }
+    
+    .glass-notification-icon.bg-primary { background: linear-gradient(135deg, #4e73df, #224abe); }
+    .glass-notification-icon.bg-success { background: linear-gradient(135deg, #1cc88a, #13855c); }
+    .glass-notification-icon.bg-warning { background: linear-gradient(135deg, #f6c23e, #dda20a); }
+    .glass-notification-icon.bg-info { background: linear-gradient(135deg, #36b9cc, #258391); }
+    .glass-notification-icon.bg-danger { background: linear-gradient(135deg, #e74a3b, #be2617); }
+    .glass-notification-icon.bg-secondary { background: linear-gradient(135deg, #6c757d, #495057); }
+    
+    /* Glass Buttons */
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-btn-success {
+        background: linear-gradient(135deg, #1cc88a, #13855c);
+        border: none;
+        border-radius: 10px;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.75rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(28, 200, 138, 0.3);
+    }
+    
+    .glass-btn-outline-primary {
+        background: rgba(78, 115, 223, 0.1);
+        border: 1px solid rgba(78, 115, 223, 0.3);
+        color: #4e73df;
+        border-radius: 8px;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.75rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-primary:hover {
+        background: rgba(78, 115, 223, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-outline-info {
+        background: rgba(54, 185, 204, 0.1);
+        border: 1px solid rgba(54, 185, 204, 0.3);
+        color: #36b9cc;
+        border-radius: 8px;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.75rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-info:hover {
+        background: rgba(54, 185, 204, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-outline-danger {
+        background: rgba(231, 74, 59, 0.1);
+        border: 1px solid rgba(231, 74, 59, 0.3);
+        color: #e74a3b;
+        border-radius: 8px;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.75rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-danger:hover {
+        background: rgba(231, 74, 59, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    /* Glass Checkbox */
+    .glass-checkbox-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .glass-checkbox {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    .glass-checkbox-label {
+        position: relative;
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-checkbox-label:hover {
+        border-color: #4e73df;
+    }
+    
+    .glass-checkbox:checked + .glass-checkbox-label {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-color: #4e73df;
+    }
+    
+    .glass-checkbox:checked + .glass-checkbox-label::after {
+        content: '\f00c';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 10px;
+        color: white;
+    }
+    
+    /* Glass Read More Button */
+    .glass-read-more-btn {
+        background: none;
+        border: none;
+        color: #4e73df;
+        font-size: 0.75rem;
+        padding: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-read-more-btn:hover {
+        color: #224abe;
+        transform: translateX(3px);
+    }
+    
+    /* Glass Pagination */
+    .glass-pagination {
+        gap: 0.25rem;
+    }
+    
+    .glass-page-link {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--bs-body-color);
+        border-radius: 10px;
+        margin: 0 2px;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-page-link:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .glass-page-active {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-color: transparent;
+        color: white;
+    }
+    
+    /* Glass Modal */
+    .glass-modal {
+        background: rgba(30, 30, 47, 0.98);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        overflow: hidden;
+    }
+    
+    .glass-modal-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-modal-footer {
+        padding: 1rem 1.25rem;
+        background: rgba(0, 0, 0, 0.05);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Glass Detail Content */
+    .glass-detail-section {
+        margin-bottom: 1.25rem;
+    }
+    
+    .glass-detail-label {
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #4e73df;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-detail-content {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 12px;
+        padding: 1rem;
+        white-space: pre-wrap;
+        color: var(--bs-body-color);
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    @media (max-width: 768px) {
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-notification-item .row > div {
+            margin-bottom: 0.5rem;
+        }
+        
+        .glass-notification-icon {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .glass-notification-icon i {
+            font-size: 1rem;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-tabs-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    [data-bs-theme="dark"] .glass-notification-item {
+        background: rgba(0, 0, 0, 0.3);
+    }
+    
+    [data-bs-theme="dark"] .glass-detail-content {
+        background: rgba(255, 255, 255, 0.05);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-bell me-2"></i>Notifications
-        </h1>
-        <div>
-            <span class="badge bg-primary me-2">
-                <i class="fas fa-bell me-1"></i>Total: {{ notifications.paginator.count }}
-            </span>
-            <span class="badge bg-warning me-2" id="unread-badge">
-                <i class="fas fa-bell me-1"></i>Unread: {{ unread_count }}
-            </span>
-            <button class="btn btn-sm btn-success" onclick="markAllAsRead()">
-                <i class="fas fa-check-double me-1"></i>Mark All Read
-            </button>
-        </div>
-    </div>
-
-    <!-- Notification Tabs -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <ul class="nav nav-tabs card-header-tabs">
-                <li class="nav-item">
-                    <a class="nav-link {% if filter == 'all' %}active{% endif %}" 
-                       href="?filter=all">
-                        <i class="fas fa-list me-1"></i>All
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if filter == 'unread' %}active{% endif %}" 
-                       href="?filter=unread">
-                        <i class="fas fa-envelope me-1"></i>Unread
-                        <span class="badge bg-danger ms-1" id="unread-tab-count">{{ unread_count }}</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if filter == 'messages' %}active{% endif %}" 
-                       href="?filter=messages">
-                        <i class="fas fa-comment me-1"></i>Messages
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if filter == 'events' %}active{% endif %}" 
-                       href="?filter=events">
-                        <i class="fas fa-calendar me-1"></i>Events
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if filter == 'payments' %}active{% endif %}" 
-                       href="?filter=payments">
-                        <i class="fas fa-credit-card me-1"></i>Payments
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Filter Bar -->
-        <div class="card-body border-bottom">
-            <form method="GET" action="{% url 'core:notifications' %}" id="filterForm">
-                <input type="hidden" name="filter" value="{{ filter }}">
-                <div class="row">
-                    <div class="col-md-4 mb-2">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            <input type="text" name="search" class="form-control" 
-                                   placeholder="Search notifications..." value="{{ request.GET.search|default:'' }}">
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <select name="type" class="form-select">
-                            <option value="">All Types</option>
-                            {% for type_code, type_name in notification_types %}
-                                <option value="{{ type_code }}" {% if request.GET.type == type_code %}selected{% endif %}>
-                                    {{ type_name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <select name="date" class="form-select">
-                            <option value="">Any Date</option>
-                            <option value="today" {% if request.GET.date == 'today' %}selected{% endif %}>Today</option>
-                            <option value="week" {% if request.GET.date == 'week' %}selected{% endif %}>This Week</option>
-                            <option value="month" {% if request.GET.date == 'month' %}selected{% endif %}>This Month</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2 mb-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-filter me-1"></i>Filter
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!-- Notification List -->
-        <div class="card-body p-0">
-            <div class="list-group list-group-flush" id="notifications-list">
-                {% for notification in notifications %}
-                <div class="list-group-item notification-item {% if not notification.is_read %}unread{% endif %}"
-                     data-notification-id="{{ notification.id }}" id="notification-{{ notification.id }}">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <input type="checkbox" class="form-check-input notification-checkbox" value="{{ notification.id }}">
-                        </div>
-                        <div class="col-auto">
-                            <div class="notification-icon bg-{{ notification.notification_type|notification_color }} text-white rounded-circle p-3">
-                                <i class="fas fa-{{ notification.notification_type|notification_icon }} fa-lg"></i>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">
-                                    <strong>{{ notification.title }}</strong>
-                                    <span class="badge bg-secondary ms-2">{{ notification.get_notification_type_display }}</span>
-                                </h6>
-                                <small class="text-muted" title="{{ notification.created_at|date:'F d, Y H:i' }}">
-                                    <i class="fas fa-clock me-1"></i>{{ notification.created_at|timesince }} ago
-                                </small>
-                            </div>
-                            <p class="mb-1 notification-content-preview">{{ notification.content|truncatechars:120 }}</p>
-                            
-                            <!-- Read More Button -->
-                            <button class="btn btn-link btn-sm p-0 read-more-btn" onclick="showNotificationDetails({{ notification.id }})">
-                                <i class="fas fa-chevron-circle-down me-1"></i>Read More
-                            </button>
-                            
-                            <small class="text-muted d-block mt-1">
-                                {% if notification.related_message %}
-                                    <i class="fas fa-envelope me-1"></i>Message from: {{ notification.related_message.sender.get_full_name }}
-                                {% elif notification.related_broadcast %}
-                                    <i class="fas fa-bullhorn me-1"></i>Broadcast: {{ notification.related_broadcast.title }}
-                                {% endif %}
-                            </small>
-                        </div>
-                        <div class="col-auto">
-                            {% if not notification.is_read %}
-                                <button class="btn btn-sm btn-outline-primary mark-read-btn" onclick="markAsRead({{ notification.id }})">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                            {% endif %}
-                            <button class="btn btn-sm btn-outline-info" onclick="showNotificationDetails({{ notification.id }})">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteNotification({{ notification.id }})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="list-group-item text-center py-5">
-                    <i class="fas fa-bell-slash fa-4x text-muted mb-3"></i>
-                    <h5 class="text-muted">No Notifications</h5>
-                    <p class="text-muted mb-0">You're all caught up!</p>
-                </div>
-                {% endfor %}
+<div class="glass-container">
+    <div class="container-fluid">
+        <!-- Page Heading - Glass Style -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-bell me-2"></i>Notifications
+                </h1>
+                <p class="glass-text-muted mt-2">Stay updated with your latest activities</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <span class="glass-badge-primary me-2">
+                    <i class="fas fa-bell me-1"></i>Total: {{ notifications.paginator.count }}
+                </span>
+                <span class="glass-badge-warning me-2" id="unread-badge">
+                    <i class="fas fa-bell me-1"></i>Unread: {{ unread_count }}
+                </span>
+                <button class="btn glass-btn-primary btn-sm" onclick="markAllAsRead()">
+                    <i class="fas fa-check-double me-1"></i>Mark All Read
+                </button>
             </div>
         </div>
 
-        <!-- Bulk Actions -->
-        {% if notifications %}
-        <div class="card-footer">
-            <div class="row align-items-center">
-                <div class="col-auto">
-                    <input type="checkbox" class="form-check-input" id="selectAll">
+        <!-- Notification Tabs - Glass Card -->
+        <div class="glass-tabs-card mb-4">
+            <div class="glass-tabs-header">
+                <ul class="nav nav-tabs glass-nav-tabs">
+                    <li class="nav-item">
+                        <a class="glass-nav-link {% if filter == 'all' %}active{% endif %}" 
+                           href="?filter=all">
+                            <i class="fas fa-list me-1"></i>All
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="glass-nav-link {% if filter == 'unread' %}active{% endif %}" 
+                           href="?filter=unread">
+                            <i class="fas fa-envelope me-1"></i>Unread
+                            <span class="glass-badge-warning ms-1" id="unread-tab-count">{{ unread_count }}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="glass-nav-link {% if filter == 'messages' %}active{% endif %}" 
+                           href="?filter=messages">
+                            <i class="fas fa-comment me-1"></i>Messages
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="glass-nav-link {% if filter == 'events' %}active{% endif %}" 
+                           href="?filter=events">
+                            <i class="fas fa-calendar me-1"></i>Events
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="glass-nav-link {% if filter == 'payments' %}active{% endif %}" 
+                           href="?filter=payments">
+                            <i class="fas fa-credit-card me-1"></i>Payments
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Search and Filter - Glass Form -->
+            <div class="card-body border-bottom" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                <form method="GET" action="{% url 'core:notifications' %}" id="filterForm">
+                    <input type="hidden" name="filter" value="{{ filter }}">
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <div class="glass-input-group">
+                                <i class="fas fa-search glass-input-icon"></i>
+                                <input type="text" name="search" class="glass-input" 
+                                       placeholder="Search notifications..." value="{{ request.GET.search|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="type" class="glass-select">
+                                <option value="">All Types</option>
+                                {% for type_code, type_name in notification_types %}
+                                    <option value="{{ type_code }}" {% if request.GET.type == type_code %}selected{% endif %}>
+                                        {{ type_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="date" class="glass-select">
+                                <option value="">Any Date</option>
+                                <option value="today" {% if request.GET.date == 'today' %}selected{% endif %}>Today</option>
+                                <option value="week" {% if request.GET.date == 'week' %}selected{% endif %}>This Week</option>
+                                <option value="month" {% if request.GET.date == 'month' %}selected{% endif %}>This Month</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn glass-btn-primary w-100">
+                                <i class="fas fa-filter me-1"></i>Filter
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Notification List - Glass Items -->
+            <div class="card-body p-0">
+                <div id="notifications-list">
+                    {% for notification in notifications %}
+                    <div class="glass-notification-item p-3 {% if not notification.is_read %}unread{% endif %}"
+                         data-notification-id="{{ notification.id }}" id="notification-{{ notification.id }}">
+                        <div class="row align-items-center g-2">
+                            <!-- Checkbox -->
+                            <div class="col-auto">
+                                <div class="glass-checkbox-wrapper">
+                                    <input type="checkbox" class="glass-checkbox notification-checkbox" value="{{ notification.id }}" id="notif_{{ notification.id }}">
+                                    <label for="notif_{{ notification.id }}" class="glass-checkbox-label"></label>
+                                </div>
+                            </div>
+                            
+                            <!-- Icon -->
+                            <div class="col-auto">
+                                <div class="glass-notification-icon bg-{{ notification.notification_type|notification_color }}">
+                                    <i class="fas fa-{{ notification.notification_type|notification_icon }} fa-lg text-white"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Content -->
+                            <div class="col">
+                                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                                    <h6 class="mb-1">
+                                        <strong class="glass-text">{{ notification.title }}</strong>
+                                        <span class="glass-badge-secondary-sm ms-2">{{ notification.get_notification_type_display }}</span>
+                                    </h6>
+                                    <small class="glass-text-muted" title="{{ notification.created_at|date:'F d, Y H:i' }}">
+                                        <i class="fas fa-clock me-1"></i>{{ notification.created_at|timesince }} ago
+                                    </small>
+                                </div>
+                                <p class="mb-1 glass-text-muted">{{ notification.content|truncatechars:100 }}</p>
+                                
+                                <!-- Read More Button -->
+                                <button class="glass-read-more-btn mt-1" onclick="showNotificationDetails({{ notification.id }})">
+                                    <i class="fas fa-chevron-circle-down me-1"></i>Read More
+                                </button>
+                                
+                                {% if notification.related_message or notification.related_broadcast %}
+                                <small class="glass-text-muted d-block mt-1">
+                                    {% if notification.related_message %}
+                                        <i class="fas fa-envelope me-1"></i>Message from: {{ notification.related_message.sender.get_full_name }}
+                                    {% elif notification.related_broadcast %}
+                                        <i class="fas fa-bullhorn me-1"></i>Broadcast: {{ notification.related_broadcast.title }}
+                                    {% endif %}
+                                </small>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="col-auto">
+                                <div class="d-flex gap-1">
+                                    {% if not notification.is_read %}
+                                        <button class="btn glass-btn-success btn-sm" onclick="markAsRead({{ notification.id }})" title="Mark as Read">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    {% endif %}
+                                    <button class="btn glass-btn-outline-info btn-sm" onclick="showNotificationDetails({{ notification.id }})" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn glass-btn-outline-danger btn-sm" onclick="deleteNotification({{ notification.id }})" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="glass-empty-state text-center py-5">
+                        <i class="fas fa-bell-slash fa-4x glass-text-muted mb-3"></i>
+                        <h5 class="glass-text-muted">No Notifications</h5>
+                        <p class="glass-text-muted mb-0">You're all caught up!</p>
+                    </div>
+                    {% endfor %}
                 </div>
-                <div class="col-auto">
-                    <label class="form-check-label" for="selectAll">Select All</label>
+            </div>
+
+            <!-- Bulk Actions - Glass Footer -->
+            {% if notifications %}
+            <div class="card-footer glass-card-footer bg-transparent">
+                <div class="row align-items-center g-2">
+                    <div class="col-auto">
+                        <div class="glass-checkbox-wrapper">
+                            <input type="checkbox" class="glass-checkbox" id="selectAll">
+                            <label for="selectAll" class="glass-checkbox-label"></label>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <label class="glass-checkbox-label" for="selectAll">Select All</label>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn glass-btn-primary btn-sm" onclick="markSelectedRead()">
+                            <i class="fas fa-check-double me-1"></i>Mark Read
+                        </button>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn glass-btn-danger btn-sm" onclick="deleteSelected()">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </div>
+                    <div class="col-auto ms-auto">
+                        <span class="glass-text-muted" id="selectedCount">0 selected</span>
+                    </div>
                 </div>
-                <div class="col-auto">
-                    <button class="btn btn-sm btn-success" onclick="markSelectedRead()">
-                        <i class="fas fa-check-double me-1"></i>Mark Read
-                    </button>
-                </div>
-                <div class="col-auto">
-                    <button class="btn btn-sm btn-danger" onclick="deleteSelected()">
-                        <i class="fas fa-trash me-1"></i>Delete
-                    </button>
-                </div>
-                <div class="col-auto ms-auto">
-                    <span class="text-muted" id="selectedCount">0 selected</span>
-                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Pagination - Glass -->
+        {% if notifications.has_other_pages %}
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="Notifications pagination">
+                    <ul class="pagination glass-pagination justify-content-center">
+                        {% if notifications.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link glass-page-link" href="?page={{ notifications.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link glass-page-link"><i class="fas fa-chevron-left"></i></span>
+                            </li>
+                        {% endif %}
+
+                        {% for i in notifications.paginator.page_range %}
+                            {% if notifications.number == i %}
+                                <li class="page-item active">
+                                    <span class="page-link glass-page-link glass-page-active">{{ i }}</span>
+                                </li>
+                            {% elif i > notifications.number|add:'-3' and i < notifications.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link glass-page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if notifications.has_next %}
+                            <li class="page-item">
+                                <a class="page-link glass-page-link" href="?page={{ notifications.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link glass-page-link"><i class="fas fa-chevron-right"></i></span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
             </div>
         </div>
         {% endif %}
     </div>
-
-    <!-- Pagination -->
-    {% if notifications.has_other_pages %}
-    <div class="row">
-        <div class="col-12">
-            <nav aria-label="Notifications pagination">
-                <ul class="pagination justify-content-center">
-                    {% if notifications.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ notifications.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                <i class="fas fa-chevron-left"></i>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
-                        </li>
-                    {% endif %}
-
-                    {% for i in notifications.paginator.page_range %}
-                        {% if notifications.number == i %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ i }}</span>
-                            </li>
-                        {% elif i > notifications.number|add:'-3' and i < notifications.number|add:'3' %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if notifications.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ notifications.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                <i class="fas fa-chevron-right"></i>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-    </div>
-    {% endif %}
 </div>
 
-<!-- Notification Details Modal -->
+<!-- Notification Details Modal - Glass Style -->
 <div class="modal fade" id="notificationDetailModal" tabindex="-1" aria-labelledby="notificationDetailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="notificationDetailModalLabel">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content glass-modal">
+            <div class="modal-header glass-modal-header">
+                <h5 class="modal-title text-white" id="notificationDetailModalLabel">
                     <i class="fas fa-bell me-2"></i>Notification Details
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="notificationDetailContent">
                 <div class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-2">Loading notification details...</p>
+                    <div class="glass-spinner"></div>
+                    <p class="glass-text-muted mt-2">Loading notification details...</p>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="markReadFromModal" onclick="markReadFromModal()">
+            <div class="modal-footer glass-modal-footer">
+                <button type="button" class="btn glass-btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn glass-btn-primary" id="markReadFromModal" onclick="markReadFromModal()">
                     <i class="fas fa-check me-1"></i>Mark as Read
                 </button>
             </div>
@@ -271,60 +729,73 @@
     </div>
 </div>
 
-<!-- Toast Container -->
-<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;"></div>
-
 <style>
-.notification-item {
-    transition: background-color 0.2s ease;
-    border-left: 3px solid transparent;
-    cursor: pointer;
+/* Additional Styles */
+.glass-badge-secondary-sm {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    background: rgba(108, 117, 125, 0.15);
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #adb5bd;
 }
-.notification-item:hover {
-    background-color: #f8f9fc;
+
+.glass-card-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
 }
-.notification-item.unread {
-    background-color: #f0f7ff;
-    border-left-color: #4e73df;
-    font-weight: 500;
+
+.glass-empty-state {
+    text-align: center;
+    padding: 3rem;
 }
-.notification-icon {
+
+.glass-spinner {
     width: 50px;
     height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: 4px solid rgba(78, 115, 223, 0.2);
+    border-top-color: #4e73df;
+    border-right-color: #1cc88a;
+    border-bottom-color: #f6c23e;
+    border-left-color: #e74a3b;
+    border-radius: 50%;
+    animation: glassSpin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+    margin: 0 auto;
 }
-.read-more-btn {
-    text-decoration: none;
-    font-size: 0.8rem;
+
+@keyframes glassSpin {
+    to { transform: rotate(360deg); }
 }
-.read-more-btn:hover {
-    text-decoration: underline;
+
+.glass-text {
+    color: var(--bs-body-color);
 }
-.notification-detail-section {
-    margin-bottom: 1.5rem;
-}
-.notification-detail-label {
+
+.glass-btn-danger {
+    background: linear-gradient(135deg, #e74a3b, #be2617);
+    border: none;
+    border-radius: 10px;
+    padding: 0.35rem 0.8rem;
+    color: white;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: #4e73df;
-    margin-bottom: 0.3rem;
+    transition: all 0.3s ease;
 }
-.notification-detail-content {
-    background: #f8f9fc;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    white-space: pre-wrap;
+
+.glass-btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(231, 74, 59, 0.3);
 }
 </style>
 
 <script>
 let currentNotificationId = null;
+let selectedCountElement = document.getElementById('selectedCount');
 
 document.addEventListener('DOMContentLoaded', function() {
     const selectAll = document.getElementById('selectAll');
     const checkboxes = document.querySelectorAll('.notification-checkbox');
-    const selectedCount = document.getElementById('selectedCount');
     
     if (selectAll) {
         selectAll.addEventListener('change', function() {
@@ -339,55 +810,42 @@ document.addEventListener('DOMContentLoaded', function() {
         cb.addEventListener('change', updateSelectedCount);
     });
     
-    function updateSelectedCount() {
-        const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
-        if (selectedCount) {
-            if (checked === 0) {
-                selectedCount.textContent = '0 selected';
-            } else {
-                selectedCount.textContent = checked + ' selected';
-            }
-        }
-    }
+    updateSelectedCount();
 });
 
-// Toast notification function
+function updateSelectedCount() {
+    const checked = Array.from(document.querySelectorAll('.notification-checkbox:checked')).length;
+    if (selectedCountElement) {
+        if (checked === 0) {
+            selectedCountElement.textContent = '0 selected';
+        } else {
+            selectedCountElement.textContent = checked + ' selected';
+        }
+    }
+}
+
 function showToast(message, type = 'success') {
-    const toastContainer = document.querySelector('.toast-container');
-    const toastId = 'toast-' + Date.now();
-    const icon = type === 'success' ? 'check-circle' : (type === 'error' ? 'exclamation-circle' : 'info-circle');
-    const bgColor = type === 'success' ? 'bg-success' : (type === 'error' ? 'bg-danger' : 'bg-info');
-    
-    const toastHtml = `
-        <div id="${toastId}" class="toast align-items-center text-white ${bgColor} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="fas fa-${icon} me-2"></i>${message}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        </div>
-    `;
-    
-    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
-    
-    const toastElement = document.getElementById(toastId);
-    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
-    toast.show();
-    
-    toastElement.addEventListener('hidden.bs.toast', function() {
-        this.remove();
-    });
+    if (window.showToast) {
+        window.showToast(message, type);
+    } else {
+        alert(message);
+    }
 }
 
 function showNotificationDetails(notificationId) {
     currentNotificationId = notificationId;
     
-    // Show modal with loading spinner
     const modal = new bootstrap.Modal(document.getElementById('notificationDetailModal'));
     modal.show();
     
-    // Fetch notification details
+    const contentDiv = document.getElementById('notificationDetailContent');
+    contentDiv.innerHTML = `
+        <div class="text-center py-4">
+            <div class="glass-spinner"></div>
+            <p class="glass-text-muted mt-2">Loading notification details...</p>
+        </div>
+    `;
+    
     fetch(`/messaging/notifications/${notificationId}/`, {
         method: 'GET',
         headers: {
@@ -400,48 +858,53 @@ function showNotificationDetails(notificationId) {
         if (data.success) {
             displayNotificationDetails(data.notification);
             
-            // If notification is unread, mark it as read when viewed
             if (!data.notification.is_read) {
-                markAsRead(notificationId, true); // silent mark
+                markAsRead(notificationId, true);
             }
         } else {
+            contentDiv.innerHTML = `
+                <div class="text-center py-4">
+                    <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
+                    <p class="glass-text-muted">Failed to load notification details</p>
+                </div>
+            `;
             showToast('Failed to load notification details', 'error');
-            modal.hide();
         }
     })
     .catch(error => {
         console.error('Error:', error);
+        contentDiv.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-wifi fa-3x text-warning mb-3"></i>
+                <p class="glass-text-muted">Network error. Please try again.</p>
+            </div>
+        `;
         showToast('Network error occurred', 'error');
-        modal.hide();
     });
 }
 
 function displayNotificationDetails(notification) {
     const contentDiv = document.getElementById('notificationDetailContent');
     
-    // Format date
     const date = new Date(notification.created_at);
     const formattedDate = date.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
     });
     
-    // Get icon based on type
     const icon = getNotificationIcon(notification.notification_type);
     const color = getNotificationColor(notification.notification_type);
     
     let relatedInfo = '';
     if (notification.related_message) {
         relatedInfo = `
-            <div class="notification-detail-section">
-                <div class="notification-detail-label">Related Message</div>
-                <div class="notification-detail-content">
-                    <p><strong>From:</strong> ${notification.related_message.sender_name}</p>
-                    <p><strong>Subject:</strong> ${notification.related_message.subject}</p>
-                    <a href="/messaging/${notification.related_message.id}/" class="btn btn-sm btn-outline-primary mt-2">
+            <div class="glass-detail-section">
+                <div class="glass-detail-label">
+                    <i class="fas fa-envelope"></i> Related Message
+                </div>
+                <div class="glass-detail-content">
+                    <p><strong>From:</strong> ${escapeHtml(notification.related_message.sender_name)}</p>
+                    <p><strong>Subject:</strong> ${escapeHtml(notification.related_message.subject)}</p>
+                    <a href="/messaging/${notification.related_message.id}/" class="btn glass-btn-primary btn-sm mt-2">
                         <i class="fas fa-eye me-1"></i>View Message
                     </a>
                 </div>
@@ -449,32 +912,36 @@ function displayNotificationDetails(notification) {
         `;
     } else if (notification.related_broadcast) {
         relatedInfo = `
-            <div class="notification-detail-section">
-                <div class="notification-detail-label">Related Broadcast</div>
-                <div class="notification-detail-content">
-                    <p><strong>Title:</strong> ${notification.related_broadcast.title}</p>
-                    <p><strong>From:</strong> ${notification.related_broadcast.created_by_name}</p>
+            <div class="glass-detail-section">
+                <div class="glass-detail-label">
+                    <i class="fas fa-bullhorn"></i> Related Broadcast
+                </div>
+                <div class="glass-detail-content">
+                    <p><strong>Title:</strong> ${escapeHtml(notification.related_broadcast.title)}</p>
+                    <p><strong>From:</strong> ${escapeHtml(notification.related_broadcast.created_by_name)}</p>
                 </div>
             </div>
         `;
     }
     
     const html = `
-        <div class="notification-detail-section">
-            <div class="d-flex align-items-center mb-3">
-                <div class="notification-icon bg-${color} text-white rounded-circle p-3 me-3">
-                    <i class="fas fa-${icon} fa-lg"></i>
+        <div class="glass-detail-section">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="glass-notification-icon bg-${color}">
+                    <i class="fas fa-${icon} fa-lg text-white"></i>
                 </div>
                 <div>
-                    <h4 class="mb-1">${notification.title}</h4>
-                    <span class="badge bg-${color}">${notification.type_display}</span>
+                    <h4 class="mb-1 glass-text">${escapeHtml(notification.title)}</h4>
+                    <span class="glass-badge-secondary-sm">${notification.type_display}</span>
                 </div>
             </div>
         </div>
         
-        <div class="notification-detail-section">
-            <div class="notification-detail-label">Date & Time</div>
-            <div class="notification-detail-content">
+        <div class="glass-detail-section">
+            <div class="glass-detail-label">
+                <i class="fas fa-clock"></i> Date & Time
+            </div>
+            <div class="glass-detail-content">
                 <i class="fas fa-calendar me-2"></i>${formattedDate}
                 ${notification.is_read ? 
                     '<br><small class="text-success"><i class="fas fa-check-circle me-1"></i>Read</small>' : 
@@ -482,10 +949,12 @@ function displayNotificationDetails(notification) {
             </div>
         </div>
         
-        <div class="notification-detail-section">
-            <div class="notification-detail-label">Message</div>
-            <div class="notification-detail-content">
-                ${notification.content.replace(/\n/g, '<br>')}
+        <div class="glass-detail-section">
+            <div class="glass-detail-label">
+                <i class="fas fa-align-left"></i> Message
+            </div>
+            <div class="glass-detail-content">
+                ${escapeHtml(notification.content).replace(/\n/g, '<br>')}
             </div>
         </div>
         
@@ -494,11 +963,9 @@ function displayNotificationDetails(notification) {
     
     contentDiv.innerHTML = html;
     
-    // Update modal title
     document.getElementById('notificationDetailModalLabel').innerHTML = 
-        `<i class="fas fa-bell me-2"></i>${notification.title}`;
+        `<i class="fas fa-bell me-2"></i>${escapeHtml(notification.title)}`;
     
-    // Update mark as read button state
     const markReadBtn = document.getElementById('markReadFromModal');
     if (notification.is_read) {
         markReadBtn.disabled = true;
@@ -511,38 +978,32 @@ function displayNotificationDetails(notification) {
 
 function getNotificationIcon(type) {
     const icons = {
-        'message': 'envelope',
-        'broadcast': 'bullhorn',
-        'reply': 'reply',
-        'event': 'calendar-alt',
-        'payment': 'credit-card',
-        'due': 'clock',
-        'system': 'cog'
+        'message': 'envelope', 'broadcast': 'bullhorn', 'reply': 'reply',
+        'event': 'calendar-alt', 'payment': 'credit-card', 'due': 'clock', 'system': 'cog'
     };
     return icons[type] || 'bell';
 }
 
 function getNotificationColor(type) {
     const colors = {
-        'message': 'primary',
-        'broadcast': 'info',
-        'reply': 'success',
-        'event': 'warning',
-        'payment': 'success',
-        'due': 'danger',
-        'system': 'secondary'
+        'message': 'primary', 'broadcast': 'info', 'reply': 'success',
+        'event': 'warning', 'payment': 'success', 'due': 'danger', 'system': 'secondary'
     };
     return colors[type] || 'info';
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function markReadFromModal() {
     if (currentNotificationId) {
         markAsRead(currentNotificationId);
-        
-        // Update button state
         const btn = document.getElementById('markReadFromModal');
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-check me-1"></i>Marked as Read';
+        showToast('Notification marked as read', 'success');
     }
 }
 
@@ -561,20 +1022,13 @@ function markAsRead(notificationId, silent = false) {
             const item = document.getElementById(`notification-${notificationId}`);
             if (item) {
                 item.classList.remove('unread');
-                
-                // Remove the mark as read button
-                const btn = item.querySelector('.mark-read-btn');
-                if (btn) btn.remove();
+                const markBtn = item.querySelector('.btn-success');
+                if (markBtn) markBtn.remove();
             }
-            
-            // Update counts
             updateUnreadCount();
-            
-            if (!silent) {
-                showToast('Notification marked as read', 'success');
-            }
-        } else {
-            if (!silent) showToast('Failed to mark as read', 'error');
+            if (!silent) showToast('Notification marked as read', 'success');
+        } else if (!silent) {
+            showToast('Failed to mark as read', 'error');
         }
     })
     .catch(error => {
@@ -595,17 +1049,12 @@ function markAllAsRead() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Remove unread class from all notifications
-            document.querySelectorAll('.notification-item').forEach(item => {
+            document.querySelectorAll('.glass-notification-item').forEach(item => {
                 item.classList.remove('unread');
+                const markBtn = item.querySelector('.btn-success');
+                if (markBtn) markBtn.remove();
             });
-            
-            // Remove all mark as read buttons
-            document.querySelectorAll('.mark-read-btn').forEach(btn => btn.remove());
-            
-            // Update counts
             updateUnreadCount();
-            
             showToast(data.message || 'All notifications marked as read', 'success');
         } else {
             showToast('Failed to mark all as read', 'error');
@@ -632,21 +1081,21 @@ function deleteNotification(notificationId) {
             if (data.success) {
                 const item = document.getElementById(`notification-${notificationId}`);
                 if (item) {
-                    item.remove();
-                    
-                    showToast('Notification deleted successfully', 'success');
-                    
-                    // Update counts
-                    updateUnreadCount();
-                    updateTotalCount();
-                    
-                    // Check if no notifications left
-                    if (document.querySelectorAll('.notification-item').length === 0) {
-                        setTimeout(() => location.reload(), 1000);
-                    }
+                    item.style.transition = 'opacity 0.3s';
+                    item.style.opacity = '0';
+                    setTimeout(() => {
+                        item.remove();
+                        updateSelectedCount();
+                        updateUnreadCount();
+                        updateTotalCount();
+                        showToast('Notification deleted', 'success');
+                        if (document.querySelectorAll('.glass-notification-item').length === 0) {
+                            setTimeout(() => location.reload(), 1000);
+                        }
+                    }, 300);
                 }
             } else {
-                showToast(data.error || 'Failed to delete notification', 'error');
+                showToast(data.error || 'Failed to delete', 'error');
             }
         })
         .catch(error => {
@@ -657,96 +1106,73 @@ function deleteNotification(notificationId) {
 }
 
 function markSelectedRead() {
-    const selected = Array.from(document.querySelectorAll('.notification-checkbox:checked'))
-        .map(cb => cb.value);
-    
+    const selected = Array.from(document.querySelectorAll('.notification-checkbox:checked')).map(cb => cb.value);
     if (selected.length === 0) {
         showToast('Please select notifications to mark as read', 'warning');
         return;
     }
     
-    // Show loading state
-    const originalText = event.target.innerText;
-    event.target.disabled = true;
-    event.target.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
     
-    // Create array of promises
     const promises = selected.map(id => 
         fetch(`/messaging/notifications/${id}/read/`, {
             method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+            headers: { 'X-CSRFToken': '{{ csrf_token }}', 'X-Requested-With': 'XMLHttpRequest' }
         }).then(res => res.json())
     );
     
-    Promise.all(promises)
-        .then(results => {
-            const allSuccess = results.every(r => r.success);
-            if (allSuccess) {
-                // Reload to update all states
-                location.reload();
-            } else {
-                showToast('Some notifications could not be marked as read', 'warning');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('Network error occurred', 'error');
-        })
-        .finally(() => {
-            event.target.disabled = false;
-            event.target.innerHTML = originalText;
-        });
+    Promise.all(promises).then(results => {
+        if (results.every(r => r.success)) {
+            location.reload();
+        } else {
+            showToast('Some notifications could not be marked as read', 'warning');
+        }
+    }).catch(error => {
+        console.error('Error:', error);
+        showToast('Network error occurred', 'error');
+    }).finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
 }
 
 function deleteSelected() {
-    const selected = Array.from(document.querySelectorAll('.notification-checkbox:checked'))
-        .map(cb => cb.value);
-    
+    const selected = Array.from(document.querySelectorAll('.notification-checkbox:checked')).map(cb => cb.value);
     if (selected.length === 0) {
         showToast('Please select notifications to delete', 'warning');
         return;
     }
     
     if (confirm(`Delete ${selected.length} notification(s)?`)) {
-        // Show loading state
         const btn = event.target;
-        const originalText = btn.innerText;
+        const originalText = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
         
-        // Create array of promises
         const promises = selected.map(id => 
             fetch(`/messaging/notifications/${id}/delete/`, {
                 method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                headers: { 'X-CSRFToken': '{{ csrf_token }}', 'X-Requested-With': 'XMLHttpRequest' }
             }).then(res => res.json())
         );
         
-        Promise.all(promises)
-            .then(results => {
-                const allSuccess = results.every(r => r.success);
-                if (allSuccess) {
-                    showToast(`${selected.length} notification(s) deleted successfully`, 'success');
-                    // Reload to update list
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    showToast('Some notifications could not be deleted', 'warning');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Network error occurred', 'error');
-            })
-            .finally(() => {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            });
+        Promise.all(promises).then(results => {
+            if (results.every(r => r.success)) {
+                showToast(`${selected.length} notification(s) deleted`, 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast('Some notifications could not be deleted', 'warning');
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+            showToast('Network error occurred', 'error');
+        }).finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
     }
 }
 
@@ -755,25 +1181,10 @@ function updateUnreadCount() {
         .then(response => response.json())
         .then(data => {
             const unreadCount = data.count || 0;
-            
-            // Update header badge
-            const headerBadge = document.querySelector('.badge.bg-warning');
-            if (headerBadge) {
-                headerBadge.innerHTML = `<i class="fas fa-bell me-1"></i>Unread: ${unreadCount}`;
-            }
-            
-            // Update tab badge
+            const headerBadge = document.querySelector('#unread-badge');
+            if (headerBadge) headerBadge.innerHTML = `<i class="fas fa-bell me-1"></i>Unread: ${unreadCount}`;
             const tabBadge = document.getElementById('unread-tab-count');
-            if (tabBadge) {
-                tabBadge.textContent = unreadCount;
-                if (unreadCount === 0) {
-                    tabBadge.style.display = 'none';
-                } else {
-                    tabBadge.style.display = 'inline-block';
-                }
-            }
-            
-            // Update navbar badge if exists
+            if (tabBadge) tabBadge.textContent = unreadCount;
             const navBadge = document.getElementById('notification-badge');
             if (navBadge) {
                 if (unreadCount > 0) {
@@ -788,14 +1199,11 @@ function updateUnreadCount() {
 }
 
 function updateTotalCount() {
-    const count = document.querySelectorAll('.notification-item').length;
-    const badge = document.querySelector('.badge.bg-primary');
-    if (badge) {
-        badge.innerHTML = `<i class="fas fa-bell me-1"></i>Total: ${count}`;
-    }
+    const count = document.querySelectorAll('.glass-notification-item').length;
+    const badge = document.querySelector('.glass-badge-primary');
+    if (badge) badge.innerHTML = `<i class="fas fa-bell me-1"></i>Total: ${count}`;
 }
 
-// Auto-refresh unread count every 30 seconds
 setInterval(updateUnreadCount, 30000);
 </script>
 {% endblock %}

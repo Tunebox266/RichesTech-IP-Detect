@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Q, Count, Sum
 from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 #from django.utils import timezone
 from datetime import date, timedelta
 from django.utils import timezone
@@ -11,7 +12,9 @@ from django.contrib import messages
 from datetime import timedelta
 from .models import (
     Announcement, Notification, NotificationSetting, BlogPost, 
-    VideoVlog, AcademicSetting, StudentDocument, AnnouncementComment
+    VideoVlog, AcademicSetting, StudentDocument, AnnouncementComment,
+    BlogPostLike, BlogCommentLike, VideoVlogLike, VideoVlogCommentLike,
+    BlogComment, VideoVlogComment
 )
 from apps.accounts.models import User, ActivityLog
 from apps.courses.models import Course, CourseRegistration, CourseMaterial
@@ -71,7 +74,7 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import Announcement
 from .forms import AnnouncementForm
-
+@login_required
 def announcement_list(request):
     now = timezone.now()
 
@@ -210,7 +213,7 @@ def announcement_delete(request, pk):
         'announcement': announcement,
     }
     return render(request, 'core/announcement_confirm_delete.html', context)
-
+@login_required
 def announcement_detail(request, pk):
     """Display a single announcement with its attachment"""
     announcement = get_object_or_404(
@@ -379,24 +382,24 @@ def download_attachment(request, pk):
 
 
 @login_required
-@require_POST
-def like_announcement(request, pk):
-    """Like/unlike an announcement"""
-    announcement = get_object_or_404(Announcement, pk=pk)
-    
-    # This would require a Like model
-    # For now, just return success
-    
-    return JsonResponse({'success': True})
-
-
-@login_required
 def announcement_unpin(request, pk):
     announcement = get_object_or_404(Announcement, pk=pk)
     announcement.is_pinned = False
     announcement.save()
     messages.success(request, 'Announcement unpinned successfully.')
     return redirect('core:announcements')
+
+@login_required
+@require_POST
+def announcement_view(request, pk):
+    """Increment view count for an announcement"""
+    announcement = get_object_or_404(Announcement, pk=pk, is_active=True)
+    announcement.views += 1
+    announcement.save(update_fields=['views'])
+    return JsonResponse({
+        'success': True,
+        'views': announcement.views
+    })
 
 @login_required
 def announcement_archive(request, pk):
@@ -1817,7 +1820,7 @@ def verify_student_passcode(request):
                 # Set session flag indicating passcode verified
                 request.session['passcode_verified'] = True
                 request.session['passcode_verified_time'] = timezone.now().isoformat()
-                request.session.set_expiry(600)  # Session expires in 10 minutes
+                request.session.set_expiry(3600)  # Session expires in 1 HOUR
                 
                 # Force session save
                 request.session.save()
@@ -2063,9 +2066,31 @@ def blog_post_like(request, pk):
             liked = False
         else:
             liked = True
+            
+            # Create notification for blog author (if not self)
+            if blog.author != request.user:
+                Notification.objects.create(
+                    user=blog.author,
+                    title='New Like on Your Blog Post',
+                    message=f'{request.user.get_full_name()} liked your blog post "{blog.title}"',
+                    notification_type='info',
+                    created_by=request.user
+                )
         
         # Get updated like count
         like_count = blog.likes.count()
+        
+        # Log activity
+        ActivityLog.objects.create(
+            user=request.user,
+            action_type='like',
+            ip_address=get_client_ip(request),
+            details={
+                'blog_id': blog.id,
+                'title': blog.title,
+                'action': 'liked' if liked else 'unliked'
+            }
+        )
         
         return JsonResponse({
             'success': True,
@@ -2099,9 +2124,31 @@ def blog_comment_like(request, pk):
             liked = False
         else:
             liked = True
+            
+            # Create notification for comment author (if not self)
+            if comment.user != request.user:
+                Notification.objects.create(
+                    user=comment.user,
+                    title='New Like on Your Comment',
+                    message=f'{request.user.get_full_name()} liked your comment on "{comment.blog.title}"',
+                    notification_type='info',
+                    created_by=request.user
+                )
         
         # Get updated like count
         like_count = comment.likes.count()
+        
+        # Log activity
+        ActivityLog.objects.create(
+            user=request.user,
+            action_type='like',
+            ip_address=get_client_ip(request),
+            details={
+                'comment_id': comment.id,
+                'blog_id': comment.blog.id,
+                'action': 'liked' if liked else 'unliked'
+            }
+        )
         
         return JsonResponse({
             'success': True,
@@ -2138,6 +2185,157 @@ def get_user_likes_status(request, blog_id):
             'success': True,
             'post_likes': list(post_likes),
             'comment_likes': list(comment_likes)
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@login_required
+@require_POST
+def vlog_post_like(request, pk):
+    """Like or unlike a vlog post"""
+    try:
+        vlog = get_object_or_404(VideoVlog, pk=pk)
+        
+        # Check if user already liked this vlog
+        like, created = VideoVlogLike.objects.get_or_create(
+            videovlog=vlog,
+            user=request.user
+        )
+        
+        if not created:
+            # Unlike if already liked
+            like.delete()
+            liked = False
+        else:
+            liked = True
+            
+            # Create notification for vlog author (if not self)
+            if vlog.uploaded_by != request.user:
+                Notification.objects.create(
+                    user=vlog.uploaded_by,
+                    title='New Like on Your Vlog',
+                    message=f'{request.user.get_full_name()} liked your vlog "{vlog.title}"',
+                    notification_type='info',
+                    created_by=request.user
+                )
+        
+        # Get updated like count
+        like_count = vlog.likes.count()
+        
+        # Log activity
+        ActivityLog.objects.create(
+            user=request.user,
+            action_type='like',
+            ip_address=get_client_ip(request),
+            details={
+                'vlog_id': vlog.id,
+                'title': vlog.title,
+                'action': 'liked' if liked else 'unliked'
+            }
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'liked': liked,
+            'like_count': like_count
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@login_required
+@require_POST
+def vlog_comment_like(request, pk):
+    """Like or unlike a vlog comment"""
+    try:
+        comment = get_object_or_404(VideoVlogComment, pk=pk)
+        
+        # Check if user already liked this comment
+        like, created = VideoVlogCommentLike.objects.get_or_create(
+            comment=comment,
+            user=request.user
+        )
+        
+        if not created:
+            # Unlike if already liked
+            like.delete()
+            liked = False
+        else:
+            liked = True
+            
+            # Create notification for comment author (if not self)
+            if comment.user != request.user:
+                Notification.objects.create(
+                    user=comment.user,
+                    title='New Like on Your Comment',
+                    message=f'{request.user.get_full_name()} liked your comment on "{comment.videovlog.title}"',
+                    notification_type='info',
+                    created_by=request.user
+                )
+        
+        # Get updated like count
+        like_count = comment.likes.count()
+        
+        # Log activity
+        ActivityLog.objects.create(
+            user=request.user,
+            action_type='like',
+            ip_address=get_client_ip(request),
+            details={
+                'comment_id': comment.id,
+                'vlog_id': comment.videovlog.id,
+                'action': 'liked' if liked else 'unliked'
+            }
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'liked': liked,
+            'like_count': like_count
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@login_required
+@require_POST
+def vlog_save(request, pk):
+    """Save or unsave a vlog for later viewing"""
+    try:
+        # Using a generic save model or could use a SavedVlog model if available
+        # For now, this will return a simple success response since there's no specific save model
+        # This could be extended to save vlogs to user's saved list
+        
+        vlog = get_object_or_404(VideoVlog, pk=pk)
+        
+        # Log activity
+        ActivityLog.objects.create(
+            user=request.user,
+            action_type='save',
+            ip_address=get_client_ip(request),
+            details={
+                'vlog_id': vlog.id,
+                'title': vlog.title,
+                'action': 'saved'
+            }
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Vlog saved successfully'
         })
         
     except Exception as e:

@@ -1,15 +1,330 @@
 <!-- templates/core/home.html -->
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Home - MELTSA-TaTU{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Glass Morphism Core Styles */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+    }
+    
+    [data-bs-theme="dark"] .glass-card {
+        background: rgba(30, 30, 47, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    }
+    
+    /* Glass Hero Section */
+    .glass-hero {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95));
+        backdrop-filter: blur(10px);
+        border-radius: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .glass-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+        animation: heroShimmer 20s infinite linear;
+    }
+    
+    @keyframes heroShimmer {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Glass Button Styles */
+    .glass-btn-primary {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        transition: all 0.3s ease;
+        border-radius: 50px;
+        padding: 0.6rem 1.5rem;
+        font-weight: 600;
+    }
+    
+    .glass-btn-primary:hover {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 1), rgba(118, 75, 162, 1));
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .glass-btn-secondary {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        transition: all 0.3s ease;
+        border-radius: 50px;
+        padding: 0.6rem 1.5rem;
+        font-weight: 600;
+    }
+    
+    .glass-btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    /* Glass Stat Cards */
+    .glass-stat-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        text-align: center;
+        padding: 1.5rem;
+    }
+    
+    .glass-stat-card:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+    
+    .glass-stat-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-stat-card:hover .glass-stat-icon {
+        transform: scale(1.1);
+        background: rgba(255, 255, 255, 0.25);
+    }
+    
+    .glass-stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--bs-body-color);
+        margin-bottom: 0.25rem;
+    }
+    
+    .glass-stat-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--bs-gray-500);
+    }
+    
+    /* Glass Title */
+    .glass-title {
+        position: relative;
+        display: inline-block;
+        padding-bottom: 12px;
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+    }
+    
+    .glass-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 3px;
+    }
+    
+    .glass-title i {
+        margin-right: 0.5rem;
+        color: #667eea;
+    }
+    
+    /* Glass Card Body & Footer */
+    .glass-card-body {
+        padding: 1.25rem;
+        background: transparent;
+    }
+    
+    .glass-card-footer {
+        padding: 0.75rem 1.25rem;
+        background: rgba(0, 0, 0, 0.05);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Glass Badges */
+    .glass-badge-high {
+        background: rgba(220, 53, 69, 0.2);
+        border: 1px solid rgba(220, 53, 69, 0.4);
+        color: #dc3545;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-medium {
+        background: rgba(255, 193, 7, 0.2);
+        border: 1px solid rgba(255, 193, 7, 0.4);
+        color: #ffc107;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-low {
+        background: rgba(13, 202, 240, 0.2);
+        border: 1px solid rgba(13, 202, 240, 0.4);
+        color: #0dcaf0;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-pinned {
+        background: rgba(108, 117, 125, 0.2);
+        border: 1px solid rgba(108, 117, 125, 0.4);
+        color: #adb5bd;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    /* Glass Image Hover */
+    .glass-img {
+        transition: transform 0.5s ease;
+        width: 100%;
+        object-fit: cover;
+    }
+    
+    .glass-card:hover .glass-img {
+        transform: scale(1.03);
+    }
+    
+    /* Glass Placeholder */
+    .glass-placeholder {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.2));
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 180px;
+    }
+    
+    /* Glass Text */
+    .glass-text {
+        color: var(--bs-body-color);
+    }
+    
+    .glass-text-muted {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Glass Link */
+    .glass-link {
+        color: var(--bs-body-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-link:hover {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transform: translateX(3px);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-title::after {
+            width: 40px;
+        }
+        
+        .glass-stat-value {
+            font-size: 1.5rem;
+        }
+        
+        .glass-stat-icon {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .glass-stat-icon i {
+            font-size: 1.25rem;
+        }
+        
+        .glass-card {
+            margin-bottom: 1rem;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-stat-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .glass-card {
+        animation: fadeInUp 0.6s ease-out;
+        animation-fill-mode: backwards;
+    }
+    
+    .glass-card:nth-child(1) { animation-delay: 0s; }
+    .glass-card:nth-child(2) { animation-delay: 0.1s; }
+    .glass-card:nth-child(3) { animation-delay: 0.2s; }
+    .glass-card:nth-child(4) { animation-delay: 0.3s; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container">
-    <!-- Hero Section with Gradient Background -->
-    <div class="hero-section position-relative overflow-hidden mb-5" 
-         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 60px 0;">
-        <div class="container position-relative text-white text-center">
+    <!-- Hero Section with Glass Effect -->
+    <div class="glass-hero mb-5 text-white text-center p-5">
+        <div class="position-relative" style="z-index: 1;">
             <h1 class="display-4 fw-bold mb-3 animate__animated animate__fadeInDown">
                 Welcome to MELTSA-TaTU
             </h1>
@@ -18,25 +333,25 @@
             </p>
             {% if not user.is_authenticated %}
                 <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                    <button class="btn btn-light btn-lg px-4 gap-3" onclick="openPasscodeModal()">
+                    <button class="btn glass-btn-primary btn-lg px-4 gap-3" onclick="openPasscodeModal()">
                         <i class="fas fa-sign-in-alt me-2"></i>Student Login
                     </button>
-                    <a href="{% url 'core:home' %}" class="btn btn-outline-light btn-lg px-4">
+                    <a href="{% url 'core:home' %}" class="btn glass-btn-secondary btn-lg px-4">
                         <i class="fas fa-user me-2"></i>Continue as Guest
                     </a>
                 </div>
             {% endif %}
         </div>
         <!-- Wave SVG -->
-        <svg class="position-absolute bottom-0 w-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
-            <path fill="#ffffff" fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
+        <svg class="position-absolute bottom-0 start-0 w-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" style="margin-bottom: -1px;">
+            <path fill="#f8f9fa" fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
         </svg>
     </div>
 
-    <!-- Latest Announcements with Images and Attachments -->
+    <!-- Latest Announcements with Glass Cards -->
     <div class="row mb-5">
         <div class="col-12">
-            <h2 class="h3 mb-4">
+            <h2 class="glass-title">
                 <i class="fas fa-bullhorn text-primary me-2"></i>Latest Announcements
                 {% if announcements %}
                     <small class="text-muted fs-6 ms-2">({{ announcements|length }} new)</small>
@@ -45,46 +360,51 @@
             <div class="row">
                 {% for announcement in announcements %}
                     <div class="col-md-4 mb-4">
-                        <div class="card h-100 shadow-sm hover-card border-0">
+                        <div class="glass-card h-100">
                             <!-- Featured Image -->
                             {% if announcement.image %}
-                                <img src="{{ announcement.image.url }}" class="card-img-top" alt="{{ announcement.title }}" 
-                                     style="height: 180px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                                <img src="{{ announcement.image.url }}" class="glass-img" alt="{{ announcement.title }}" 
+                                     style="height: 200px; object-fit: cover;">
                             {% else %}
-                                <div class="card-img-top bg-gradient-primary text-white d-flex align-items-center justify-content-center" 
-                                     style="height: 180px; border-radius: 12px 12px 0 0;">
-                                    <i class="fas fa-bullhorn fa-4x opacity-50"></i>
+                                <div class="glass-placeholder" style="height: 200px;">
+                                    <i class="fas fa-bullhorn fa-4x text-white opacity-50"></i>
                                 </div>
                             {% endif %}
                             
-                            <div class="card-body">
+                            <div class="glass-card-body">
                                 <!-- Priority Badge -->
                                 {% if announcement.priority == 'high' %}
-                                    <span class="badge bg-danger mb-2">🔴 High Priority</span>
+                                    <span class="glass-badge-high mb-2 d-inline-block">
+                                        <i class="fas fa-arrow-up me-1"></i>High Priority
+                                    </span>
                                 {% elif announcement.priority == 'medium' %}
-                                    <span class="badge bg-warning mb-2">🟡 Medium Priority</span>
+                                    <span class="glass-badge-medium mb-2 d-inline-block">
+                                        <i class="fas fa-minus me-1"></i>Medium Priority
+                                    </span>
                                 {% elif announcement.priority == 'low' %}
-                                    <span class="badge bg-info mb-2">🔵 Low Priority</span>
+                                    <span class="glass-badge-low mb-2 d-inline-block">
+                                        <i class="fas fa-arrow-down me-1"></i>Low Priority
+                                    </span>
                                 {% endif %}
 
                                 <!-- Pinned Badge -->
                                 {% if announcement.is_pinned %}
-                                    <span class="badge bg-secondary mb-2 ms-1">
+                                    <span class="glass-badge-pinned mb-2 ms-1 d-inline-block">
                                         <i class="fas fa-thumbtack me-1"></i>Pinned
                                     </span>
                                 {% endif %}
 
-                                <h5 class="card-title fw-bold">{{ announcement.title }}</h5>
+                                <h5 class="card-title fw-bold glass-text">{{ announcement.title }}</h5>
                                 
                                 <!-- Preview Content -->
-                                <p class="card-text text-muted small">
+                                <p class="card-text small glass-text-muted">
                                     {{ announcement.content|striptags|truncatewords:20 }}
                                 </p>
 
                                 <!-- Attachments Indicator -->
                                 {% if announcement.attachments.exists %}
-                                    <div class="mb-2">
-                                        <small class="text-muted">
+                                    <div class="mt-2">
+                                        <small class="glass-text-muted">
                                             <i class="fas fa-paperclip me-1"></i>
                                             {{ announcement.attachments.count }} attachment(s)
                                         </small>
@@ -92,16 +412,16 @@
                                 {% endif %}
                             </div>
                             
-                            <div class="card-footer bg-transparent border-0">
+                            <div class="glass-card-footer">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">
+                                    <small class="glass-text-muted">
                                         <i class="far fa-clock me-1"></i>{{ announcement.created_at|date:"M d, Y" }}
                                     </small>
-                                    <a href="{% url 'core:announcement_detail' announcement.id %}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{% url 'core:announcement_detail' announcement.id %}" class="btn glass-btn-primary btn-sm">
                                         Read More <i class="fas fa-arrow-right ms-1"></i>
                                     </a>
                                 </div>
-                                <div class="mt-2 small text-muted">
+                                <div class="mt-2 small glass-text-muted">
                                     <i class="far fa-user me-1"></i>{{ announcement.created_by.get_full_name|default:"Admin" }}
                                     <span class="mx-2">•</span>
                                     <i class="far fa-eye me-1"></i>{{ announcement.views }} views
@@ -111,9 +431,11 @@
                     </div>
                 {% empty %}
                     <div class="col-12">
-                        <div class="text-center py-5 bg-light rounded">
-                            <i class="fas fa-bullhorn fa-4x text-muted mb-3"></i>
-                            <p class="text-muted mb-0">No announcements at the moment.</p>
+                        <div class="glass-card text-center py-5">
+                            <div class="glass-placeholder" style="min-height: auto; padding: 2rem;">
+                                <i class="fas fa-bullhorn fa-4x glass-text-muted mb-3"></i>
+                                <p class="glass-text-muted mb-0">No announcements at the moment.</p>
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
@@ -122,7 +444,7 @@
             <!-- View All Announcements Button -->
             {% if announcements %}
                 <div class="text-center mt-4">
-                    <a href="{% url 'core:announcements' %}" class="btn btn-outline-primary">
+                    <a href="{% url 'core:announcements' %}" class="btn glass-btn-secondary">
                         View All Announcements <i class="fas fa-arrow-right ms-2"></i>
                     </a>
                 </div>
@@ -130,10 +452,10 @@
         </div>
     </div>
 
-    <!-- Video Vlogs -->
+    <!-- Video Vlogs with Glass Cards -->
     <div class="row mb-5">
         <div class="col-12">
-            <h2 class="h3 mb-4">
+            <h2 class="glass-title">
                 <i class="fab fa-youtube text-danger me-2"></i>Video Vlogs
                 {% if video_vlogs %}
                     <small class="text-muted fs-6 ms-2">({{ video_vlogs|length }} videos)</small>
@@ -142,26 +464,25 @@
             <div class="row">
                 {% for vlog in video_vlogs %}
                     <div class="col-md-6 col-lg-3 mb-4">
-                        <div class="card h-100 shadow-sm border-0 hover-card">
+                        <div class="glass-card h-100">
                             {% if vlog.thumbnail %}
-                                <img src="{{ vlog.thumbnail.url }}" class="card-img-top" alt="{{ vlog.title }}" 
-                                     style="height: 150px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                                <img src="{{ vlog.thumbnail.url }}" class="glass-img" alt="{{ vlog.title }}" 
+                                     style="height: 160px; object-fit: cover;">
                             {% else %}
-                                <div class="ratio ratio-16x9 bg-light d-flex align-items-center justify-content-center" 
-                                     style="border-radius: 12px 12px 0 0;">
-                                    <i class="fab fa-youtube fa-3x text-danger"></i>
+                                <div class="glass-placeholder" style="height: 160px;">
+                                    <i class="fab fa-youtube fa-4x text-white opacity-50"></i>
                                 </div>
                             {% endif %}
-                            <div class="card-body">
-                                <h6 class="card-title fw-bold">{{ vlog.title|truncatechars:50 }}</h6>
-                                <p class="card-text small text-muted">{{ vlog.description|truncatewords:10 }}</p>
+                            <div class="glass-card-body">
+                                <h6 class="card-title fw-bold glass-text">{{ vlog.title|truncatechars:50 }}</h6>
+                                <p class="card-text small glass-text-muted">{{ vlog.description|truncatewords:10 }}</p>
                             </div>
-                            <div class="card-footer bg-transparent border-0">
+                            <div class="glass-card-footer">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">
+                                    <small class="glass-text-muted">
                                         <i class="far fa-eye me-1"></i>{{ vlog.views }} views
                                     </small>
-                                    <a href="{% url 'core:vlog_detail' vlog.id %}" class="btn btn-sm btn-outline-danger">
+                                    <a href="{% url 'core:vlog_detail' vlog.id %}" class="btn glass-btn-primary btn-sm">
                                         <i class="fab fa-youtube me-1"></i>Watch
                                     </a>
                                 </div>
@@ -170,9 +491,11 @@
                     </div>
                 {% empty %}
                     <div class="col-12">
-                        <div class="text-center py-5 bg-light rounded">
-                            <i class="fab fa-youtube fa-4x text-muted mb-3"></i>
-                            <p class="text-muted mb-0">No video vlogs available.</p>
+                        <div class="glass-card text-center py-5">
+                            <div class="glass-placeholder" style="min-height: auto; padding: 2rem;">
+                                <i class="fab fa-youtube fa-4x glass-text-muted mb-3"></i>
+                                <p class="glass-text-muted mb-0">No video vlogs available.</p>
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
@@ -180,10 +503,10 @@
         </div>
     </div>
 
-    <!-- Blog Posts -->
+    <!-- Blog Posts with Glass Cards -->
     <div class="row mb-5">
         <div class="col-12">
-            <h2 class="h3 mb-4">
+            <h2 class="glass-title">
                 <i class="fas fa-blog text-primary me-2"></i>Blog Posts
                 {% if blog_posts %}
                     <small class="text-muted fs-6 ms-2">({{ blog_posts|length }} articles)</small>
@@ -192,40 +515,39 @@
             <div class="row">
                 {% for post in blog_posts %}
                     <div class="col-md-6 mb-4">
-                        <div class="card h-100 shadow-sm border-0 hover-card">
+                        <div class="glass-card h-100">
                             <div class="row g-0">
                                 {% if post.featured_image %}
                                     <div class="col-md-4">
-                                        <img src="{{ post.featured_image.url }}" class="img-fluid rounded-start h-100" 
-                                             style="object-fit: cover; border-radius: 12px 0 0 12px;" alt="{{ post.title }}">
+                                        <img src="{{ post.featured_image.url }}" class="glass-img h-100" 
+                                             style="object-fit: cover; border-radius: 24px 0 0 24px;">
                                     </div>
                                     <div class="col-md-8">
                                 {% else %}
                                     <div class="col-md-12">
                                 {% endif %}
-                                    <div class="card-body">
+                                    <div class="glass-card-body">
                                         <h5 class="card-title fw-bold">
-                                            <a href="{% url 'core:blog_detail' post.id %}" class="text-decoration-none text-dark">
+                                            <a href="{% url 'core:blog_detail' post.id %}" class="glass-link">
                                                 {{ post.title|truncatechars:60 }}
                                             </a>
                                         </h5>
-                                        <p class="card-text text-muted small">{{ post.content|striptags|truncatewords:25 }}</p>
+                                        <p class="card-text small glass-text-muted">{{ post.content|striptags|truncatewords:25 }}</p>
                                         <div class="d-flex justify-content-between align-items-center mt-3">
-                                            <small class="text-muted">
+                                            <small class="glass-text-muted">
                                                 <i class="far fa-user me-1"></i>{{ post.author.get_full_name|default:"Admin" }}
                                                 <span class="mx-2">•</span>
                                                 <i class="far fa-calendar me-1"></i>{{ post.created_at|date:"M d, Y" }}
                                             </small>
-                                            <span class="badge bg-light text-dark">
+                                            <span class="glass-badge-light">
                                                 <i class="far fa-eye me-1"></i>{{ post.views }} views
                                             </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Read More Button -->
-                            <div class="card-footer bg-transparent border-0 text-end">
-                                <a href="{% url 'core:blog_detail' post.id %}" class="btn btn-sm btn-outline-primary">
+                            <div class="glass-card-footer text-end">
+                                <a href="{% url 'core:blog_detail' post.id %}" class="btn glass-btn-primary btn-sm">
                                     Read Full Article <i class="fas fa-arrow-right ms-1"></i>
                                 </a>
                             </div>
@@ -233,9 +555,11 @@
                     </div>
                 {% empty %}
                     <div class="col-12">
-                        <div class="text-center py-5 bg-light rounded">
-                            <i class="fas fa-blog fa-4x text-muted mb-3"></i>
-                            <p class="text-muted mb-0">No blog posts available.</p>
+                        <div class="glass-card text-center py-5">
+                            <div class="glass-placeholder" style="min-height: auto; padding: 2rem;">
+                                <i class="fas fa-blog fa-4x glass-text-muted mb-3"></i>
+                                <p class="glass-text-muted mb-0">No blog posts available.</p>
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
@@ -244,7 +568,7 @@
             <!-- View All Blog Posts Button -->
             {% if blog_posts %}
                 <div class="text-center mt-4">
-                    <a href="{% url 'core:blog_list' %}" class="btn btn-outline-primary">
+                    <a href="{% url 'core:blog_list' %}" class="btn glass-btn-secondary">
                         View All Blog Posts <i class="fas fa-arrow-right ms-2"></i>
                     </a>
                 </div>
@@ -252,29 +576,29 @@
         </div>
     </div>
 
-    <!-- Upcoming Events -->
+    <!-- Upcoming Events with Glass Cards -->
     {% if upcoming_events %}
         <div class="row mb-5">
             <div class="col-12">
-                <h2 class="h3 mb-4">
+                <h2 class="glass-title">
                     <i class="fas fa-calendar-alt text-success me-2"></i>Upcoming Events
                     <small class="text-muted fs-6 ms-2">({{ upcoming_events|length }} events)</small>
                 </h2>
                 <div class="row">
                     {% for event in upcoming_events %}
-                        <div class="col-md-4 mb-3">
-                            <div class="card border-0 shadow-sm hover-card">
+                        <div class="col-md-4 mb-4">
+                            <div class="glass-card h-100">
                                 {% if event.poster %}
-                                    <img src="{{ event.poster.url }}" class="card-img-top" alt="{{ event.title }}" 
-                                         style="height: 140px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                                    <img src="{{ event.poster.url }}" class="glass-img" alt="{{ event.title }}" 
+                                         style="height: 150px; object-fit: cover;">
                                 {% endif %}
-                                <div class="card-body">
+                                <div class="glass-card-body">
                                     <h6 class="card-title fw-bold">
-                                        <a href="{% url 'events:event_detail' event.id %}" class="text-decoration-none text-dark">
+                                        <a href="{% url 'events:event_detail' event.id %}" class="glass-link">
                                             {{ event.title|truncatechars:40 }}
                                         </a>
                                     </h6>
-                                    <div class="small text-muted">
+                                    <div class="small glass-text-muted">
                                         <p class="mb-1">
                                             <i class="fas fa-map-marker-alt text-danger me-2"></i>{{ event.venue }}
                                         </p>
@@ -284,8 +608,8 @@
                                         </p>
                                     </div>
                                 </div>
-                                <div class="card-footer bg-transparent border-0 text-end">
-                                    <a href="{% url 'events:event_detail' event.id %}" class="btn btn-sm btn-outline-success">
+                                <div class="glass-card-footer text-end">
+                                    <a href="{% url 'events:event_detail' event.id %}" class="btn glass-btn-primary btn-sm">
                                         View Details <i class="fas fa-arrow-right ms-1"></i>
                                     </a>
                                 </div>
@@ -296,7 +620,7 @@
                 
                 <!-- View All Events Button -->
                 <div class="text-center mt-3">
-                    <a href="{% url 'events:event_list' %}" class="btn btn-outline-success">
+                    <a href="{% url 'events:event_list' %}" class="btn glass-btn-secondary">
                         View All Events <i class="fas fa-arrow-right ms-2"></i>
                     </a>
                 </div>
@@ -304,39 +628,47 @@
         </div>
     {% endif %}
 
-    <!-- Quick Stats Section -->
+    <!-- Quick Stats Section with Glass Cards -->
     <div class="row mb-5">
         <div class="col-12">
-            <h2 class="h3 mb-4 text-center">
+            <h2 class="glass-title text-center">
                 <i class="fas fa-chart-bar text-primary me-2"></i>MELTSA by Numbers
             </h2>
             <div class="row g-4">
                 <div class="col-md-3 col-6">
-                    <div class="card text-center p-4 border-0 shadow-sm glass-card">
-                        <i class="fas fa-users fa-3x text-primary mb-3"></i>
-                        <h3 class="fw-bold">{{ total_students|default:"500" }}+</h3>
-                        <p class="text-muted mb-0">Students</p>
+                    <div class="glass-stat-card">
+                        <div class="glass-stat-icon">
+                            <i class="fas fa-users fa-2x text-primary"></i>
+                        </div>
+                        <div class="glass-stat-value">{{ total_students|default:"500" }}+</div>
+                        <div class="glass-stat-label">Students</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
-                    <div class="card text-center p-4 border-0 shadow-sm glass-card">
-                        <i class="fas fa-calendar-check fa-3x text-success mb-3"></i>
-                        <h3 class="fw-bold">{{ total_events|default:"3" }}+</h3>
-                        <p class="text-muted mb-0">Events</p>
+                    <div class="glass-stat-card">
+                        <div class="glass-stat-icon">
+                            <i class="fas fa-calendar-check fa-2x text-success"></i>
+                        </div>
+                        <div class="glass-stat-value">{{ total_events|default:"3" }}+</div>
+                        <div class="glass-stat-label">Events</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
-                    <div class="card text-center p-4 border-0 shadow-sm glass-card">
-                        <i class="fas fa-book-open fa-3x text-info mb-3"></i>
-                        <h3 class="fw-bold">{{ total_courses|default:"8-11" }}+</h3>
-                        <p class="text-muted mb-0">Courses</p>
+                    <div class="glass-stat-card">
+                        <div class="glass-stat-icon">
+                            <i class="fas fa-book-open fa-2x text-info"></i>
+                        </div>
+                        <div class="glass-stat-value">{{ total_courses|default:"8-11" }}+</div>
+                        <div class="glass-stat-label">Courses</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
-                    <div class="card text-center p-4 border-0 shadow-sm glass-card">
-                        <i class="fas fa-trophy fa-3x text-warning mb-3"></i>
-                        <h3 class="fw-bold">{{ years_of_excellence|default:"3" }}+</h3>
-                        <p class="text-muted mb-0">Years</p>
+                    <div class="glass-stat-card">
+                        <div class="glass-stat-icon">
+                            <i class="fas fa-trophy fa-2x text-warning"></i>
+                        </div>
+                        <div class="glass-stat-value">{{ years_of_excellence|default:"3" }}+</div>
+                        <div class="glass-stat-label">Years</div>
                     </div>
                 </div>
             </div>
@@ -344,13 +676,12 @@
     </div>
 </div>
 
-<!-- Passcode Lock Screen Modal -->
+<!-- Passcode Lock Screen Modal - Glass Style -->
 <div class="modal fade" id="passcodeLockModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content glass-card border-0" style="border-radius: 30px; overflow: hidden;">
+        <div class="modal-content glass-card border-0" style="border-radius: 40px;">
             <div class="modal-body p-0">
-                <!-- iPhone-style Lock Screen -->
-                <div style="background: linear-gradient(145deg, #1a1a2e, #16213e); border-radius: 30px;">
+                <div style="background: linear-gradient(145deg, rgba(26, 26, 46, 0.95), rgba(22, 33, 62, 0.95)); backdrop-filter: blur(20px); border-radius: 40px;">
                     <!-- Top Bar -->
                     <div class="d-flex justify-content-between align-items-center p-4 text-white">
                         <span class="small opacity-75" id="lockScreenTime">{{ now|date:"H:i" }}</span>
@@ -364,7 +695,9 @@
                     <!-- Lock Icon & Message -->
                     <div class="text-center mt-4 mb-3">
                         <div class="mb-3">
-                            <i class="fas fa-lock fa-3x text-white opacity-75"></i>
+                            <div class="glass-stat-icon" style="margin: 0 auto; width: 70px; height: 70px;">
+                                <i class="fas fa-lock fa-3x"></i>
+                            </div>
                         </div>
                         <h5 class="text-white mb-1">Student Access Only</h5>
                         <p class="text-white-50 small">Enter 4-digit passcode to continue</p>
@@ -388,50 +721,46 @@
                     <!-- Keypad Grid -->
                     <div class="keypad-grid px-4 pb-4">
                         <div class="row g-3">
-                            <!-- Row 1 -->
                             <div class="col-4">
-                                <button class="keypad-btn" onclick="addDigit('1')">1</button>
+                                <button class="keypad-btn glass-keypad" onclick="addDigit('1')">1</button>
                             </div>
                             <div class="col-4">
-                                <button class="keypad-btn" onclick="addDigit('2')">2</button>
+                                <button class="keypad-btn glass-keypad" onclick="addDigit('2')">2</button>
                             </div>
                             <div class="col-4">
-                                <button class="keypad-btn" onclick="addDigit('3')">3</button>
-                            </div>
-                            
-                            <!-- Row 2 -->
-                            <div class="col-4">
-                                <button class="keypad-btn" onclick="addDigit('4')">4</button>
-                            </div>
-                            <div class="col-4">
-                                <button class="keypad-btn" onclick="addDigit('5')">5</button>
-                            </div>
-                            <div class="col-4">
-                                <button class="keypad-btn" onclick="addDigit('6')">6</button>
+                                <button class="keypad-btn glass-keypad" onclick="addDigit('3')">3</button>
                             </div>
                             
-                            <!-- Row 3 -->
                             <div class="col-4">
-                                <button class="keypad-btn" onclick="addDigit('7')">7</button>
+                                <button class="keypad-btn glass-keypad" onclick="addDigit('4')">4</button>
                             </div>
                             <div class="col-4">
-                                <button class="keypad-btn" onclick="addDigit('8')">8</button>
+                                <button class="keypad-btn glass-keypad" onclick="addDigit('5')">5</button>
                             </div>
                             <div class="col-4">
-                                <button class="keypad-btn" onclick="addDigit('9')">9</button>
+                                <button class="keypad-btn glass-keypad" onclick="addDigit('6')">6</button>
                             </div>
                             
-                            <!-- Row 4 -->
                             <div class="col-4">
-                                <button class="keypad-btn" onclick="deleteDigit()">
+                                <button class="keypad-btn glass-keypad" onclick="addDigit('7')">7</button>
+                            </div>
+                            <div class="col-4">
+                                <button class="keypad-btn glass-keypad" onclick="addDigit('8')">8</button>
+                            </div>
+                            <div class="col-4">
+                                <button class="keypad-btn glass-keypad" onclick="addDigit('9')">9</button>
+                            </div>
+                            
+                            <div class="col-4">
+                                <button class="keypad-btn glass-keypad" onclick="deleteDigit()">
                                     <i class="fas fa-backspace"></i>
                                 </button>
                             </div>
                             <div class="col-4">
-                                <button class="keypad-btn" onclick="addDigit('0')">0</button>
+                                <button class="keypad-btn glass-keypad" onclick="addDigit('0')">0</button>
                             </div>
                             <div class="col-4">
-                                <button class="keypad-btn" onclick="clearPasscode()">
+                                <button class="keypad-btn glass-keypad" onclick="clearPasscode()">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
@@ -440,7 +769,7 @@
 
                     <!-- Cancel Button -->
                     <div class="text-center pb-4">
-                        <button class="btn btn-link text-white-50" onclick="closePasscodeModal()">
+                        <button class="btn glass-btn-link" onclick="closePasscodeModal()">
                             Cancel
                         </button>
                     </div>
@@ -451,144 +780,88 @@
 </div>
 
 <style>
-    .hover-card {
-        transition: all 0.3s ease-in-out;
-        border-radius: 12px;
-        overflow: hidden;
-    }
-    .hover-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 1rem 2rem rgba(0,0,0,.15)!important;
-    }
-    
-    .glass-card {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    [data-bs-theme="dark"] .glass-card {
-        background: rgba(30, 30, 47, 0.7);
-    }
-    
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .opacity-50 {
-        opacity: 0.5;
-    }
-    
-    .hero-section {
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .hero-section svg {
-        pointer-events: none;
-    }
-    
-    @keyframes fadeInDown {
-        from {
-            opacity: 0;
-            transform: translate3d(0, -30px, 0);
-        }
-        to {
-            opacity: 1;
-            transform: translate3d(0, 0, 0);
-        }
-    }
-    
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translate3d(0, 30px, 0);
-        }
-        to {
-            opacity: 1;
-            transform: translate3d(0, 0, 0);
-        }
-    }
-    
-    .animate__fadeInDown {
-        animation: fadeInDown 1s;
-    }
-    
-    .animate__fadeInUp {
-        animation: fadeInUp 1s;
-    }
-    
-    .card-img-top {
-        border-radius: 12px 12px 0 0;
-    }
+/* Dark Theme Wave Fix */
+[data-bs-theme="dark"] .glass-hero svg path {
+    fill: #1a1a2e;
+}
 
-    /* iPhone-style Passcode Lock Screen Styles */
+/* Keypad Styles */
+.keypad-btn {
+    width: 70px;
+    height: 70px;
+    border-radius: 35px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    font-size: 28px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.keypad-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.keypad-btn:active {
+    transform: scale(0.95);
+}
+
+.keypad-btn i {
+    font-size: 24px;
+    color: white;
+}
+
+.glass-keypad {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.glass-keypad:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+}
+
+.passcode-dots .dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.passcode-dots .dot.filled {
+    background: white;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.passcode-dots .dot.error {
+    background: #dc3545;
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+@media (max-width: 576px) {
     .keypad-btn {
-        width: 70px;
-        height: 70px;
-        border-radius: 35px;
-        background: rgba(255, 255, 255, 0.1);
-        border: none;
-        color: white;
-        font-size: 28px;
-        font-weight: 300;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .keypad-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: scale(1.05);
-    }
-
-    .keypad-btn:active {
-        transform: scale(0.95);
-    }
-
-    .keypad-btn i {
+        width: 60px;
+        height: 60px;
         font-size: 24px;
-        color: white;
     }
-
-    .passcode-dots .dot {
-        width: 16px;
-        height: 16px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.3);
-        transition: all 0.3s ease;
-    }
-
-    .passcode-dots .dot.filled {
-        background: white;
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    }
-
-    .passcode-dots .dot.error {
-        background: #dc3545;
-        animation: shake 0.5s ease;
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-        20%, 40%, 60%, 80% { transform: translateX(5px); }
-    }
-
-    .text-white-50 {
-        color: rgba(255, 255, 255, 0.5) !important;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 576px) {
-        .keypad-btn {
-            width: 60px;
-            height: 60px;
-            font-size: 24px;
-        }
-    }
+}
 </style>
 
 <script>
@@ -656,7 +929,6 @@ function verifyPasscode() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Show success animation
             const dots = document.querySelectorAll('.dot');
             dots.forEach(dot => {
                 dot.style.background = '#28a745';
@@ -668,7 +940,6 @@ function verifyPasscode() {
                 window.location.href = data.redirect_url;
             }, 500);
         } else {
-            // Show error animation
             const dots = document.querySelectorAll('.dot');
             dots.forEach(dot => {
                 dot.classList.add('error');
@@ -699,7 +970,6 @@ function verifyPasscode() {
     });
 }
 
-// Update time in the lock screen
 function updateLockScreenTime() {
     const now = new Date();
     const timeString = now.toLocaleTimeString('en-US', { 
@@ -713,7 +983,6 @@ function updateLockScreenTime() {
     }
 }
 
-// Update time every minute
 setInterval(updateLockScreenTime, 60000);
 </script>
 {% endblock %}

@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student ID Card - {{ student.get_full_name }}</title>
+    <title>Student ID Card - {{ student.get_full_name }} | MELTSA-TaTU</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
         * {
             margin: 0;
@@ -16,68 +16,98 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background: #eef2f6;
+            background: linear-gradient(135deg, #eef2f6 0%, #dce3ec 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 10px;
+            padding: 20px;
         }
         
-        /* Card Container - Centers the card on screen */
+        /* Card Container */
         .card-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 24px;
             width: fit-content;
             margin: 0 auto;
         }
         
-        /* ID Card - Exact Credit Card Size */
+        /* Enhanced ID Card - Credit Card Size */
         .id-card {
             width: 85.6mm;
             height: 53.98mm;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #ffffff, #f8faff);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.35);
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(78, 115, 223, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             margin: 0 auto;
         }
         
-        /* Card Header Strip */
+        .id-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Card Header Strip - Glass Effect */
         .card-strip {
-            height: 6mm;
-            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            height: 7mm;
+            background: linear-gradient(90deg, #1e3c72, #2a5298, #4e73df);
             position: relative;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-strip::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            pointer-events: none;
         }
         
         .card-strip::after {
             content: "MELTSA-TaTU";
             position: absolute;
-            right: 10px;
-            top: 1px;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
             color: white;
             font-size: 8px;
-            font-weight: 500;
-            letter-spacing: 1px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
             opacity: 0.9;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-strip .strip-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 10px;
+            opacity: 0.8;
         }
         
         /* Main Content Area */
         .card-body {
             padding: 8px 12px;
-            height: calc(100% - 6mm);
+            height: calc(100% - 7mm);
             display: flex;
             position: relative;
         }
         
-        /* Left Column - Photo */
+        /* Left Column - Photo with Glass Effect */
         .left-column {
             width: 25mm;
             flex-shrink: 0;
@@ -89,11 +119,17 @@
         .photo-frame {
             width: 22mm;
             height: 28mm;
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
-            border: 2px solid #2a5298;
-            background: #f5f7fa;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 2px solid rgba(42, 82, 152, 0.3);
+            background: linear-gradient(135deg, #f5f7fa, #eef2f6);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .photo-frame:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
         }
         
         .photo-frame img {
@@ -111,20 +147,31 @@
             align-items: center;
             justify-content: center;
             font-size: 22px;
-            font-weight: 600;
+            font-weight: 700;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
         
-        /* Student ID Badge */
+        /* Student ID Badge - Glass Style */
         .id-badge {
-            background: #2a5298;
+            background: linear-gradient(135deg, #2a5298, #1e3c72);
             color: white;
-            padding: 2px 6px;
+            padding: 3px 8px;
             border-radius: 30px;
             font-size: 7px;
-            font-weight: 600;
-            margin-top: 4px;
+            font-weight: 700;
+            margin-top: 6px;
             text-align: center;
             width: 100%;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        .id-badge i {
+            margin-right: 3px;
+            font-size: 6px;
         }
         
         /* Right Column - Details */
@@ -136,47 +183,74 @@
         
         .student-name {
             font-size: 13px;
-            font-weight: 700;
-            color: #1e3c72;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             line-height: 1.3;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
             text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
         
         .student-program {
-            font-size: 8px;
-            color: #666;
-            margin-bottom: 4px;
-            font-weight: 500;
+            font-size: 7.5px;
+            color: #2a5298;
+            margin-bottom: 5px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         
-        /* Details Grid - 2x2 Layout */
+        .student-program i {
+            font-size: 8px;
+        }
+        
+        /* Details Grid - 2x2 Layout with Glass Cards */
         .details-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 4px 6px;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
         }
         
         .detail-item {
-            background: #f8faff;
-            padding: 3px 5px;
-            border-radius: 4px;
+            background: linear-gradient(135deg, rgba(78, 115, 223, 0.05), rgba(42, 82, 152, 0.03));
+            padding: 3px 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(78, 115, 223, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .detail-item:hover {
+            background: linear-gradient(135deg, rgba(78, 115, 223, 0.1), rgba(42, 82, 152, 0.06));
+            transform: translateX(2px);
         }
         
         .detail-label {
-            font-size: 6px;
-            color: #666;
+            font-size: 5.5px;
+            color: #6c757d;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .detail-label i {
+            font-size: 6px;
         }
         
         .detail-value {
             font-size: 8px;
-            font-weight: 600;
+            font-weight: 700;
             color: #1e3c72;
         }
         
-        /* QR Code - Positioned at Bottom Right */
+        /* QR Code - Positioned at Bottom Right with Glass Effect */
         .qr-container {
             position: absolute;
             bottom: 2px;
@@ -190,13 +264,25 @@
             width: 15mm;
             height: 15mm;
             display: block;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: white;
+            padding: 1px;
         }
         
         .qr-label {
             font-size: 5px;
             color: #2a5298;
-            font-weight: 600;
-            letter-spacing: 0.3px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-top: 1px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        
+        .qr-label i {
+            font-size: 5px;
         }
         
         /* Signature Area - Bottom Left */
@@ -204,30 +290,43 @@
             position: absolute;
             bottom: 5px;
             left: 10px;
-            width: 30mm;
+            width: 32mm;
         }
         
         .signature-line {
             border-bottom: 1px solid #2a5298;
             width: 100%;
+            position: relative;
+        }
+        
+        .signature-line::before {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: -3px;
+            width: 6px;
+            height: 6px;
+            background: #2a5298;
+            border-radius: 50%;
         }
         
         .signature-image {
-            max-height: 6mm;
-            max-width: 28mm;
+            max-height: 7mm;
+            max-width: 30mm;
             object-fit: contain;
-            margin-bottom: 1px;
+            margin-bottom: 2px;
         }
         
         .signature-text {
             font-size: 5px;
-            color: #666;
-            margin-top: 1px;
+            color: #6c757d;
+            margin-top: 2px;
+            letter-spacing: 0.3px;
         }
         
         /* Back Card Content */
         .back-content {
-            padding: 10px 12px;
+            padding: 8px 12px;
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -237,27 +336,40 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
         
         .back-title {
             font-size: 9px;
-            font-weight: 700;
+            font-weight: 800;
             color: #1e3c72;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .back-title i {
+            font-size: 9px;
+            color: #2a5298;
         }
         
         .back-subtitle {
             font-size: 6px;
-            color: #666;
+            color: #6c757d;
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 5px;
+            border-radius: 4px;
         }
         
-        /* Emergency Contact Section */
+        /* Emergency Contact Section - Glass Card */
         .emergency-section {
-            background: #f8faff;
-            border-radius: 6px;
-            padding: 6px;
-            margin-bottom: 6px;
+            background: linear-gradient(135deg, rgba(248, 250, 255, 0.9), rgba(240, 244, 255, 0.8));
+            border-radius: 8px;
+            padding: 6px 8px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(78, 115, 223, 0.15);
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
@@ -265,12 +377,26 @@
         .emergency-row {
             display: flex;
             font-size: 7px;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
+            align-items: center;
+        }
+        
+        .emergency-row:last-child {
+            margin-bottom: 0;
         }
         
         .emergency-label {
-            width: 25mm;
-            color: #666;
+            width: 28mm;
+            color: #6c757d;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .emergency-label i {
+            font-size: 7px;
+            width: 12px;
         }
         
         .emergency-value {
@@ -279,19 +405,21 @@
             color: #1e3c72;
         }
         
-        /* Medical Info Section */
+        /* Medical Info Section - Glass Cards */
         .medical-section {
             display: flex;
-            gap: 4px;
-            margin-bottom: 6px;
+            gap: 6px;
+            margin-bottom: 8px;
         }
         
         .medical-tag {
             flex: 1;
-            background: #f0f4ff;
-            padding: 4px;
-            border-radius: 4px;
+            background: linear-gradient(135deg, rgba(240, 244, 255, 0.9), rgba(235, 240, 255, 0.8));
+            padding: 5px 6px;
+            border-radius: 6px;
             font-size: 6px;
+            border: 1px solid rgba(78, 115, 223, 0.1);
+            transition: all 0.2s ease;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
@@ -299,9 +427,17 @@
         .medical-tag strong {
             color: #1e3c72;
             display: block;
-            font-size: 5px;
+            font-size: 5.5px;
             text-transform: uppercase;
-            margin-bottom: 1px;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .medical-tag strong i {
+            font-size: 6px;
         }
         
         /* Footer */
@@ -310,16 +446,21 @@
             display: flex;
             justify-content: space-between;
             font-size: 5px;
-            color: #999;
-            border-top: 1px dashed #ccc;
-            padding-top: 3px;
+            color: #adb5bd;
+            border-top: 1px dashed rgba(78, 115, 223, 0.2);
+            padding-top: 4px;
+        }
+        
+        .card-footer i {
+            margin-right: 2px;
+            font-size: 5px;
         }
         
         /* ===== PRINT-SPECIFIC STYLES ===== */
         @media print {
             @page {
-                size: 88.6mm 56.98mm;  /* Card size + 3mm margin */
-                margin: 1.5mm;           /* Small margin for printing */
+                size: 88.6mm 56.98mm;
+                margin: 1.5mm;
             }
             
             body {
@@ -354,7 +495,7 @@
                 page-break-before: always;
             }
             
-            /* Force all colors to print */
+            /* Force all colors and gradients to print */
             .card-strip,
             .id-badge,
             .photo-placeholder,
@@ -366,15 +507,13 @@
                 color-adjust: exact !important;
             }
             
-            /* Ensure gradients print */
             .card-strip {
-                background: #1e3c72;
+                background: #1e3c72 !important;
                 background: linear-gradient(90deg, #1e3c72, #2a5298) !important;
             }
             
             .photo-placeholder {
                 background: #2a5298 !important;
-                background: linear-gradient(135deg, #2a5298, #1e3c72) !important;
             }
             
             .id-badge {
@@ -389,19 +528,10 @@
                 background: #f0f4ff !important;
             }
             
-            /* Ensure text colors print */
-            .student-name,
-            .back-title,
-            .emergency-value {
+            .student-name {
+                background: #1e3c72 !important;
+                -webkit-text-fill-color: #1e3c72 !important;
                 color: #1e3c72 !important;
-            }
-            
-            .qr-label {
-                color: #2a5298 !important;
-            }
-            
-            .signature-line {
-                border-bottom-color: #2a5298 !important;
             }
             
             .no-print {
@@ -409,57 +539,103 @@
             }
         }
         
-        /* Print Controls */
+        /* Print Controls - Glass Style */
         .print-controls {
             text-align: center;
-            margin: 20px 0;
+            margin-bottom: 20px;
             position: sticky;
             top: 20px;
             z-index: 1000;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
         }
         
         .print-btn {
-            background: #2a5298;
+            background: linear-gradient(135deg, #2a5298, #1e3c72);
             color: white;
             border: none;
-            padding: 12px 30px;
-            border-radius: 6px;
+            padding: 12px 28px;
+            border-radius: 50px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            margin: 0 5px;
-            transition: background 0.2s;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .print-btn i {
+            font-size: 14px;
         }
         
         .print-btn:hover {
-            background: #1e3c72;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
         
         .print-btn.secondary {
-            background: #6c757d;
+            background: linear-gradient(135deg, #6c757d, #495057);
         }
         
         .print-btn.secondary:hover {
-            background: #5a6268;
+            transform: translateY(-2px);
         }
         
-        /* Browser-specific color adjustment */
+        /* Instructions Panel - Glass Style */
+        .instructions-panel {
+            margin-top: 24px;
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(78, 115, 223, 0.2);
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        .instructions-panel p {
+            margin: 4px 0;
+            font-size: 11px;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .instructions-panel i {
+            color: #2a5298;
+            font-size: 12px;
+        }
+        
+        /* Color adjustment for all elements */
         * {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
     </style>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <div class="no-print print-controls">
-        <button class="print-btn" onclick="window.print()">🖨️ Print ID Card</button>
-        <button class="print-btn secondary" onclick="window.close()">✖️ Close</button>
+        <button class="print-btn" onclick="window.print()">
+            <i class="fas fa-print"></i> Print ID Card
+        </button>
+        <button class="print-btn secondary" onclick="window.close()">
+            <i class="fas fa-times"></i> Close
+        </button>
     </div>
 
     <div class="card-container">
         <!-- FRONT OF CARD -->
         <div class="id-card front">
-            <div class="card-strip"></div>
+            <div class="card-strip">
+                <i class="fas fa-id-card strip-icon"></i>
+            </div>
             
             <div class="card-body">
                 <!-- Left Column - Photo -->
@@ -473,29 +649,42 @@
                             </div>
                         {% endif %}
                     </div>
-                    <div class="id-badge">{{ student.student_id }}</div>
+                    <div class="id-badge">
+                        <i class="fas fa-id-badge"></i> {{ student.student_id }}
+                    </div>
                 </div>
                 
                 <!-- Right Column - Details -->
                 <div class="right-column">
                     <div class="student-name">{{ student.get_full_name|truncatechars:18 }}</div>
-                    <div class="student-program">{{ student.get_program_type_display }} • Level {{ student.level }}</div>
+                    <div class="student-program">
+                        <i class="fas fa-graduation-cap"></i>
+                        {{ student.get_program_type_display }} <i class="fas fa-chevron-right" style="font-size: 6px;"></i> Level {{ student.level }}
+                    </div>
                     
                     <div class="details-grid">
                         <div class="detail-item">
-                            <div class="detail-label">DOB</div>
+                            <div class="detail-label">
+                                <i class="fas fa-birthday-cake"></i> DOB
+                            </div>
                             <div class="detail-value">{{ student.date_of_birth|date:"d/m/y"|default:"--/--/--" }}</div>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-label">Blood</div>
+                            <div class="detail-label">
+                                <i class="fas fa-tint"></i> Blood
+                            </div>
                             <div class="detail-value">{{ id_card.blood_group|default:"--" }}</div>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-label">Admission</div>
+                            <div class="detail-label">
+                                <i class="fas fa-calendar-plus"></i> Admission
+                            </div>
                             <div class="detail-value">{{ student.year_of_admission|default:"--" }}</div>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-label">Valid</div>
+                            <div class="detail-label">
+                                <i class="fas fa-calendar-check"></i> Valid
+                            </div>
                             <div class="detail-value">{{ id_card.valid_until|date:"m/y"|default:"12/25" }}</div>
                         </div>
                     </div>
@@ -503,8 +692,8 @@
                     <!-- QR Code - Bottom Right -->
                     {% if id_card.qr_code %}
                     <div class="qr-container">
-                        <img src="{{ id_card.qr_code.url }}" alt="QR">
-                        <span class="qr-label">VERIFY</span>
+                        <img src="{{ id_card.qr_code.url }}" alt="QR Code">
+                        <span class="qr-label"><i class="fas fa-qrcode"></i> VERIFY</span>
                     </div>
                     {% endif %}
                     
@@ -514,7 +703,7 @@
                         {% if id_card.student_signature %}
                             <img src="{{ id_card.student_signature.url }}" alt="Student Signature" class="signature-image">
                         {% else %}
-                            <div class="signature-text">Student Signature</div>
+                            <div class="signature-text"><i class="fas fa-pen"></i> Student Signature</div>
                         {% endif %}
                     </div>
                 </div>
@@ -523,61 +712,76 @@
 
         <!-- BACK OF CARD -->
         <div class="id-card back">
-            <div class="card-strip"></div>
+            <div class="card-strip">
+                <i class="fas fa-shield-alt strip-icon"></i>
+            </div>
             
             <div class="back-content">
                 <div class="back-header">
-                    <span class="back-title">EMERGENCY CONTACT</span>
-                    <span class="back-subtitle">Card #{{ id_card.card_number|default:student.student_id|slice:":8" }}</span>
+                    <span class="back-title">
+                        <i class="fas fa-phone-alt"></i> EMERGENCY CONTACT
+                    </span>
+                    <span class="back-subtitle">
+                        <i class="fas fa-hashtag"></i> {{ id_card.card_number|default:student.student_id|slice:":8" }}
+                    </span>
                 </div>
                 
                 <!-- Emergency Contact -->
                 <div class="emergency-section">
                     <div class="emergency-row">
-                        <span class="emergency-label">Name</span>
+                        <span class="emergency-label">
+                            <i class="fas fa-user"></i> Name
+                        </span>
                         <span class="emergency-value">{{ id_card.emergency_contact_name|default:"Not specified"|truncatechars:20 }}</span>
                     </div>
                     <div class="emergency-row">
-                        <span class="emergency-label">Relationship</span>
+                        <span class="emergency-label">
+                            <i class="fas fa-heart"></i> Relationship
+                        </span>
                         <span class="emergency-value">{{ id_card.emergency_relationship|default:"—" }}</span>
                     </div>
                     <div class="emergency-row">
-                        <span class="emergency-label">Phone</span>
+                        <span class="emergency-label">
+                            <i class="fas fa-phone"></i> Phone
+                        </span>
                         <span class="emergency-value">{{ id_card.emergency_phone|default:"—" }}</span>
                     </div>
                 </div>
                 
                 <!-- Medical Information -->
-                <div class="back-header" style="margin-bottom: 4px;">
-                    <span class="back-title">MEDICAL INFO</span>
+                <div class="back-header" style="margin-bottom: 5px;">
+                    <span class="back-title">
+                        <i class="fas fa-notes-medical"></i> MEDICAL INFORMATION
+                    </span>
                 </div>
                 
                 <div class="medical-section">
                     <div class="medical-tag">
-                        <strong>ALLERGIES</strong>
-                        {{ id_card.allergies|default:"None"|truncatechars:15 }}
+                        <strong><i class="fas fa-allergies"></i> ALLERGIES</strong>
+                        {{ id_card.allergies|default:"None recorded"|truncatechars:15 }}
                     </div>
                     <div class="medical-tag">
-                        <strong>CONDITIONS</strong>
-                        {{ id_card.medical_conditions|default:"None"|truncatechars:15 }}
+                        <strong><i class="fas fa-heartbeat"></i> CONDITIONS</strong>
+                        {{ id_card.medical_conditions|default:"None recorded"|truncatechars:15 }}
                     </div>
                 </div>
                 
                 <!-- Footer -->
                 <div class="card-footer">
-                    <span>Issued: {{ id_card.issued_at|date:"d M Y"|default:"01 Jan 2024" }}</span>
-                    <span>Valid Until: {{ id_card.valid_until|date:"d M Y"|default:"31 Dec 2025" }}</span>
+                    <span><i class="fas fa-calendar-alt"></i> Issued: {{ id_card.issued_at|date:"d M Y"|default:"01 Jan 2024" }}</span>
+                    <span><i class="fas fa-hourglass-end"></i> Expires: {{ id_card.valid_until|date:"d M Y"|default:"31 Dec 2025" }}</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Instructions for printing -->
-    <div class="no-print" style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
-        <p>📄 <strong>Printing Instructions:</strong></p>
-        <p>• In the print dialog, set <strong>Scale: 100%</strong> or <strong>Actual Size</strong></p>
-        <p>• Enable <strong>Background Graphics</strong> to preserve colors</p>
-        <p>• No margins or headers/footers recommended</p>
+    <!-- Instructions for printing - Glass Style -->
+    <div class="no-print instructions-panel">
+        <p><i class="fas fa-print"></i> <strong>Printing Instructions:</strong></p>
+        <p><i class="fas fa-expand-alt"></i> Set <strong>Scale: 100%</strong> or <strong>Actual Size</strong> in print dialog</p>
+        <p><i class="fas fa-palette"></i> Enable <strong>Background Graphics</strong> to preserve colors</p>
+        <p><i class="fas fa-margins"></i> Use <strong>no margins</strong> or minimal margins for best fit</p>
+        <p><i class="fas fa-file-pdf"></i> For best results, use "Save as PDF" then print</p>
     </div>
 </body>
 </html>

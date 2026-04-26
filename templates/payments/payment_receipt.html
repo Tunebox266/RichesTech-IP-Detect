@@ -1,241 +1,970 @@
 <!-- templates/payments/payment_receipt.html -->
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Payment Receipt - MELTSA-TaTU{% endblock %}
 
-{% block content %}
-<div class="container">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-receipt me-2"></i>Payment Receipt
-        </h1>
-        <div>
-            <button class="btn btn-primary btn-sm" onclick="window.print()">
-                <i class="fas fa-print me-1"></i>Print Receipt
-            </button>
-            <a href="{% url 'payments:payment_history' %}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Back to History
-            </a>
-        </div>
-    </div>
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Payment Receipt */
+    .glass-receipt-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.05), rgba(28, 200, 138, 0.03));
+        padding: 2rem 0;
+        min-height: calc(100vh - 200px);
+    }
+    
+    .glass-receipt-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        border-radius: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .glass-receipt-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .glass-receipt-header {
+        background: linear-gradient(135deg, #1e3c72, #2a5298, #4e73df);
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .glass-receipt-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+        animation: headerShimmer 20s infinite linear;
+    }
+    
+    @keyframes headerShimmer {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .glass-university-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .glass-receipt-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        margin-bottom: 0.25rem;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .glass-receipt-subtitle {
+        font-size: 0.8rem;
+        opacity: 0.9;
+        letter-spacing: 1px;
+    }
+    
+    .glass-receipt-body {
+        padding: 2rem;
+    }
+    
+    .glass-info-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .glass-section-title {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 700;
+        color: #4e73df;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-section-title::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, rgba(78, 115, 223, 0.3), transparent);
+    }
+    
+    .glass-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 20px;
+        padding: 1rem;
+    }
+    
+    .glass-info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .glass-info-label {
+        font-size: 0.8rem;
+        color: var(--bs-gray-500);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-info-value {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: var(--bs-body-color);
+    }
+    
+    .glass-payment-table {
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    
+    .glass-payment-table table {
+        margin-bottom: 0;
+    }
+    
+    .glass-payment-table th {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.1), rgba(28, 200, 138, 0.05));
+        border: none;
+        padding: 1rem;
+        font-weight: 700;
+        font-size: 0.8rem;
+    }
+    
+    .glass-payment-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        vertical-align: middle;
+    }
+    
+    .glass-amount-large {
+        font-size: 2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #4e73df, #1cc88a);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-badge-success {
+        background: linear-gradient(135deg, rgba(28, 200, 138, 0.2), rgba(28, 200, 138, 0.1));
+        border: 1px solid rgba(28, 200, 138, 0.5);
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #1cc88a;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-signature-area {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 2px dashed rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-signature-box {
+        text-align: center;
+    }
+    
+    .glass-signature-line {
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+    
+    .glass-signature-label {
+        font-size: 0.7rem;
+        color: var(--bs-gray-500);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .glass-footer-note {
+        background: linear-gradient(135deg, rgba(54, 185, 204, 0.1), rgba(78, 115, 223, 0.05));
+        border-radius: 16px;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        text-align: center;
+        border-left: 3px solid #4e73df;
+    }
+    
+    .glass-action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .glass-btn-print {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-btn-print:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-btn-download {
+        background: linear-gradient(135deg, #1cc88a, #13855c);
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-btn-download:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(28, 200, 138, 0.3);
+    }
+    
+    .glass-btn-email {
+        background: linear-gradient(135deg, #36b9cc, #258391);
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-btn-email:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(54, 185, 204, 0.3);
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Loading Spinner for PDF Generation */
+    .pdf-loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .pdf-loading-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .pdf-loading-content {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border-radius: 30px;
+        padding: 2rem 3rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .pdf-loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(78, 115, 223, 0.2);
+        border-top-color: #4e73df;
+        border-right-color: #1cc88a;
+        border-bottom-color: #f6c23e;
+        border-left-color: #e74a3b;
+        border-radius: 50%;
+        animation: pdfSpin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        margin: 0 auto 1rem;
+    }
+    
+    @keyframes pdfSpin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .pdf-loading-text {
+        color: white;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .pdf-loading-progress {
+        width: 200px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+    
+    .pdf-loading-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #4e73df, #1cc88a);
+        width: 0%;
+        transition: width 0.3s ease;
+        border-radius: 2px;
+    }
+    
+    @media print {
+        .glass-receipt-container {
+            background: white;
+            padding: 0;
+        }
+        .glass-receipt-card {
+            box-shadow: none;
+            border: 1px solid #ddd;
+        }
+        .glass-action-buttons,
+        .btn,
+        .no-print {
+            display: none !important;
+        }
+        .glass-receipt-header {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .glass-info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .glass-signature-area {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .glass-action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .glass-btn-print,
+        .glass-btn-download,
+        .glass-btn-email {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .glass-receipt-body {
+            padding: 1.5rem;
+        }
+        
+        .glass-amount-large {
+            font-size: 1.5rem;
+        }
+    }
+    
+    /* Animation for receipt card */
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .glass-receipt-card {
+        animation: slideUp 0.6s ease-out;
+    }
+    
+    /* Hover effect for info items */
+    .glass-info-item {
+        transition: all 0.3s ease;
+    }
+    
+    .glass-info-item:hover {
+        background: rgba(78, 115, 223, 0.05);
+        padding-left: 1rem;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
 
-    <!-- Receipt Card -->
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow mb-4" id="receiptCard">
-                <!-- Receipt Header -->
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <h4 class="mb-0">
-                        <i class="fas fa-university me-2"></i>MELTSA-TaTU
-                    </h4>
-                    <small>Payment Receipt</small>
+{% block content %}
+<div class="glass-receipt-container">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4 no-print">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-receipt me-2"></i>Payment Receipt
+                </h1>
+                <p class="glass-text-muted">Official payment confirmation and proof of transaction</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <button class="btn glass-btn-print btn-sm" onclick="window.print()">
+                    <i class="fas fa-print me-1"></i>Print Receipt
+                </button>
+                <a href="{% url 'payments:payment_history' %}" class="btn glass-btn-print btn-sm" style="background: linear-gradient(135deg, #6c757d, #495057);">
+                    <i class="fas fa-arrow-left me-1"></i>Back to History
+                </a>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Receipt Card - Glass Design -->
+                <div class="glass-receipt-card" id="receiptCard">
+                    <!-- Receipt Header -->
+                    <div class="glass-receipt-header text-white">
+                        <div class="glass-university-icon">
+                            <img src="{% static 'img/logo.png' %}" alt="MELTSA Logo" width="80" background="#ffff" height="80" class="me-2">
+                        </div>
+                        <h3 class="glass-receipt-title mb-1">MELTSA-TaTU</h3>
+                        <p class="glass-receipt-subtitle mb-0">Medical Laboratory Students' Association</p>
+                        <p class="glass-receipt-subtitle">Tamale Technical University</p>
+                        <div class="mt-3">
+                            <span class="glass-badge-success">
+                                <i class="fas fa-check-circle"></i> OFFICIAL RECEIPT
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-receipt-body" id="receiptContent">
+                        <!-- Receipt Number and Date -->
+                        <div class="glass-info-section">
+                            <div class="glass-info-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 0;">
+                                <div class="glass-info-item">
+                                    <span class="glass-info-label">
+                                        <i class="fas fa-hashtag text-primary"></i> Receipt No:
+                                    </span>
+                                    <span class="glass-info-value">
+                                        <code style="background: rgba(0,0,0,0.05); padding: 0.25rem 0.5rem; border-radius: 6px;">{{ payment.reference }}</code>
+                                    </span>
+                                </div>
+                                <div class="glass-info-item">
+                                    <span class="glass-info-label">
+                                        <i class="fas fa-calendar-alt text-primary"></i> Date:
+                                    </span>
+                                    <span class="glass-info-value">{{ payment.created_at|date:"F d, Y H:i" }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Student Information -->
+                        <div class="glass-info-section">
+                            <div class="glass-section-title">
+                                <i class="fas fa-user-graduate"></i> Student Information
+                            </div>
+                            <div class="glass-info-grid">
+                                <div class="glass-info-item">
+                                    <span class="glass-info-label">
+                                        <i class="fas fa-user"></i> Full Name:
+                                    </span>
+                                    <span class="glass-info-value">{{ payment.student.get_full_name }}</span>
+                                </div>
+                                <div class="glass-info-item">
+                                    <span class="glass-info-label">
+                                        <i class="fas fa-id-card"></i> Student ID:
+                                    </span>
+                                    <span class="glass-info-value">{{ payment.student.student_id }}</span>
+                                </div>
+                                <div class="glass-info-item">
+                                    <span class="glass-info-label">
+                                        <i class="fas fa-layer-group"></i> Level:
+                                    </span>
+                                    <span class="glass-info-value">Level {{ payment.student.level }}</span>
+                                </div>
+                                <div class="glass-info-item">
+                                    <span class="glass-info-label">
+                                        <i class="fas fa-graduation-cap"></i> Program:
+                                    </span>
+                                    <span class="glass-info-value">{{ payment.student.get_program_type_display }}</span>
+                                </div>
+                                <div class="glass-info-item">
+                                    <span class="glass-info-label">
+                                        <i class="fas fa-envelope"></i> Email:
+                                    </span>
+                                    <span class="glass-info-value">{{ payment.student.email }}</span>
+                                </div>
+                                <div class="glass-info-item">
+                                    <span class="glass-info-label">
+                                        <i class="fas fa-phone"></i> Phone:
+                                    </span>
+                                    <span class="glass-info-value">{{ payment.student.phone_number|default:"-" }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Details -->
+                        <div class="glass-info-section">
+                            <div class="glass-section-title">
+                                <i class="fas fa-credit-card"></i> Payment Details
+                            </div>
+                            <div class="glass-payment-table">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Description</th>
+                                            <th class="text-end">Amount</th>
+                                            <th class="text-center">Status</th>
+                                        </th>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <strong>{{ payment.due.title }}</strong><br>
+                                                <small class="glass-text-muted">{{ payment.due.description|truncatechars:100 }}</small>
+                                             </div>
+                                            <td class="text-end">
+                                                <strong class="glass-amount-large">GHS {{ payment.amount|floatformat:2 }}</strong>
+                                             </div>
+                                            <td class="text-center">
+                                                <span class="glass-badge-success">
+                                                    <i class="fas fa-check-circle"></i> {{ payment.get_status_display }}
+                                                </span>
+                                             </div>
+                                         </tr>
+                                    </tbody>
+                                    <tfoot style="background: linear-gradient(135deg, rgba(78, 115, 223, 0.05), rgba(28, 200, 138, 0.02));">
+                                         <tr>
+                                            <th class="text-end" colspan="2">Total Amount:</th>
+                                            <th class="text-center text-primary">GHS {{ payment.amount|floatformat:2 }}</th>
+                                         </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Transaction Details -->
+                        <div class="glass-info-section">
+                            <div class="glass-section-title">
+                                <i class="fas fa-exchange-alt"></i> Transaction Details
+                            </div>
+                            <div class="glass-info-grid">
+                                <div class="glass-info-item">
+                                    <span class="glass-info-label">
+                                        <i class="fas fa-hashtag"></i> Transaction Ref:
+                                    </span>
+                                    <span class="glass-info-value">
+                                        <code style="background: rgba(0,0,0,0.05); padding: 0.25rem 0.5rem; border-radius: 6px;">
+                                            {{ payment.paystack_reference|default:payment.reference }}
+                                        </code>
+                                    </span>
+                                </div>
+                                <div class="glass-info-item">
+                                    <span class="glass-info-label">
+                                        <i class="fas fa-credit-card"></i> Payment Method:
+                                    </span>
+                                    <span class="glass-info-value">Paystack (Card/Mobile Money)</span>
+                                </div>
+                                <div class="glass-info-item">
+                                    <span class="glass-info-label">
+                                        <i class="fas fa-clock"></i> Payment Date:
+                                    </span>
+                                    <span class="glass-info-value">{{ payment.paid_at|default:payment.created_at|date:"F d, Y H:i:s" }}</span>
+                                </div>
+                                <div class="glass-info-item">
+                                    <span class="glass-info-label">
+                                        <i class="fas fa-calendar-alt"></i> Academic Year:
+                                    </span>
+                                    <span class="glass-info-value">{{ payment.due.academic_setting.academic_year }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Official Signatures -->
+                        <div class="glass-signature-area">
+                            <div class="glass-signature-box">
+                                <div class="glass-signature-line"></div>
+                                <p class="glass-signature-label mt-2">Student Signature</p>
+                            </div>
+                            <div class="glass-signature-box">
+                                <div class="glass-signature-line"></div>
+                                <p class="glass-signature-label mt-2">Authorized Signature</p>
+                            </div>
+                        </div>
+
+                        <!-- Footer Note -->
+                        <div class="glass-footer-note">
+                            <i class="fas fa-info-circle me-2"></i>
+                            This is a computer-generated receipt. No signature is required for validation.
+                            <br>
+                            <small class="glass-text-muted">For inquiries, please contact the finance office.</small>
+                        </div>
+                        
+                        <!-- QR Code / Barcode Area -->
+                        <div class="text-center mt-3">
+                            <div style="display: inline-block; padding: 0.5rem 1rem; background: rgba(0,0,0,0.03); border-radius: 8px;">
+                                <i class="fas fa-qrcode fa-2x" style="color: #4e73df;"></i>
+                                <span class="ms-2 small glass-text-muted">{{ payment.reference|slice:":12" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="glass-action-buttons no-print">
+                    <button class="btn glass-btn-print" onclick="window.print()">
+                        <i class="fas fa-print"></i> Print Receipt
+                    </button>
+                    <button class="btn glass-btn-download" onclick="downloadReceipt()">
+                        <i class="fas fa-download"></i> Download PDF
+                    </button>
+                    <a href="mailto:?subject=Payment Receipt - {{ payment.reference }}&body=Dear Student,%0D%0A%0D%0APlease find attached your payment receipt for {{ payment.due.title }}.%0D%0A%0D%0AThank you,%0D%0AMELTSA-TaTU Finance Office" class="btn glass-btn-email">
+                        <i class="fas fa-envelope"></i> Email Receipt
+                    </a>
                 </div>
                 
-                <div class="card-body p-4">
-                    <!-- Receipt Number and Date -->
-                    <div class="row mb-4">
-                        <div class="col-6">
-                            <h6 class="text-muted mb-1">Receipt No:</h6>
-                            <p class="fw-bold">{{ payment.reference }}</p>
-                        </div>
-                        <div class="col-6 text-end">
-                            <h6 class="text-muted mb-1">Date:</h6>
-                            <p class="fw-bold">{{ payment.created_at|date:"F d, Y H:i" }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Student Information -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <h6 class="text-muted mb-3">Student Information</h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <table class="table table-sm table-borderless">
-                                        <tr>
-                                            <td width="40%">Name:</td>
-                                            <td class="fw-bold">{{ payment.student.get_full_name }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Student ID:</td>
-                                            <td class="fw-bold">{{ payment.student.student_id }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Level:</td>
-                                            <td>Level {{ payment.student.level }}</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <div class="col-md-6">
-                                    <table class="table table-sm table-borderless">
-                                        <tr>
-                                            <td width="40%">Program:</td>
-                                            <td>{{ payment.student.get_program_type_display }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Email:</td>
-                                            <td>{{ payment.student.email }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Phone:</td>
-                                            <td>{{ payment.student.phone_number|default:"-" }}</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Payment Details -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <h6 class="text-muted mb-3">Payment Details</h6>
-                            <table class="table table-bordered">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th>Description</th>
-                                        <th>Amount</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <strong>{{ payment.due.title }}</strong><br>
-                                            <small class="text-muted">{{ payment.due.description|truncatechars:100 }}</small>
-                                        </td>
-                                        <td class="fw-bold text-primary">GHS {{ payment.amount|floatformat:2 }}</td>
-                                        <td>
-                                            <span class="badge bg-{% if payment.status == 'success' %}success{% elif payment.status == 'pending' %}warning{% else %}danger{% endif %} p-2">
-                                                {{ payment.get_status_display }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                                <tfoot class="bg-light">
-                                    <tr>
-                                        <th colspan="2" class="text-end">Total Amount:</th>
-                                        <th class="text-primary">GHS {{ payment.amount|floatformat:2 }}</th>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Payment Transaction Details -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <h6 class="text-muted mb-3">Transaction Details</h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <table class="table table-sm table-borderless">
-                                        <tr>
-                                            <td>Transaction Reference:</td>
-                                            <td class="fw-bold">{{ payment.paystack_reference|default:payment.reference }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Payment Method:</td>
-                                            <td>Paystack (Card/Mobile Money)</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <div class="col-md-6">
-                                    <table class="table table-sm table-borderless">
-                                        <tr>
-                                            <td>Payment Date:</td>
-                                            <td>{{ payment.paid_at|default:payment.created_at|date:"F d, Y H:i:s" }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Academic Year:</td>
-                                            <td>{{ payment.due.academic_setting.academic_year }}</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Official Stamp -->
-                    <div class="row mt-5">
-                        <div class="col-6">
-                            <div class="text-center border-top pt-2">
-                                <small class="text-muted">Student Signature</small>
-                                <p class="mt-2">_________________________</p>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="text-center border-top pt-2">
-                                <small class="text-muted">Authorized Signature</small>
-                                <p class="mt-2">_________________________</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Footer Note -->
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <div class="alert alert-light text-center small mb-0">
-                                <i class="fas fa-info-circle me-1"></i>
-                                This is a computer-generated receipt. No signature is required for validation.
-                            </div>
-                        </div>
-                    </div>
+                <!-- Help Text -->
+                <div class="text-center mt-4 no-print">
+                    <small class="glass-text-muted">
+                        <i class="fas fa-question-circle me-1"></i>
+                        Need help? <a href="{% url 'core:contact' %}" class="glass-link">Contact Support</a>
+                    </small>
                 </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="text-center mt-4">
-                <button class="btn btn-success" onclick="downloadReceipt()">
-                    <i class="fas fa-download me-1"></i>Download PDF
-                </button>
-                <a href="mailto:?subject=Payment Receipt&body=Please find attached payment receipt." class="btn btn-info">
-                    <i class="fas fa-envelope me-1"></i>Email Receipt
-                </a>
             </div>
         </div>
     </div>
 </div>
 
-<style media="print">
-    @page {
-        size: A4;
-        margin: 1cm;
+<!-- PDF Loading Overlay -->
+<div id="pdfLoadingOverlay" class="pdf-loading-overlay">
+    <div class="pdf-loading-content">
+        <div class="pdf-loading-spinner"></div>
+        <p class="pdf-loading-text" id="pdfLoadingText">Generating PDF...</p>
+        <p class="small text-white-50" id="pdfLoadingSubtext">Please wait while we prepare your receipt</p>
+        <div class="pdf-loading-progress">
+            <div class="pdf-loading-progress-bar" id="pdfProgressBar"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Required Libraries for PDF Generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+/* Additional Styles */
+.glass-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glass-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #4e73df, #224abe);
+    border-radius: 3px;
+}
+
+.glass-link {
+    color: #4e73df;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.glass-link:hover {
+    color: #224abe;
+    text-decoration: underline;
+}
+
+/* Dark Theme Adjustments */
+[data-bs-theme="dark"] .glass-info-grid {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .glass-info-item {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .glass-payment-table {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .glass-payment-table td {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .glass-footer-note {
+    background: linear-gradient(135deg, rgba(54, 185, 204, 0.1), rgba(78, 115, 223, 0.05));
+}
+
+@media print {
+    .glass-receipt-container {
+        background: white;
+        min-height: auto;
     }
-    body * {
-        visibility: hidden;
-    }
-    #receiptCard, #receiptCard * {
-        visibility: visible;
-    }
-    #receiptCard {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        box-shadow: none !important;
-    }
-    .btn, .no-print {
-        display: none !important;
-    }
-    .card {
-        border: 1px solid #ddd !important;
-    }
+}
 </style>
 
 <script>
-function downloadReceipt() {
-    // You can implement PDF download here using jsPDF or similar library
-    alert('PDF download feature coming soon!');
+// PDF Generation Function
+async function downloadReceipt() {
+    const overlay = document.getElementById('pdfLoadingOverlay');
+    const progressBar = document.getElementById('pdfProgressBar');
+    const loadingText = document.getElementById('pdfLoadingText');
+    const loadingSubtext = document.getElementById('pdfLoadingSubtext');
+    
+    // Show loading overlay
+    overlay.classList.add('active');
+    progressBar.style.width = '0%';
+    loadingText.textContent = 'Preparing receipt...';
+    loadingSubtext.textContent = 'Capturing receipt content';
+    
+    // Small delay to ensure UI updates
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Update progress
+    progressBar.style.width = '20%';
+    loadingSubtext.textContent = 'Processing receipt layout';
+    
+    try {
+        // Get the receipt element
+        const receiptElement = document.getElementById('receiptCard');
+        
+        if (!receiptElement) {
+            throw new Error('Receipt element not found');
+        }
+        
+        progressBar.style.width = '40%';
+        loadingText.textContent = 'Rendering receipt...';
+        loadingSubtext.textContent = 'Converting to high-quality image';
+        
+        // Use html2canvas to capture the receipt element
+        const canvas = await html2canvas(receiptElement, {
+            scale: 3, // Higher scale for better quality
+            backgroundColor: '#ffffff',
+            logging: false,
+            useCORS: true,
+            allowTaint: false
+        });
+        
+        progressBar.style.width = '70%';
+        loadingText.textContent = 'Creating PDF...';
+        loadingSubtext.textContent = 'Generating downloadable file';
+        
+        // Get the canvas image data
+        const imgData = canvas.toDataURL('image/png');
+        
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        // Calculate dimensions to fit the PDF
+        const imgWidth = 210; // A4 width in mm
+        const pageHeight = 297; // A4 height in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        // Create PDF
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        
+        // Add image to PDF
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+        
+        // If content exceeds one page, add more pages
+        let heightLeft = imgHeight;
+        let position = 0;
+        
+        if (heightLeft > pageHeight) {
+            heightLeft -= pageHeight;
+            while (heightLeft > 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+        }
+        
+        progressBar.style.width = '90%';
+        loadingText.textContent = 'Finalizing...';
+        loadingSubtext.textContent = 'Preparing download';
+        
+        // Generate filename with timestamp
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+        const filename = `MELTSA_Receipt_{{ payment.reference }}_${timestamp}.pdf`;
+        
+        // Save the PDF
+        pdf.save(filename);
+        
+        progressBar.style.width = '100%;
+        loadingText.textContent = 'Complete!';
+        loadingSubtext.textContent = 'PDF generated successfully';
+        
+        // Show success toast/message
+        showToast('Receipt downloaded successfully!', 'success');
+        
+        // Hide overlay after a short delay
+        setTimeout(() => {
+            overlay.classList.remove('active');
+            progressBar.style.width = '0%';
+        }, 1500);
+        
+    } catch (error) {
+        console.error('PDF Generation Error:', error);
+        
+        // Show error message
+        loadingText.textContent = 'Error Generating PDF';
+        loadingSubtext.textContent = 'Please try again or use Print option';
+        progressBar.style.background = '#dc3545';
+        
+        // Show error toast
+        showToast('Failed to generate PDF. Please try again.', 'error');
+        
+        // Hide overlay after delay
+        setTimeout(() => {
+            overlay.classList.remove('active');
+            progressBar.style.background = 'linear-gradient(90deg, #4e73df, #1cc88a)';
+        }, 2000);
+    }
 }
 
+// Toast notification function
+function showToast(message, type = 'success') {
+    // Check if toast container exists, if not create it
+    let toastContainer = document.getElementById('pdf-toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'pdf-toast-container';
+        toastContainer.style.position = 'fixed';
+        toastContainer.style.bottom = '20px';
+        toastContainer.style.right = '20px';
+        toastContainer.style.zIndex = '10000';
+        document.body.appendChild(toastContainer);
+    }
+    
+    const toastId = 'toast-' + Date.now();
+    const bgColor = type === 'success' ? '#1cc88a' : '#e74a3b';
+    
+    const toast = document.createElement('div');
+    toast.id = toastId;
+    toast.style.cssText = `
+        background: ${bgColor};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: slideInRight 0.3s ease;
+        font-size: 14px;
+        min-width: 200px;
+    `;
+    
+    const icon = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle';
+    toast.innerHTML = `<i class="${icon}"></i> ${message}`;
+    
+    toastContainer.appendChild(toast);
+    
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Add animation styles
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    @keyframes slideOutRight {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+    }
+`;
+document.head.appendChild(style);
+
 // Auto-print dialog when page loads (optional)
-// window.onload = function() {
-//     if (window.location.search.includes('print=true')) {
-//         window.print();
-//     }
-// };
+// Uncomment if you want automatic print dialog
+/*
+window.onload = function() {
+    if (window.location.search.includes('print=true')) {
+        setTimeout(function() {
+            window.print();
+        }, 500);
+    }
+};
+*/
 </script>
 {% endblock %}

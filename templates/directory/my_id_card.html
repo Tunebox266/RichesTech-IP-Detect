@@ -4,154 +4,586 @@
 
 {% block title %}My ID Card - MELTSA-TaTU{% endblock %}
 
-{% block content %}
-<div class="container">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-id-card me-2"></i>My Student ID Card
-        </h1>
-        <div>
-            <button class="btn btn-primary btn-sm" onclick="window.print()">
-                <i class="fas fa-print me-1"></i>Print Card
-            </button>
-            <a href="{% url 'directory:download_id_card_pdf' %}" class="btn btn-success btn-sm">
-                <i class="fas fa-download me-1"></i>Download PDF
-            </a>
-            <a href="{% url 'directory:printable_id_card' %}" class="btn btn-info btn-sm" target="_blank">
-                <i class="fas fa-print me-1"></i>Printable Version
-            </a>
-        </div>
-    </div>
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for ID Card */
+    .glass-id-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.05), rgba(28, 200, 138, 0.03));
+        padding: 2rem 0;
+        min-height: calc(100vh - 200px);
+    }
+    
+    .glass-id-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        border-radius: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        position: relative;
+    }
+    
+    .glass-id-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+        pointer-events: none;
+    }
+    
+    .glass-id-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .glass-id-header {
+        background: linear-gradient(135deg, #1e3c72, #2a5298, #4e73df);
+        padding: 1.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .glass-id-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+        animation: headerShimmer 20s infinite linear;
+    }
+    
+    @keyframes headerShimmer {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .glass-id-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        margin-bottom: 0.25rem;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .glass-id-subtitle {
+        font-size: 0.7rem;
+        opacity: 0.9;
+        letter-spacing: 1px;
+    }
+    
+    .glass-id-body {
+        padding: 2rem;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    }
+    
+    .glass-photo-frame {
+        position: relative;
+        display: inline-block;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-photo-frame:hover {
+        transform: scale(1.02);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+    
+    .glass-photo-frame img {
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-qr-code {
+        background: white;
+        border-radius: 16px;
+        padding: 0.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-qr-code:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .glass-info-table {
+        margin-bottom: 0;
+    }
+    
+    .glass-info-table tr {
+        transition: all 0.3s ease;
+    }
+    
+    .glass-info-table tr:hover {
+        background: rgba(78, 115, 223, 0.05);
+        transform: translateX(5px);
+    }
+    
+    .glass-info-table th {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #4e73df;
+        font-weight: 700;
+        padding: 0.75rem 0.5rem 0.75rem 0;
+        width: 35%;
+    }
+    
+    .glass-info-table td {
+        padding: 0.75rem 0;
+        font-weight: 600;
+        color: var(--bs-body-color);
+    }
+    
+    .glass-student-id-badge {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 0.5rem 1rem;
+        border-radius: 15px;
+        display: inline-block;
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+    
+    .glass-signature-area {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 2px dashed rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-signature-box {
+        text-align: center;
+    }
+    
+    .glass-signature-line {
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+    
+    .glass-signature-label {
+        font-size: 0.65rem;
+        color: var(--bs-gray-500);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .glass-card-footer {
+        background: rgba(0, 0, 0, 0.05);
+        padding: 1rem;
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 0.7rem;
+    }
+    
+    .glass-action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-btn-success {
+        background: linear-gradient(135deg, #1cc88a, #13855c);
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(28, 200, 138, 0.3);
+    }
+    
+    .glass-btn-info {
+        background: linear-gradient(135deg, #36b9cc, #258391);
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-btn-info:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(54, 185, 204, 0.3);
+    }
+    
+    .glass-badge-danger {
+        background: linear-gradient(135deg, rgba(231, 74, 59, 0.2), rgba(231, 74, 59, 0.1));
+        border: 1px solid rgba(231, 74, 59, 0.5);
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #e74a3b;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Animation for ID card */
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .glass-id-card {
+        animation: slideUp 0.6s ease-out;
+    }
+    
+    /* Watermark effect */
+    .glass-watermark {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        opacity: 0.05;
+        pointer-events: none;
+        font-size: 6rem;
+        font-weight: 800;
+        transform: rotate(-15deg);
+        white-space: nowrap;
+    }
+    
+    @media (max-width: 768px) {
+        .glass-id-body {
+            padding: 1rem;
+        }
+        
+        .glass-signature-area {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+        
+        .glass-action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .glass-btn-primary,
+        .glass-btn-success,
+        .glass-btn-info {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .glass-info-table th,
+        .glass-info-table td {
+            font-size: 0.75rem;
+        }
+    }
+    
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .glass-id-card, .glass-id-card * {
+            visibility: visible;
+        }
+        .glass-id-card {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            box-shadow: none !important;
+            border: 1px solid #ddd;
+        }
+        .glass-action-buttons,
+        .btn,
+        .no-print,
+        .card-footer a {
+            display: none !important;
+        }
+        .glass-id-header {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+{% endblock %}
 
-    <!-- ID Card Display -->
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <!-- Front of Card -->
-            <div class="card shadow mb-4" id="idCardFront">
-                <div class="card-header bg-primary text-white text-center py-3">
-                    <h4 class="mb-0">
-                        <i class="fas fa-university me-2"></i>MELTSA-TaTU
-                    </h4>
-                    <small>Medical Laboratory Science Students Association</small>
-                </div>
-                
-                <div class="card-body">
-                    <div class="row">
-                        <!-- Photo Section -->
-                        <div class="col-md-4 text-center mb-3">
-                            {% if student.profile_image %}
-                                <img src="{{ student.profile_image.url }}" 
-                                     class="img-fluid border rounded shadow-sm" 
-                                     style="max-width: 150px; max-height: 150px; object-fit: cover;">
-                            {% else %}
-                                <div class="bg-secondary text-white rounded d-flex align-items-center justify-content-center mx-auto shadow-sm" 
-                                     style="width: 150px; height: 150px;">
-                                    <i class="fas fa-user-graduate fa-4x"></i>
+{% block content %}
+<div class="glass-id-container">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4 no-print">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-id-card me-2"></i>My Student ID Card
+                </h1>
+                <p class="glass-text-muted">Official student identification card</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <button class="btn glass-btn-primary btn-sm" onclick="window.print()">
+                    <i class="fas fa-print me-1"></i>Print Card
+                </button>
+                <a href="{% url 'directory:download_id_card_pdf' %}" class="btn glass-btn-success btn-sm">
+                    <i class="fas fa-download me-1"></i>Download PDF
+                </a>
+                <a href="{% url 'directory:printable_id_card' %}" class="btn glass-btn-info btn-sm" target="_blank">
+                    <i class="fas fa-print me-1"></i>Printable Version
+                </a>
+            </div>
+        </div>
+
+        <!-- ID Card Display -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Front of Card - Glass Design -->
+                <div class="glass-id-card" id="idCardFront">
+                    <!-- Watermark -->
+                    <div class="glass-watermark">MELTSA</div>
+                    
+                    <!-- Card Header -->
+                    <div class="glass-id-header text-white">
+                        <div class="mb-2">
+                            <img src="{% static 'img/logo.png' %}" alt="MELTSA Logo" width="80" background="#ffff" height="80" class="me-2">
+                        </div>
+                        <h3 class="glass-id-title mb-1">MELTSA-TaTU</h3>
+                        <p class="glass-id-subtitle mb-0">Medical Laboratory Science Students Association</p>
+                        <p class="glass-id-subtitle">Tamale Technical University</p>
+                    </div>
+                    
+                    <div class="glass-id-body">
+                        <div class="row">
+                            <!-- Photo Section -->
+                            <div class="col-md-4 text-center mb-4 mb-md-0">
+                                <div class="glass-photo-frame">
+                                    {% if student.profile_image %}
+                                        <img src="{{ student.profile_image.url }}" 
+                                             class="img-fluid rounded" 
+                                             style="width: 100%; max-width: 180px; height: auto; object-fit: cover; aspect-ratio: 1/1;">
+                                    {% else %}
+                                        <div class="bg-gradient-primary text-white rounded d-flex align-items-center justify-content-center mx-auto" 
+                                             style="width: 100%; max-width: 180px; height: 180px;">
+                                            <i class="fas fa-user-graduate fa-5x opacity-75"></i>
+                                        </div>
+                                    {% endif %}
                                 </div>
-                            {% endif %}
+                                
+                                {% if id_card.qr_code %}
+                                    <div class="mt-3">
+                                        <div class="glass-qr-code">
+                                            <img src="{{ id_card.qr_code.url }}" alt="QR Code" style="width: 90px; height: 90px;">
+                                        </div>
+                                        <small class="glass-text-muted mt-1 d-block">
+                                            <i class="fas fa-qrcode me-1"></i>Scan for verification
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </div>
                             
-                            {% if id_card.qr_code %}
-                                <div class="mt-3">
-                                    <img src="{{ id_card.qr_code.url }}" alt="QR Code" style="width: 80px; height: 80px;">
-                                    <small class="d-block text-muted">Scan for verification</small>
-                                </div>
-                            {% endif %}
+                            <!-- Details Section -->
+                            <div class="col-md-8">
+                                <table class="table glass-info-table">
+                                    <tr>
+                                        <th><i class="fas fa-user me-2"></i>Full Name:</th>
+                                        <td><strong class="text-primary">{{ student.get_full_name }}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <th><i class="fas fa-id-card me-2"></i>Student ID:</th>
+                                        <td>
+                                            <span class="glass-student-id-badge text-white">{{ student.student_id }}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><i class="fas fa-graduation-cap me-2"></i>Program:</th>
+                                        <td>{{ student.get_program_type_display }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th><i class="fas fa-layer-group me-2"></i>Level:</th>
+                                        <td><span class="badge bg-primary">Level {{ student.level }}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <th><i class="fas fa-calendar-alt me-2"></i>Year of Admission:</th>
+                                        <td>{{ student.year_of_admission }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th><i class="fas fa-birthday-cake me-2"></i>Date of Birth:</th>
+                                        <td>{{ student.date_of_birth|date:"M d, Y"|default:"Not specified" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th><i class="fas fa-tint me-2"></i>Blood Group:</th>
+                                        <td>
+                                            <span class="glass-badge-danger">
+                                                <i class="fas fa-heartbeat"></i> {{ id_card.blood_group|default:"Not specified" }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
                         </div>
                         
-                        <!-- Details Section -->
-                        <div class="col-md-8">
-                            <table class="table table-borderless">
-                                <tr>
-                                    <th width="35%">Full Name:</th>
-                                    <td><strong class="text-primary">{{ student.get_full_name }}</strong></td>
-                                </tr>
-                                <tr>
-                                    <th>Student ID:</th>
-                                    <td>
-                                        <span class="badge bg-primary p-2 fs-6">{{ student.student_id }}</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Program:</th>
-                                    <td>{{ student.get_program_type_display }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Level:</th>
-                                    <td>Level {{ student.level }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Year of Admission:</th>
-                                    <td>{{ student.year_of_admission }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Date of Birth:</th>
-                                    <td>{{ student.date_of_birth|date:"M d, Y"|default:"Not specified" }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Blood Group:</th>
-                                    <td>
-                                        <span class="badge bg-danger">{{ id_card.blood_group|default:"Not specified" }}</span>
-                                    </td>
-                                </tr>
-                            </table>
+                        <!-- Signature and Validity -->
+                        <div class="glass-signature-area">
+                            <div class="glass-signature-box">
+                                <div class="glass-signature-line"></div>
+                                <p class="glass-signature-label mt-2">Student Signature</p>
+                                {% if not id_card.student_signature %}
+                                    <a href="{% url 'directory:upload_signature' %}" class="btn btn-sm btn-link text-primary mt-1">
+                                        <i class="fas fa-pen me-1"></i>Add Signature
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div class="glass-signature-box">
+                                <div class="glass-signature-line"></div>
+                                <p class="glass-signature-label mt-2">Authorized Signature</p>
+                            </div>
+                            <div class="glass-signature-box">
+                                <div class="glass-signature-line"></div>
+                                <p class="glass-signature-label mt-2">Valid Until</p>
+                                <p class="fw-bold mb-0">{{ id_card.valid_until|date:"M d, Y"|default:"Dec 31, 2025" }}</p>
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Signature and Validity -->
-                    <div class="row mt-4">
-                        <div class="col-4 text-center">
-                            <div class="border-top pt-2">
-                                <small class="text-muted">Student Signature</small>
-                                <p class="mt-2 text-muted">__________________</p>
-                            </div>
-                        </div>
-                        <div class="col-4 text-center">
-                            <div class="border-top pt-2">
-                                <small class="text-muted">Authorized Signature</small>
-                                <p class="mt-2 text-muted">__________________</p>
-                            </div>
-                        </div>
-                        <div class="col-4 text-center">
-                            <div class="border-top pt-2">
-                                <small class="text-muted">Valid Until</small>
-                                <p class="mt-2 fw-bold">{{ id_card.valid_until|date:"M d, Y"|default:"Dec 31, 2025" }}</p>
-                            </div>
+                    <div class="glass-card-footer">
+                        <div class="d-flex justify-content-center gap-3 flex-wrap">
+                            <span><i class="fas fa-shield-alt text-success me-1"></i> Verified ID</span>
+                            <span><i class="fas fa-barcode me-1"></i> Card Number: {{ id_card.card_number|default:student.student_id }}</span>
+                            <span><i class="fas fa-calendar me-1"></i> Issued: {{ id_card.issued_at|date:"M d, Y"|default:"Jan 1, 2024" }}</span>
                         </div>
                     </div>
                 </div>
-                
-                <div class="card-footer text-center text-muted small">
-                  <a href="{% url 'directory:upload_signature' %}" class="btn btn-sm btn-info">
-            <i class="fas fa-pen me-1"></i>Add Signature
-        </a>
-                    <i class="fas fa-shield-alt me-1"></i>
-                    Card Number: {{ id_card.card_number|default:student.student_id }} | 
-                    Issued: {{ id_card.issued_at|date:"M d, Y"|default:"Jan 1, 2024" }}
+            </div>
+        </div>
+        
+        <!-- Additional Information -->
+        <div class="row justify-content-center mt-4 no-print">
+            <div class="col-lg-8">
+                <div class="glass-info-note">
+                    <div class="d-flex align-items-center gap-3 flex-wrap justify-content-center">
+                        <div>
+                            <i class="fas fa-info-circle text-primary me-2"></i>
+                            <span class="small glass-text-muted">This card is the property of MELTSA-TaTU</span>
+                        </div>
+                        <div>
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                            <span class="small glass-text-muted">Report lost cards immediately</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<style media="print">
-    body * {
-        visibility: hidden;
+<style>
+/* Additional Styles */
+.glass-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glass-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #4e73df, #224abe);
+    border-radius: 3px;
+}
+
+.glass-info-note {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+}
+
+/* Dark Theme Adjustments */
+[data-bs-theme="dark"] .glass-id-card {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+[data-bs-theme="dark"] .glass-info-note {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .glass-signature-line {
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+@media print {
+    .glass-id-card {
+        background: white !important;
     }
-    #idCardFront, #idCardFront * {
-        visibility: visible;
+    .glass-info-note {
+        display: none;
     }
-    #idCardFront {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        box-shadow: none !important;
+    .glass-watermark {
+        opacity: 0.02;
     }
-    .btn, .card-footer a, .no-print {
-        display: none !important;
-    }
+}
 </style>
 {% endblock %}

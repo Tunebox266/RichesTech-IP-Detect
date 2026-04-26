@@ -4,325 +4,822 @@
 
 {% block title %}{{ discussion.title }} - Discussion - MELTSA-TaTU{% endblock %}
 
-{% block content %}
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-comments me-2"></i>{{ discussion.title }}
-        </h1>
-        <div>
-            <a href="{% url 'accounts:executive_discussion_list' %}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Back to Discussions
-            </a>
-            {% if can_edit %}
-                <a href="{% url 'accounts:executive_discussion_edit' discussion.id %}" class="btn btn-warning btn-sm">
-                    <i class="fas fa-edit me-1"></i>Edit
-                </a>
-                <button class="btn btn-danger btn-sm" onclick="confirmDelete({{ discussion.id }})">
-                    <i class="fas fa-trash me-1"></i>Delete
-                </button>
-            {% endif %}
-            {% if request.user.user_type == 'admin' or discussion.meeting.organized_by.user == request.user %}
-                <button class="btn btn-info btn-sm" onclick="togglePin({{ discussion.id }})">
-                    <i class="fas fa-thumbtack me-1"></i>
-                    {% if discussion.is_pinned %}Unpin{% else %}Pin{% endif %}
-                </button>
-            {% endif %}
-        </div>
-    </div>
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Discussion Detail */
+    .glass-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+        padding-bottom: 2rem;
+    }
+    
+    .glass-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #224abe);
+        border-radius: 3px;
+    }
+    
+    /* Glass Card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-card-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Glass Avatar */
+    .glass-avatar-lg {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid rgba(78, 115, 223, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-avatar-lg:hover {
+        transform: scale(1.05);
+        border-color: #4e73df;
+    }
+    
+    .glass-avatar-placeholder-lg {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .glass-avatar-sm {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-avatar-placeholder-sm {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Glass Discussion Content */
+    .glass-discussion-content {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 16px;
+        padding: 1rem;
+        line-height: 1.8;
+        white-space: pre-wrap;
+    }
+    
+    /* Glass Badges */
+    .glass-badge-pinned {
+        background: linear-gradient(135deg, rgba(246, 194, 62, 0.2), rgba(218, 165, 32, 0.1));
+        border: 1px solid rgba(246, 194, 62, 0.4);
+        color: #f6c23e;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-announcement {
+        background: linear-gradient(135deg, rgba(54, 185, 204, 0.2), rgba(37, 131, 145, 0.1));
+        border: 1px solid rgba(54, 185, 204, 0.4);
+        color: #36b9cc;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-category {
+        background: linear-gradient(135deg, rgba(108, 117, 125, 0.15), rgba(73, 80, 87, 0.1));
+        border: 1px solid rgba(108, 117, 125, 0.3);
+        color: #adb5bd;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    /* Glass Alert */
+    .glass-alert-info {
+        background: rgba(54, 185, 204, 0.15);
+        border: 1px solid rgba(54, 185, 204, 0.3);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: #36b9cc;
+        margin-bottom: 1rem;
+    }
+    
+    /* Glass Buttons */
+    .glass-btn-secondary {
+        background: rgba(108, 117, 125, 0.2);
+        border: 1px solid rgba(108, 117, 125, 0.5);
+        color: #6c757d;
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-secondary:hover {
+        background: rgba(108, 117, 125, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-warning {
+        background: linear-gradient(135deg, #f6c23e, #dda20a);
+        border: none;
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(246, 194, 62, 0.3);
+    }
+    
+    .glass-btn-danger {
+        background: linear-gradient(135deg, #e74a3b, #be2617);
+        border: none;
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(231, 74, 59, 0.3);
+    }
+    
+    .glass-btn-info {
+        background: linear-gradient(135deg, #36b9cc, #258391);
+        border: none;
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-info:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(54, 185, 204, 0.3);
+    }
+    
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-btn-outline-primary {
+        background: rgba(78, 115, 223, 0.1);
+        border: 1px solid rgba(78, 115, 223, 0.3);
+        color: #4e73df;
+        border-radius: 10px;
+        padding: 0.35rem 0.8rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-primary:hover {
+        background: rgba(78, 115, 223, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-outline-info {
+        background: rgba(54, 185, 204, 0.1);
+        border: 1px solid rgba(54, 185, 204, 0.3);
+        color: #36b9cc;
+        border-radius: 10px;
+        padding: 0.35rem 0.8rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-info:hover {
+        background: rgba(54, 185, 204, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-outline-success {
+        background: rgba(28, 200, 138, 0.1);
+        border: 1px solid rgba(28, 200, 138, 0.3);
+        color: #1cc88a;
+        border-radius: 10px;
+        padding: 0.35rem 0.8rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-success:hover {
+        background: rgba(28, 200, 138, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    /* Glass Comment */
+    .glass-comment-item {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .glass-comment-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .glass-comment-item:hover {
+        transform: translateX(8px);
+        background: rgba(78, 115, 223, 0.05);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Glass Reply */
+    .glass-reply-item {
+        margin-left: 3rem;
+        padding: 0.5rem 0 0.5rem 1rem;
+        border-left: 2px solid rgba(78, 115, 223, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-reply-item:hover {
+        border-left-color: #4e73df;
+    }
+    
+    /* Glass Sidebar */
+    .glass-sidebar-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+    }
+    
+    .glass-sidebar-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 0.75rem 1rem;
+    }
+    
+    /* Glass Info List */
+    .glass-info-list {
+        padding: 1rem;
+    }
+    
+    .glass-info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .glass-info-icon {
+        width: 30px;
+        color: #4e73df;
+    }
+    
+    /* Glass Textarea */
+    .glass-textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-textarea:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    /* Glass Modal */
+    .glass-modal {
+        background: rgba(30, 30, 47, 0.98);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        overflow: hidden;
+    }
+    
+    .glass-modal-header {
+        background: linear-gradient(135deg, #e74a3b, #be2617);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-modal-footer {
+        padding: 1rem 1.25rem;
+        background: rgba(0, 0, 0, 0.05);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-icon-danger {
+        width: 70px;
+        height: 70px;
+        background: rgba(231, 74, 59, 0.2);
+        border-radius: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        color: #e74a3b;
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .glass-divider {
+        margin: 1rem 0;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    @media (max-width: 768px) {
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-card-body {
+            padding: 1rem;
+        }
+        
+        .glass-avatar-lg {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .glass-avatar-placeholder-lg {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .glass-reply-item {
+            margin-left: 1rem;
+        }
+        
+        .glass-comment-item:hover {
+            transform: translateX(5px);
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-card,
+    [data-bs-theme="dark"] .glass-sidebar-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    [data-bs-theme="dark"] .glass-discussion-content {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Print Styles */
+    @media print {
+        .glass-container {
+            background: white;
+        }
+        .glass-card {
+            box-shadow: none;
+            border: 1px solid #ddd;
+        }
+        .no-print {
+            display: none !important;
+        }
+        .col-lg-8 {
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+    }
+</style>
+{% endblock %}
 
-    <div class="row">
-        <!-- Main Content -->
-        <div class="col-lg-8">
-            <!-- Discussion Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="m-0 font-weight-bold text-primary">
+{% block content %}
+<div class="glass-container">
+    <div class="container-fluid">
+        <!-- Page Heading - Glass Style -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-comments me-2"></i>{{ discussion.title }}
+                </h1>
+                <p class="glass-text-muted mt-2">Executive discussion thread</p>
+            </div>
+            <div class="mt-3 mt-sm-0 no-print">
+                <a href="{% url 'accounts:executive_discussion_list' %}" class="btn glass-btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Discussions
+                </a>
+                {% if can_edit %}
+                    <a href="{% url 'accounts:executive_discussion_edit' discussion.id %}" class="btn glass-btn-warning btn-sm">
+                        <i class="fas fa-edit me-1"></i>Edit
+                    </a>
+                    <button class="btn glass-btn-danger btn-sm" onclick="confirmDelete({{ discussion.id }})">
+                        <i class="fas fa-trash me-1"></i>Delete
+                    </button>
+                {% endif %}
+                {% if request.user.user_type == 'admin' or discussion.meeting.organized_by.user == request.user %}
+                    <button class="btn glass-btn-info btn-sm" onclick="togglePin({{ discussion.id }})">
+                        <i class="fas fa-thumbtack me-1"></i>
+                        {% if discussion.is_pinned %}Unpin{% else %}Pin{% endif %}
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Discussion Card - Glass -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 fw-bold text-white">
                             <i class="fas fa-info-circle me-1"></i>Discussion
                         </h6>
-                    </div>
-                    <div>
-                        {% if discussion.is_pinned %}
-                            <span class="badge bg-warning me-1">
-                                <i class="fas fa-thumbtack me-1"></i>Pinned
-                            </span>
-                        {% endif %}
-                        {% if discussion.is_announcement %}
-                            <span class="badge bg-info me-1">
-                                <i class="fas fa-bullhorn me-1"></i>Announcement
-                            </span>
-                        {% endif %}
-                        <span class="badge bg-secondary">{{ discussion.get_category_display|default:"General" }}</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <!-- Author Info -->
-                    <div class="d-flex align-items-center mb-4">
-                        <div class="flex-shrink-0">
-                            {% if discussion.created_by.user.profile_image %}
-                                <img src="{{ discussion.created_by.user.profile_image.url }}" class="rounded-circle" width="50" height="50">
-                            {% else %}
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:50px;height:50px;">
-                                    <i class="fas fa-user fa-2x"></i>
-                                </div>
+                        <div class="d-flex gap-1">
+                            {% if discussion.is_pinned %}
+                                <span class="glass-badge-pinned">
+                                    <i class="fas fa-thumbtack me-1"></i>Pinned
+                                </span>
                             {% endif %}
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h5 class="mb-1">{{ discussion.created_by.user.get_full_name }}</h5>
-                            <p class="mb-0 text-muted">
-                                {{ discussion.created_by.get_position_display }} |
-                                Posted {{ discussion.created_at|timesince }} ago |
-                                <i class="fas fa-eye ms-2 me-1"></i>{{ discussion.views }} views
-                            </p>
+                            {% if discussion.is_announcement %}
+                                <span class="glass-badge-announcement">
+                                    <i class="fas fa-bullhorn me-1"></i>Announcement
+                                </span>
+                            {% endif %}
+                            <span class="glass-badge-category">{{ discussion.get_category_display|default:"General" }}</span>
                         </div>
                     </div>
-
-                    <!-- Content -->
-                    <div class="discussion-content mb-4">
-                        {{ discussion.content|linebreaks }}
-                    </div>
-
-                    <!-- Related Meeting -->
-                    {% if discussion.meeting %}
-                    <div class="alert alert-info">
-                        <i class="fas fa-users-cog me-2"></i>
-                        <strong>Related Meeting:</strong>
-                        <a href="{% url 'accounts:executive_meeting_detail' discussion.meeting.id %}" class="alert-link">
-                            {{ discussion.meeting.title }}
-                        </a>
-                        <br>
-                        <small>{{ discussion.meeting.date|date:"M d, Y" }} at {{ discussion.meeting.start_time|time:"h:i A" }}</small>
-                    </div>
-                    {% endif %}
-
-                    <!-- Attachments -->
-                    {% if discussion.attachments %}
-                    <div class="mb-4">
-                        <h6 class="fw-bold">Attachments:</h6>
-                        <a href="{{ discussion.attachments.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                            <i class="fas fa-download me-1"></i>Download Attachment
-                        </a>
-                    </div>
-                    {% endif %}
-
-                    <!-- Actions -->
-                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                        <div>
-                            <button class="btn btn-sm btn-outline-primary me-2" onclick="likeDiscussion({{ discussion.id }})">
-                                <i class="far fa-thumbs-up me-1"></i> Like ({{ discussion.likes.count }})
-                            </button>
-                            <button class="btn btn-sm btn-outline-info" onclick="shareDiscussion()">
-                                <i class="fas fa-share me-1"></i> Share
-                            </button>
-                        </div>
-                        <div>
-                            <small class="text-muted">
-                                Last updated: {{ discussion.updated_at|timesince }} ago
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Comments Section -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-comments me-1"></i>Comments ({{ comments.count }})
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <!-- Add Comment Form -->
-                    <form method="POST" action="{% url 'accounts:executive_discussion_add_comment' discussion.id %}" class="mb-4" id="commentForm">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <textarea name="content" class="form-control" rows="2" placeholder="Add a comment..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane me-1"></i>Post Comment
-                        </button>
-                    </form>
-
-                    <!-- Comments List -->
-                    <div class="comments-section" id="commentsList">
-                        {% for comment in comments %}
-                        <div class="d-flex mb-3 pb-3 border-bottom" id="comment-{{ comment.id }}">
-                            <div class="flex-shrink-0 me-3">
-                                {% if comment.author.user.profile_image %}
-                                    <img src="{{ comment.author.user.profile_image.url }}" class="rounded-circle" width="40" height="40">
+                    <div class="glass-card-body">
+                        <!-- Author Info -->
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="flex-shrink-0">
+                                {% if discussion.created_by.user.profile_image %}
+                                    <img src="{{ discussion.created_by.user.profile_image.url }}" class="glass-avatar-lg">
                                 {% else %}
-                                    <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px;">
-                                        <i class="fas fa-user"></i>
+                                    <div class="glass-avatar-placeholder-lg">
+                                        <i class="fas fa-user fa-2x text-white"></i>
                                     </div>
                                 {% endif %}
                             </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <h6 class="mb-0">{{ comment.author.user.get_full_name }}</h6>
-                                    <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
-                                </div>
-                                <p class="mb-2">{{ comment.content }}</p>
-                                <div class="d-flex">
-                                    <button class="btn btn-sm btn-link p-0 me-3" onclick="likeComment({{ comment.id }})">
-                                        <i class="far fa-thumbs-up me-1"></i> Like ({{ comment.likes.count }})
-                                    </button>
-                                    <button class="btn btn-sm btn-link p-0" onclick="replyToComment({{ comment.id }})">
-                                        <i class="far fa-comment me-1"></i> Reply
-                                    </button>
-                                    {% if comment.author.user == request.user %}
-                                        <button class="btn btn-sm btn-link text-danger p-0 ms-3" onclick="deleteComment({{ comment.id }})">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    {% endif %}
-                                </div>
+                            <div>
+                                <h5 class="mb-1 glass-text">{{ discussion.created_by.user.get_full_name }}</h5>
+                                <p class="mb-0 glass-text-muted">
+                                    {{ discussion.created_by.get_position_display }} |
+                                    <i class="fas fa-clock ms-2 me-1"></i>Posted {{ discussion.created_at|timesince }} ago |
+                                    <i class="fas fa-eye ms-2 me-1"></i>{{ discussion.views }} views
+                                </p>
+                            </div>
+                        </div>
 
-                                <!-- Replies -->
-                                {% for reply in comment.replies.all %}
-                                <div class="d-flex mt-3 ms-4">
-                                    <div class="flex-shrink-0 me-2">
-                                        {% if reply.author.user.profile_image %}
-                                            <img src="{{ reply.author.user.profile_image.url }}" class="rounded-circle" width="30" height="30">
+                        <!-- Content -->
+                        <div class="glass-discussion-content mb-4">
+                            {{ discussion.content|linebreaks }}
+                        </div>
+
+                        <!-- Related Meeting -->
+                        {% if discussion.meeting %}
+                        <div class="glass-alert-info mb-4">
+                            <i class="fas fa-users-cog me-2"></i>
+                            <strong>Related Meeting:</strong>
+                            <a href="{% url 'accounts:executive_meeting_detail' discussion.meeting.id %}" class="glass-link">
+                                {{ discussion.meeting.title }}
+                            </a>
+                            <br>
+                            <small>{{ discussion.meeting.date|date:"M d, Y" }} at {{ discussion.meeting.start_time|time:"h:i A" }}</small>
+                        </div>
+                        {% endif %}
+
+                        <!-- Attachments -->
+                        {% if discussion.attachments %}
+                        <div class="mb-4">
+                            <h6 class="fw-bold glass-text-primary mb-2">
+                                <i class="fas fa-paperclip me-2"></i>Attachments
+                            </h6>
+                            <a href="{{ discussion.attachments.url }}" class="btn glass-btn-outline-primary btn-sm" target="_blank">
+                                <i class="fas fa-download me-1"></i>Download Attachment
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        <!-- Actions -->
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 glass-divider">
+                            <div class="d-flex gap-2">
+                                <button class="btn glass-btn-outline-primary btn-sm" onclick="likeDiscussion({{ discussion.id }})">
+                                    <i class="far fa-thumbs-up me-1"></i> Like ({{ discussion.likes.count }})
+                                </button>
+                                <button class="btn glass-btn-outline-info btn-sm" onclick="shareDiscussion()">
+                                    <i class="fas fa-share me-1"></i> Share
+                                </button>
+                            </div>
+                            <div>
+                                <small class="glass-text-muted">
+                                    <i class="fas fa-clock me-1"></i>Last updated: {{ discussion.updated_at|timesince }} ago
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comments Section - Glass Card -->
+                <div class="glass-card">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-comments me-1"></i>Comments ({{ comments.count }})
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <!-- Add Comment Form -->
+                        <form method="POST" action="{% url 'accounts:executive_discussion_add_comment' discussion.id %}" class="mb-4" id="commentForm">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <textarea name="content" class="glass-textarea" rows="2" placeholder="Add a comment..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn glass-btn-primary">
+                                <i class="fas fa-paper-plane me-1"></i>Post Comment
+                            </button>
+                        </form>
+
+                        <!-- Comments List -->
+                        <div class="comments-section" id="commentsList">
+                            {% for comment in comments %}
+                            <div class="glass-comment-item" id="comment-{{ comment.id }}">
+                                <div class="d-flex gap-3">
+                                    <div class="flex-shrink-0">
+                                        {% if comment.author.user.profile_image %}
+                                            <img src="{{ comment.author.user.profile_image.url }}" class="glass-avatar-sm">
                                         {% else %}
-                                            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
-                                                <i class="fas fa-user"></i>
+                                            <div class="glass-avatar-placeholder-sm">
+                                                <i class="fas fa-user text-white fa-sm"></i>
                                             </div>
                                         {% endif %}
                                     </div>
-                                    <div>
-                                        <div class="d-flex justify-content-between">
-                                            <h6 class="mb-1">{{ reply.author.user.get_full_name }}</h6>
-                                            <small class="text-muted ms-2">{{ reply.created_at|timesince }} ago</small>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
+                                            <h6 class="mb-0 glass-text">{{ comment.author.user.get_full_name }}</h6>
+                                            <small class="glass-text-muted">
+                                                <i class="fas fa-clock me-1"></i>{{ comment.created_at|timesince }} ago
+                                            </small>
                                         </div>
-                                        <p class="mb-1">{{ reply.content }}</p>
+                                        <p class="mb-2 glass-text-muted">{{ comment.content }}</p>
+                                        <div class="d-flex gap-3">
+                                            <button class="btn btn-sm btn-link p-0 glass-link-sm" onclick="likeComment({{ comment.id }})">
+                                                <i class="far fa-thumbs-up me-1"></i> Like ({{ comment.likes.count }})
+                                            </button>
+                                            <button class="btn btn-sm btn-link p-0 glass-link-sm" onclick="replyToComment({{ comment.id }})">
+                                                <i class="far fa-comment me-1"></i> Reply
+                                            </button>
+                                            {% if comment.author.user == request.user %}
+                                                <button class="btn btn-sm btn-link p-0 text-danger" onclick="deleteComment({{ comment.id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Replies -->
+                                        {% for reply in comment.replies.all %}
+                                        <div class="glass-reply-item mt-2">
+                                            <div class="d-flex gap-2">
+                                                <div class="flex-shrink-0">
+                                                    {% if reply.author.user.profile_image %}
+                                                        <img src="{{ reply.author.user.profile_image.url }}" class="rounded-circle" width="30" height="30">
+                                                    {% else %}
+                                                        <div class="glass-avatar-placeholder-xs">
+                                                            <i class="fas fa-user text-white fa-xs"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                                                        <h6 class="mb-1 glass-text">{{ reply.author.user.get_full_name }}</h6>
+                                                        <small class="glass-text-muted">{{ reply.created_at|timesince }} ago</small>
+                                                    </div>
+                                                    <p class="mb-0 glass-text-muted">{{ reply.content }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
                                     </div>
                                 </div>
-                                {% endfor %}
+                            </div>
+                            {% empty %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-comment-dots fa-3x glass-text-muted mb-3"></i>
+                                <p class="glass-text-muted mb-0">No comments yet. Be the first to comment!</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Discussion Info - Glass Card -->
+                <div class="glass-sidebar-card mb-4">
+                    <div class="glass-sidebar-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-info-circle me-1"></i>Discussion Info
+                        </h6>
+                    </div>
+                    <div class="glass-info-list">
+                        <div class="glass-info-item">
+                            <div class="glass-info-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <strong class="glass-text">Author:</strong><br>
+                                <span class="glass-text-muted">{{ discussion.created_by.user.get_full_name }}</span>
                             </div>
                         </div>
-                        {% empty %}
-                        <p class="text-muted text-center py-3">No comments yet. Be the first to comment!</p>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Discussion Info -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-info-circle me-1"></i>Discussion Info
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <i class="fas fa-user text-primary me-2"></i>
-                            <strong>Author:</strong> {{ discussion.created_by.user.get_full_name }}
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-calendar text-success me-2"></i>
-                            <strong>Posted:</strong> {{ discussion.created_at|date:"M d, Y H:i" }}
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-sync text-info me-2"></i>
-                            <strong>Updated:</strong> {{ discussion.updated_at|timesince }} ago
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-comment text-warning me-2"></i>
-                            <strong>Comments:</strong> {{ comments.count }}
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-eye text-secondary me-2"></i>
-                            <strong>Views:</strong> {{ discussion.views }}
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-bolt me-1"></i>Quick Actions
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary" onclick="subscribeToDiscussion()">
-                            <i class="fas fa-bell me-1"></i>Subscribe to Updates
-                        </button>
-                        <button class="btn btn-outline-success" onclick="reportDiscussion()">
-                            <i class="fas fa-flag me-1"></i>Report Discussion
-                        </button>
-                        <button class="btn btn-outline-info" onclick="printDiscussion()">
-                            <i class="fas fa-print me-1"></i>Print Discussion
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Related Discussions -->
-            {% if related_discussions %}
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-link me-1"></i>Related Discussions
-                    </h6>
-                </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        {% for related in related_discussions %}
-                        <a href="{% url 'accounts:executive_discussion_detail' related.id %}" class="list-group-item list-group-item-action">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>{{ related.title|truncatechars:40 }}</strong>
-                                    <small class="text-muted d-block">{{ related.comments.count }} comments</small>
-                                </div>
-                                <span class="badge bg-info">{{ related.views }}</span>
+                        <div class="glass-info-item">
+                            <div class="glass-info-icon">
+                                <i class="fas fa-calendar"></i>
                             </div>
-                        </a>
-                        {% endfor %}
+                            <div>
+                                <strong class="glass-text">Posted:</strong><br>
+                                <span class="glass-text-muted">{{ discussion.created_at|date:"M d, Y H:i" }}</span>
+                            </div>
+                        </div>
+                        <div class="glass-info-item">
+                            <div class="glass-info-icon">
+                                <i class="fas fa-sync"></i>
+                            </div>
+                            <div>
+                                <strong class="glass-text">Updated:</strong><br>
+                                <span class="glass-text-muted">{{ discussion.updated_at|timesince }} ago</span>
+                            </div>
+                        </div>
+                        <div class="glass-info-item">
+                            <div class="glass-info-icon">
+                                <i class="fas fa-comment"></i>
+                            </div>
+                            <div>
+                                <strong class="glass-text">Comments:</strong><br>
+                                <span class="glass-text-muted">{{ comments.count }}</span>
+                            </div>
+                        </div>
+                        <div class="glass-info-item">
+                            <div class="glass-info-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div>
+                                <strong class="glass-text">Views:</strong><br>
+                                <span class="glass-text-muted">{{ discussion.views }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Quick Actions - Glass Card -->
+                <div class="glass-sidebar-card mb-4">
+                    <div class="glass-sidebar-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-bolt me-1"></i>Quick Actions
+                        </h6>
+                    </div>
+                    <div class="glass-info-list">
+                        <div class="d-grid gap-2">
+                            <button class="btn glass-btn-outline-primary" onclick="subscribeToDiscussion()">
+                                <i class="fas fa-bell me-1"></i>Subscribe to Updates
+                            </button>
+                            <button class="btn glass-btn-outline-success" onclick="reportDiscussion()">
+                                <i class="fas fa-flag me-1"></i>Report Discussion
+                            </button>
+                            <button class="btn glass-btn-outline-info" onclick="printDiscussion()">
+                                <i class="fas fa-print me-1"></i>Print Discussion
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Related Discussions - Glass Card -->
+                {% if related_discussions %}
+                <div class="glass-sidebar-card">
+                    <div class="glass-sidebar-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-link me-1"></i>Related Discussions
+                        </h6>
+                    </div>
+                    <div class="glass-info-list p-0">
+                        <div class="list-group list-group-flush glass-list-group">
+                            {% for related in related_discussions %}
+                            <a href="{% url 'accounts:executive_discussion_detail' related.id %}" class="glass-list-item text-decoration-none">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-bold glass-text">{{ related.title|truncatechars:40 }}</div>
+                                        <small class="glass-text-muted">
+                                            <i class="fas fa-comment me-1"></i>{{ related.comments.count }} comments
+                                        </small>
+                                    </div>
+                                    <span class="glass-badge-info-sm">{{ related.views }}</span>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+<!-- Delete Confirmation Modal - Glass Style -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-modal">
+            <div class="modal-header glass-modal-header">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-exclamation-triangle me-2"></i>Delete Discussion
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this discussion?</p>
-                <p class="small text-muted">This action cannot be undone. All comments will be lost.</p>
+            <div class="modal-body glass-modal-body text-center">
+                <div class="glass-icon-danger mx-auto mb-3">
+                    <i class="fas fa-comments fa-3x"></i>
+                </div>
+                <p class="mb-2">Are you sure you want to delete this discussion?</p>
+                <p class="small glass-text-muted">This action cannot be undone. All comments will be lost.</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Delete Discussion</a>
+            <div class="modal-footer glass-modal-footer">
+                <button type="button" class="btn glass-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmDeleteBtn" class="btn glass-btn-danger">Delete Discussion</a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Reply Modal -->
+<!-- Reply Modal - Glass Style -->
 <div class="modal fade" id="replyModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-modal">
+            <div class="modal-header glass-modal-header-primary">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-reply me-2"></i>Reply to Comment
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -330,19 +827,90 @@
             <form method="POST" action="{% url 'accounts:executive_discussion_add_comment' discussion.id %}" id="replyForm">
                 {% csrf_token %}
                 <input type="hidden" name="parent_id" id="replyParentId">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <textarea name="content" class="form-control" rows="3" placeholder="Write your reply..." required></textarea>
+                <div class="modal-body p-4">
+                    <div class="glass-form-group">
+                        <textarea name="content" class="glass-textarea" rows="3" placeholder="Write your reply..." required></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Post Reply</button>
+                <div class="modal-footer glass-modal-footer">
+                    <button type="button" class="btn glass-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn glass-btn-primary">Post Reply</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<style>
+/* Additional Styles */
+.glass-link-sm {
+    font-size: 0.75rem;
+    color: #4e73df;
+    text-decoration: none;
+}
+
+.glass-link-sm:hover {
+    text-decoration: underline;
+}
+
+.glass-avatar-placeholder-xs {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.glass-badge-info-sm {
+    background: rgba(54, 185, 204, 0.2);
+    border: 1px solid rgba(54, 185, 204, 0.3);
+    color: #36b9cc;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.glass-list-group {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.glass-list-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.glass-list-item:hover {
+    background: rgba(78, 115, 223, 0.1);
+    transform: translateX(5px);
+}
+
+.glass-link {
+    color: #36b9cc;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.glass-link:hover {
+    color: #258391;
+    text-decoration: underline;
+}
+
+.glass-modal-header-primary {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-text {
+    color: var(--bs-body-color);
+}
+</style>
 
 <script>
 function confirmDelete(discussionId) {
@@ -363,6 +931,10 @@ function togglePin(discussionId) {
         if (data.success) {
             location.reload();
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to toggle pin');
     });
 }
 
@@ -376,9 +948,12 @@ function likeDiscussion(discussionId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Update like count without reload
             location.reload();
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to like discussion');
     });
 }
 
@@ -394,6 +969,10 @@ function likeComment(commentId) {
         if (data.success) {
             location.reload();
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to like comment');
     });
 }
 
@@ -403,7 +982,7 @@ function replyToComment(commentId) {
 }
 
 function deleteComment(commentId) {
-    if (confirm('Delete this comment?')) {
+    if (confirm('Delete this comment? This action cannot be undone.')) {
         fetch(`/accounts/executive/discussions/comment/${commentId}/delete/`, {
             method: 'POST',
             headers: {
@@ -413,8 +992,21 @@ function deleteComment(commentId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                document.getElementById(`comment-${commentId}`).remove();
+                const commentElement = document.getElementById(`comment-${commentId}`);
+                if (commentElement) {
+                    commentElement.style.transition = 'opacity 0.3s';
+                    commentElement.style.opacity = '0';
+                    setTimeout(() => {
+                        commentElement.remove();
+                    }, 300);
+                }
+            } else {
+                alert('Failed to delete comment');
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Network error occurred');
         });
     }
 }
@@ -425,6 +1017,8 @@ function shareDiscussion() {
             title: '{{ discussion.title }}',
             text: 'Check out this discussion on MELTSA-TaTU',
             url: window.location.href
+        }).catch(() => {
+            prompt('Copy this link to share:', window.location.href);
         });
     } else {
         prompt('Copy this link to share:', window.location.href);
@@ -442,13 +1036,18 @@ function subscribeToDiscussion() {
     .then(data => {
         if (data.success) {
             alert('You have subscribed to this discussion');
+        } else {
+            alert('Failed to subscribe');
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Network error occurred');
     });
 }
 
 function reportDiscussion() {
-    // Implement report modal
-    alert('Report feature coming soon');
+    alert('Report feature coming soon!');
 }
 
 function printDiscussion() {
@@ -456,40 +1055,64 @@ function printDiscussion() {
 }
 
 // Handle comment form submission via AJAX
-document.getElementById('commentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    
-    fetch(this.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Append new comment to list
-            location.reload();
-        }
+const commentForm = document.getElementById('commentForm');
+if (commentForm) {
+    commentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to post comment');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Network error occurred');
+        });
     });
-});
-</script>
+}
 
-<style media="print">
-    .btn, .modal, .sidebar, .card-footer {
-        display: none !important;
-    }
-    .col-lg-8 {
-        width: 100% !important;
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-    }
-    .card {
-        border: 1px solid #000 !important;
-        box-shadow: none !important;
-    }
-</style>
+// Handle reply form submission
+const replyForm = document.getElementById('replyForm');
+if (replyForm) {
+    replyForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                bootstrap.Modal.getInstance(document.getElementById('replyModal')).hide();
+                location.reload();
+            } else {
+                alert('Failed to post reply');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Network error occurred');
+        });
+    });
+}
+</script>
 {% endblock %}

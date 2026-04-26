@@ -1,331 +1,707 @@
 <!-- templates/messaging/sent.html -->
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Sent Messages - MELTSA-TaTU{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Sent Messages */
+    .glass-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+        padding-bottom: 2rem;
+    }
+    
+    .glass-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #224abe);
+        border-radius: 3px;
+    }
+    
+    /* Glass Badge */
+    .glass-badge-primary {
+        background: rgba(78, 115, 223, 0.2);
+        border: 1px solid rgba(78, 115, 223, 0.5);
+        color: #4e73df;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    /* Glass Tabs Card */
+    .glass-tabs-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-tabs-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-tabs-header {
+        padding: 0.75rem 1.25rem 0 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.02);
+    }
+    
+    .glass-nav-tabs {
+        border-bottom: none;
+        gap: 0.25rem;
+    }
+    
+    .glass-nav-link {
+        padding: 0.6rem 1.25rem;
+        border-radius: 12px 12px 0 0;
+        color: var(--bs-body-color);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .glass-nav-link:hover {
+        background: rgba(78, 115, 223, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .glass-nav-link.active {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        color: white;
+    }
+    
+    /* Glass Form Elements */
+    .glass-input-group {
+        position: relative;
+    }
+    
+    .glass-input-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--bs-gray-500);
+        z-index: 1;
+    }
+    
+    .glass-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem 0.6rem 2.5rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-select {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-select:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.6rem 1rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(78, 115, 223, 0.3);
+    }
+    
+    /* Glass Message Item */
+    .glass-message-item {
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(8px);
+        border-left: 3px solid transparent;
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-message-item:hover {
+        background: rgba(78, 115, 223, 0.1);
+        transform: translateX(5px);
+        border-left-color: #4e73df;
+    }
+    
+    /* Glass Avatar */
+    .glass-avatar-sm {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-avatar-placeholder-sm {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Glass Badges */
+    .glass-badge-info {
+        background: rgba(54, 185, 204, 0.2);
+        border: 1px solid rgba(54, 185, 204, 0.4);
+        color: #36b9cc;
+        padding: 0.25rem 0.7rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-checkbox-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .glass-checkbox {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    .glass-checkbox-label {
+        position: relative;
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-checkbox-label:hover {
+        border-color: #4e73df;
+    }
+    
+    .glass-checkbox:checked + .glass-checkbox-label {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-color: #4e73df;
+    }
+    
+    .glass-checkbox:checked + .glass-checkbox-label::after {
+        content: '\f00c';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 10px;
+        color: white;
+    }
+    
+    /* Glass Pagination */
+    .glass-pagination {
+        gap: 0.25rem;
+    }
+    
+    .glass-page-link {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--bs-body-color);
+        border-radius: 10px;
+        margin: 0 2px;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-page-link:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .glass-page-active {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-color: transparent;
+        color: white;
+    }
+    
+    /* Glass Modal */
+    .glass-modal {
+        background: rgba(30, 30, 47, 0.98);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        overflow: hidden;
+    }
+    
+    .glass-modal-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-modal-footer {
+        padding: 1rem 1.25rem;
+        background: rgba(0, 0, 0, 0.05);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Status Icons */
+    .status-icon-read {
+        color: #1cc88a;
+        font-size: 1.1rem;
+    }
+    
+    .status-icon-delivered {
+        color: #36b9cc;
+        font-size: 1.1rem;
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    @media (max-width: 768px) {
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-message-item .row > div {
+            margin-bottom: 0.5rem;
+        }
+        
+        .glass-avatar-sm,
+        .glass-avatar-placeholder-sm {
+            width: 28px;
+            height: 28px;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-tabs-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    [data-bs-theme="dark"] .glass-message-item {
+        background: rgba(0, 0, 0, 0.3);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-paper-plane me-2"></i>Sent Messages
-        </h1>
-        <div>
-            <span class="badge bg-primary me-2">
-                <i class="fas fa-envelope me-1"></i>Total: {{ messages.paginator.count }}
-            </span>
-            <a href="{% url 'messaging:compose' %}" class="btn btn-sm btn-primary shadow-sm">
-                <i class="fas fa-pen me-1"></i>Compose New
-            </a>
-        </div>
-    </div>
-
-    <!-- Message Tabs -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <ul class="nav nav-tabs card-header-tabs">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'messaging:inbox' %}">
-                        <i class="fas fa-inbox me-1"></i>Inbox
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="{% url 'messaging:sent' %}">
-                        <i class="fas fa-paper-plane me-1"></i>Sent
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'messaging:drafts' %}">
-                        <i class="fas fa-save me-1"></i>Drafts
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'messaging:archived' %}">
-                        <i class="fas fa-archive me-1"></i>Archived
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Search and Filter -->
-        <div class="card-body border-bottom">
-            <form method="GET" action="{% url 'messaging:sent' %}" id="filterForm">
-                <div class="row">
-                    <div class="col-md-4 mb-2">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            <input type="text" name="q" class="form-control" 
-                                   placeholder="Search sent messages..." value="{{ request.GET.q|default:'' }}">
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <select name="recipient" class="form-select">
-                            <option value="">All Recipients</option>
-                            {% for user in recent_recipients %}
-                                <option value="{{ user.id }}" {% if request.GET.recipient == user.id|stringformat:"s" %}selected{% endif %}>
-                                    {{ user.get_full_name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <select name="date" class="form-select">
-                            <option value="">Any Date</option>
-                            <option value="today" {% if request.GET.date == 'today' %}selected{% endif %}>Today</option>
-                            <option value="week" {% if request.GET.date == 'week' %}selected{% endif %}>This Week</option>
-                            <option value="month" {% if request.GET.date == 'month' %}selected{% endif %}>This Month</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2 mb-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-filter me-1"></i>Filter
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!-- Messages List -->
-        <div class="card-body p-0">
-            <div class="list-group list-group-flush">
-                {% for message in messages %}
-                <div class="list-group-item sent-message-item" data-message-id="{{ message.id }}">
-                    <div class="row align-items-center">
-                        <!-- Status Icon -->
-                        <div class="col-auto">
-                            {% if message.read_at %}
-                                <span class="text-success" title="Read at {{ message.read_at|date:'M d, Y H:i' }}">
-                                    <i class="fas fa-check-double"></i>
-                                </span>
-                            {% else %}
-                                <span class="text-secondary" title="Delivered">
-                                    <i class="fas fa-check"></i>
-                                </span>
-                            {% endif %}
-                        </div>
-
-                        <!-- Recipient -->
-                        <div class="col-md-2">
-                            <div class="d-flex align-items-center">
-                                {% if message.recipient.profile_image %}
-                                    <img src="{{ message.recipient.profile_image.url }}" 
-                                         class="rounded-circle me-2" width="32" height="32">
-                                {% else %}
-                                    <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" 
-                                         style="width:32px;height:32px;">
-                                        <i class="fas fa-user text-white"></i>
-                                    </div>
-                                {% endif %}
-                                <div>
-                                    <strong>{{ message.recipient.get_full_name|default:message.recipient.username }}</strong>
-                                    <small class="text-muted d-block">{{ message.recipient.user_type|title }}</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Message Preview -->
-                        <div class="col-md-6">
-                            <a href="{% url 'messaging:detail' message.id %}" class="text-decoration-none text-dark">
-                                <div>
-                                    <strong>{{ message.subject }}</strong>
-                                    <small class="text-muted d-block">
-                                        {{ message.body|truncatechars:80 }}
-                                    </small>
-                                </div>
-                            </a>
-                        </div>
-
-                        <!-- Attachments -->
-                        <div class="col-auto">
-                            {% if message.attachments.count > 0 %}
-                                <span class="badge bg-info" title="Has attachments">
-                                    <i class="fas fa-paperclip me-1"></i>{{ message.attachments.count }}
-                                </span>
-                            {% endif %}
-                        </div>
-
-                        <!-- Date -->
-                        <div class="col-auto">
-                            <small class="text-muted" title="{{ message.sent_at|date:'F d, Y H:i' }}">
-                                {{ message.sent_at|timesince }} ago
-                            </small>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="col-auto">
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-link" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'messaging:detail' message.id %}">
-                                            <i class="fas fa-eye me-2"></i>View
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'messaging:forward' message.id %}">
-                                            <i class="fas fa-share me-2"></i>Forward
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#" onclick="resendMessage({{ message.id }})">
-                                            <i class="fas fa-redo me-2"></i>Resend
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="#" onclick="deleteMessage({{ message.id }})">
-                                            <i class="fas fa-trash me-2"></i>Delete
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Delivery Status (if available) -->
-                    {% if message.delivery_status %}
-                    <div class="row mt-2">
-                        <div class="col-12">
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Status: 
-                                {% if message.read_at %}
-                                    <span class="text-success">Read {{ message.read_at|timesince }} ago</span>
-                                {% elif message.delivered_at %}
-                                    <span class="text-info">Delivered {{ message.delivered_at|timesince }} ago</span>
-                                {% else %}
-                                    <span class="text-warning">Pending</span>
-                                {% endif %}
-                            </small>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-                {% empty %}
-                <div class="list-group-item text-center py-5">
-                    <i class="fas fa-paper-plane fa-4x text-muted mb-3"></i>
-                    <h5 class="text-muted">No Sent Messages</h5>
-                    <p class="text-muted mb-3">You haven't sent any messages yet.</p>
-                    <a href="{% url 'messaging:compose' %}" class="btn btn-primary">
-                        <i class="fas fa-pen me-2"></i>Compose First Message
-                    </a>
-                </div>
-                {% endfor %}
+<div class="glass-container">
+    <div class="container-fluid">
+        <!-- Page Heading - Glass Style -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-paper-plane me-2"></i>Sent Messages
+                </h1>
+                <p class="glass-text-muted mt-2">Track your outgoing messages and delivery status</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <span class="glass-badge-primary me-2">
+                    <i class="fas fa-envelope me-1"></i>Total: {{ messages.paginator.count }}
+                </span>
+                <a href="{% url 'messaging:compose' %}" class="btn glass-btn-primary btn-sm">
+                    <i class="fas fa-pen me-1"></i>Compose New
+                </a>
             </div>
         </div>
 
-        <!-- Bulk Actions -->
-        {% if messages %}
-        <div class="card-footer">
-            <div class="row align-items-center">
-                <div class="col-auto">
-                    <input type="checkbox" class="form-check-input" id="selectAll">
+        <!-- Message Tabs - Glass Card -->
+        <div class="glass-tabs-card mb-4">
+            <div class="glass-tabs-header">
+                <ul class="nav nav-tabs glass-nav-tabs">
+                    <li class="nav-item">
+                        <a class="glass-nav-link" href="{% url 'messaging:inbox' %}">
+                            <i class="fas fa-inbox me-1"></i>Inbox
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="glass-nav-link active" href="{% url 'messaging:sent' %}">
+                            <i class="fas fa-paper-plane me-1"></i>Sent
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="glass-nav-link" href="{% url 'messaging:drafts' %}">
+                            <i class="fas fa-save me-1"></i>Drafts
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="glass-nav-link" href="{% url 'messaging:archived' %}">
+                            <i class="fas fa-archive me-1"></i>Archived
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Search and Filter - Glass Form -->
+            <div class="card-body border-bottom" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                <form method="GET" action="{% url 'messaging:sent' %}" id="filterForm">
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <div class="glass-input-group">
+                                <i class="fas fa-search glass-input-icon"></i>
+                                <input type="text" name="q" class="glass-input" 
+                                       placeholder="Search sent messages..." value="{{ request.GET.q|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="recipient" class="glass-select">
+                                <option value="">All Recipients</option>
+                                {% for user in recent_recipients %}
+                                    <option value="{{ user.id }}" {% if request.GET.recipient == user.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ user.get_full_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="date" class="glass-select">
+                                <option value="">Any Date</option>
+                                <option value="today" {% if request.GET.date == 'today' %}selected{% endif %}>Today</option>
+                                <option value="week" {% if request.GET.date == 'week' %}selected{% endif %}>This Week</option>
+                                <option value="month" {% if request.GET.date == 'month' %}selected{% endif %}>This Month</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn glass-btn-primary w-100">
+                                <i class="fas fa-filter me-1"></i>Filter
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Messages List - Glass Items -->
+            <div class="card-body p-0">
+                <div>
+                    {% for message in messages %}
+                    <div class="glass-message-item p-3" data-message-id="{{ message.id }}">
+                        <div class="row align-items-center g-2">
+                            <!-- Checkbox -->
+                            <div class="col-auto">
+                                <div class="glass-checkbox-wrapper">
+                                    <input type="checkbox" class="glass-checkbox message-checkbox" value="{{ message.id }}" id="msg_{{ message.id }}">
+                                    <label for="msg_{{ message.id }}" class="glass-checkbox-label"></label>
+                                </div>
+                            </div>
+
+                            <!-- Status Icon -->
+                            <div class="col-auto">
+                                {% if message.read_at %}
+                                    <span class="status-icon-read" title="Read at {{ message.read_at|date:'M d, Y H:i' }}">
+                                        <i class="fas fa-check-double"></i>
+                                    </span>
+                                {% else %}
+                                    <span class="status-icon-delivered" title="Delivered">
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Recipient -->
+                            <div class="col-md-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if message.recipient.profile_image %}
+                                        <img src="{{ message.recipient.profile_image.url }}" class="glass-avatar-sm">
+                                    {% else %}
+                                        <div class="glass-avatar-placeholder-sm">
+                                            <i class="fas fa-user text-white fa-sm"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong class="glass-text">{{ message.recipient.get_full_name|default:message.recipient.username }}</strong>
+                                        <small class="glass-text-muted d-block">{{ message.recipient.user_type|title }}</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Message Preview -->
+                            <div class="col-md-5">
+                                <a href="{% url 'messaging:message_detail' message.id %}" class="text-decoration-none">
+                                    <div>
+                                        <strong class="glass-text">{{ message.subject }}</strong>
+                                        <small class="glass-text-muted d-block">
+                                            {{ message.body|truncatechars:70 }}
+                                        </small>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <!-- Attachments -->
+                            <div class="col-auto">
+                                {% if message.attachments.count > 0 %}
+                                    <span class="glass-badge-info" title="Has attachments">
+                                        <i class="fas fa-paperclip me-1"></i>{{ message.attachments.count }}
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Date -->
+                            <div class="col-auto">
+                                <small class="glass-text-muted" title="{{ message.sent_at|date:'F d, Y H:i' }}">
+                                    <i class="fas fa-clock me-1"></i>{{ message.sent_at|timesince }} ago
+                                </small>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="col-auto">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-link text-secondary" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'messaging:message_detail' message.id %}">
+                                                <i class="fas fa-eye me-2"></i>View
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="#" onclick="forwardMessage({{ message.id }})">
+                                                <i class="fas fa-share me-2"></i>Forward
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="#" onclick="resendMessage({{ message.id }})">
+                                                <i class="fas fa-redo me-2"></i>Resend
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item text-danger" href="#" onclick="deleteMessage({{ message.id }})">
+                                                <i class="fas fa-trash me-2"></i>Delete
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Status (if available) -->
+                        {% if message.delivery_status %}
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <small class="glass-text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Status: 
+                                    {% if message.read_at %}
+                                        <span class="text-success">Read {{ message.read_at|timesince }} ago</span>
+                                    {% elif message.delivered_at %}
+                                        <span class="text-info">Delivered {{ message.delivered_at|timesince }} ago</span>
+                                    {% else %}
+                                        <span class="text-warning">Pending delivery</span>
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="glass-empty-state text-center py-5">
+                        <i class="fas fa-paper-plane fa-4x glass-text-muted mb-3"></i>
+                        <h5 class="glass-text-muted">No Sent Messages</h5>
+                        <p class="glass-text-muted mb-3">You haven't sent any messages yet.</p>
+                        <a href="{% url 'messaging:compose' %}" class="btn glass-btn-primary">
+                            <i class="fas fa-pen me-2"></i>Compose First Message
+                        </a>
+                    </div>
+                    {% endfor %}
                 </div>
-                <div class="col-auto">
-                    <label class="form-check-label" for="selectAll">Select All</label>
+            </div>
+
+            <!-- Bulk Actions - Glass Footer -->
+            {% if messages %}
+            <div class="card-footer glass-card-footer bg-transparent">
+                <div class="row align-items-center g-2">
+                    <div class="col-auto">
+                        <div class="glass-checkbox-wrapper">
+                            <input type="checkbox" class="glass-checkbox" id="selectAll">
+                            <label for="selectAll" class="glass-checkbox-label"></label>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <label class="glass-checkbox-label" for="selectAll">Select All</label>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn glass-btn-primary btn-sm" onclick="deleteSelected()">
+                            <i class="fas fa-trash me-1"></i>Delete Selected
+                        </button>
+                    </div>
+                    <div class="col-auto ms-auto">
+                        <span class="glass-text-muted" id="selectedCount">0 selected</span>
+                    </div>
                 </div>
-                <div class="col-auto">
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteSelected()">
-                        <i class="fas fa-trash me-1"></i>Delete Selected
-                    </button>
-                </div>
-                <div class="col-auto ms-auto">
-                    <span class="text-muted" id="selectedCount">0 selected</span>
-                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Pagination - Glass -->
+        {% if messages.has_other_pages %}
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="Messages pagination">
+                    <ul class="pagination glass-pagination justify-content-center">
+                        {% if messages.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link glass-page-link" href="?page={{ messages.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link glass-page-link"><i class="fas fa-chevron-left"></i></span>
+                            </li>
+                        {% endif %}
+
+                        {% for i in messages.paginator.page_range %}
+                            {% if messages.number == i %}
+                                <li class="page-item active">
+                                    <span class="page-link glass-page-link glass-page-active">{{ i }}</span>
+                                </li>
+                            {% elif i > messages.number|add:'-3' and i < messages.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link glass-page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if messages.has_next %}
+                            <li class="page-item">
+                                <a class="page-link glass-page-link" href="?page={{ messages.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link glass-page-link"><i class="fas fa-chevron-right"></i></span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
             </div>
         </div>
         {% endif %}
     </div>
-
-    <!-- Pagination -->
-    {% if messages.has_other_pages %}
-    <div class="row">
-        <div class="col-12">
-            <nav aria-label="Messages pagination">
-                <ul class="pagination justify-content-center">
-                    {% if messages.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ messages.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                <i class="fas fa-chevron-left"></i>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
-                        </li>
-                    {% endif %}
-
-                    {% for i in messages.paginator.page_range %}
-                        {% if messages.number == i %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ i }}</span>
-                            </li>
-                        {% elif i > messages.number|add:'-3' and i < messages.number|add:'3' %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if messages.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ messages.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                <i class="fas fa-chevron-right"></i>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-    </div>
-    {% endif %}
 </div>
 
-<!-- Resend Confirmation Modal -->
+<!-- Resend Confirmation Modal - Glass Style -->
 <div class="modal fade" id="resendModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-modal">
+            <div class="modal-header glass-modal-header">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-redo me-2"></i>Resend Message
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>Are you sure you want to resend this message?</p>
-                <p class="small text-muted mb-0">
+            <div class="modal-body glass-modal-body text-center">
+                <div class="glass-icon-primary mx-auto mb-3">
+                    <i class="fas fa-paper-plane fa-3x"></i>
+                </div>
+                <p class="mb-2">Are you sure you want to resend this message?</p>
+                <p class="small glass-text-muted">
                     <i class="fas fa-info-circle me-1"></i>
                     The message will be sent again to the same recipient.
                 </p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <a href="#" id="confirmResendBtn" class="btn btn-primary">Resend</a>
+            <div class="modal-footer glass-modal-footer">
+                <button type="button" class="btn glass-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmResendBtn" class="btn glass-btn-primary">Resend</a>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-.sent-message-item {
-    transition: background-color 0.2s ease;
-    border-left: 3px solid transparent;
+/* Additional Styles */
+.glass-card-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
 }
-.sent-message-item:hover {
-    background-color: #f8f9fc;
+
+.glass-empty-state {
+    text-align: center;
+    padding: 3rem;
 }
-.sent-message-item .fa-check {
-    font-size: 1.1rem;
+
+.glass-icon-primary {
+    width: 70px;
+    height: 70px;
+    background: rgba(78, 115, 223, 0.2);
+    border-radius: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: #4e73df;
 }
-.sent-message-item .fa-check-double {
-    font-size: 1.1rem;
+
+.glass-text {
+    color: var(--bs-body-color);
+}
+
+.text-success {
+    color: #1cc88a !important;
+}
+
+.text-info {
+    color: #36b9cc !important;
+}
+
+.text-warning {
+    color: #f6c23e !important;
 }
 </style>
 
@@ -344,13 +720,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    checkboxes.forEach(cb => {
-        cb.addEventListener('change', updateSelectedCount);
-    });
+    if (checkboxes.length > 0) {
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateSelectedCount);
+        });
+    }
 });
 
 function updateSelectedCount() {
     const checked = Array.from(document.querySelectorAll('.message-checkbox:checked')).length;
+    const selectedCount = document.getElementById('selectedCount');
     if (selectedCount) {
         selectedCount.textContent = checked + ' message(s) selected';
     }
@@ -368,7 +747,13 @@ function deleteMessage(messageId) {
         .then(data => {
             if (data.success) {
                 location.reload();
+            } else {
+                alert('Error deleting message');
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Network error');
         });
     }
 }
@@ -395,7 +780,13 @@ function deleteSelected() {
         .then(data => {
             if (data.success) {
                 location.reload();
+            } else {
+                alert('Error deleting messages');
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Network error');
         });
     }
 }
@@ -404,6 +795,10 @@ function resendMessage(messageId) {
     const modal = new bootstrap.Modal(document.getElementById('resendModal'));
     document.getElementById('confirmResendBtn').href = `/messaging/${messageId}/resend/`;
     modal.show();
+}
+
+function forwardMessage(messageId) {
+    window.location.href = `/messaging/compose/?forward=${messageId}`;
 }
 </script>
 {% endblock %}

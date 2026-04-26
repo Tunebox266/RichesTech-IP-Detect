@@ -364,6 +364,34 @@ class BlogCommentLike(models.Model):
     def __str__(self):
         return f"{self.user.get_full_name()} liked a comment on {self.comment.blog.title}"
 
+
+class VideoVlogLike(models.Model):
+    """Likes on video vlogs"""
+    videovlog = models.ForeignKey('VideoVlog', on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vlog_likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['videovlog', 'user']  # Prevent duplicate likes
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.get_full_name()} liked {self.videovlog.title}"
+
+
+class VideoVlogCommentLike(models.Model):
+    """Likes on vlog comments"""
+    comment = models.ForeignKey('VideoVlogComment', on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vlog_comment_likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['comment', 'user']  # Prevent duplicate likes
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.get_full_name()} liked a comment on {self.comment.videovlog.title}"
+
 class VideoVlog(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()

@@ -4,290 +4,756 @@
 
 {% block title %}Event Attendees - {{ event.title }} - MELTSA-TaTU{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Event Attendees */
+    .glass-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+        padding-bottom: 2rem;
+    }
+    
+    .glass-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #224abe);
+        border-radius: 3px;
+    }
+    
+    /* Glass Stat Cards */
+    .glass-stat-primary, .glass-stat-success, .glass-stat-warning, .glass-stat-info {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .glass-stat-primary { background: linear-gradient(135deg, rgba(78, 115, 223, 0.9), rgba(34, 66, 190, 0.9)); }
+    .glass-stat-success { background: linear-gradient(135deg, rgba(28, 200, 138, 0.9), rgba(19, 133, 92, 0.9)); }
+    .glass-stat-warning { background: linear-gradient(135deg, rgba(246, 194, 62, 0.9), rgba(218, 165, 32, 0.9)); }
+    .glass-stat-info { background: linear-gradient(135deg, rgba(54, 185, 204, 0.9), rgba(37, 131, 145, 0.9)); }
+    
+    .glass-stat-primary:hover, .glass-stat-success:hover, .glass-stat-warning:hover, .glass-stat-info:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Glass Tabs Card */
+    .glass-tabs-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-tabs-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-tabs-header {
+        padding: 0.75rem 1.25rem 0 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.02);
+    }
+    
+    .glass-nav-tabs {
+        border-bottom: none;
+        gap: 0.25rem;
+    }
+    
+    .glass-nav-link {
+        padding: 0.6rem 1.25rem;
+        border-radius: 12px 12px 0 0;
+        color: var(--bs-body-color);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .glass-nav-link:hover {
+        background: rgba(78, 115, 223, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .glass-nav-link.active {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        color: white;
+    }
+    
+    /* Glass Table */
+    .glass-table-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+    }
+    
+    .glass-table-header {
+        background: rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-table-header th {
+        padding: 1rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--bs-body-color);
+    }
+    
+    .glass-table-row {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-table-row td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .glass-table-row:hover {
+        background: rgba(78, 115, 223, 0.05);
+        transform: translateX(3px);
+    }
+    
+    /* Glass Checkbox */
+    .glass-checkbox-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .glass-checkbox {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    .glass-checkbox-label {
+        position: relative;
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-checkbox-label:hover {
+        border-color: #4e73df;
+    }
+    
+    .glass-checkbox:checked + .glass-checkbox-label {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-color: #4e73df;
+    }
+    
+    .glass-checkbox:checked + .glass-checkbox-label::after {
+        content: '\f00c';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 10px;
+        color: white;
+    }
+    
+    /* Glass Badges */
+    .glass-badge-checked {
+        background: rgba(28, 200, 138, 0.2);
+        border: 1px solid rgba(28, 200, 138, 0.4);
+        color: #1cc88a;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-pending {
+        background: rgba(246, 194, 62, 0.2);
+        border: 1px solid rgba(246, 194, 62, 0.4);
+        color: #f6c23e;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-session {
+        background: rgba(54, 185, 204, 0.15);
+        border: 1px solid rgba(54, 185, 204, 0.3);
+        color: #36b9cc;
+        padding: 0.25rem 0.65rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    /* Glass Form Elements */
+    .glass-input-group {
+        position: relative;
+    }
+    
+    .glass-input-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--bs-gray-500);
+        z-index: 1;
+    }
+    
+    .glass-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem 0.6rem 2.5rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-select {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-select:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    /* Glass Buttons */
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-btn-success {
+        background: linear-gradient(135deg, #1cc88a, #13855c);
+        border: none;
+        border-radius: 10px;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.7rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(28, 200, 138, 0.3);
+    }
+    
+    .glass-btn-info {
+        background: linear-gradient(135deg, #36b9cc, #258391);
+        border: none;
+        border-radius: 10px;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.7rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-info:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(54, 185, 204, 0.3);
+    }
+    
+    /* Glass Pagination */
+    .glass-pagination {
+        gap: 0.25rem;
+    }
+    
+    .glass-page-link {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--bs-body-color);
+        border-radius: 10px;
+        margin: 0 2px;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-page-link:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .glass-page-active {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-color: transparent;
+        color: white;
+    }
+    
+    /* Glass Avatar */
+    .glass-avatar-sm {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-avatar-placeholder-sm {
+        width: 30px;
+        height: 30px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    @media (max-width: 768px) {
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-table-header th {
+            font-size: 0.65rem;
+            padding: 0.75rem;
+        }
+        
+        .glass-table-row td {
+            padding: 0.75rem;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-tabs-card,
+    [data-bs-theme="dark"] .glass-table-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-users me-2"></i>Event Attendees: {{ event.title }}
-        </h1>
-        <div>
-            <a href="{% url 'events:event_detail' event.id %}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Back to Event
-            </a>
-            <button class="btn btn-success btn-sm" onclick="exportAttendees()">
-                <i class="fas fa-download me-1"></i>Export
-            </button>
-        </div>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6">
-            <div class="card bg-primary text-white shadow h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <div class="h5 mb-0">{{ total_registered }}</div>
-                            <div class="small">Total Registered</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-users fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
+<div class="glass-container">
+    <div class="container-fluid">
+        <!-- Page Heading - Glass Style -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-users me-2"></i>Event Attendees: {{ event.title }}
+                </h1>
+                <p class="glass-text-muted mt-2">Manage and track event attendance</p>
             </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card bg-success text-white shadow h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <div class="h5 mb-0">{{ total_checked_in }}</div>
-                            <div class="small">Checked In</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
+            <div class="mt-3 mt-sm-0 no-print">
+                <a href="{% url 'events:event_detail' event.id %}" class="btn glass-btn-primary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Event
+                </a>
+                <button class="btn glass-btn-primary btn-sm" onclick="exportAttendees()">
+                    <i class="fas fa-download me-1"></i>Export
+                </button>
             </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card bg-warning text-white shadow h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <div class="h5 mb-0">{{ total_registered|add:total_checked_in }}</div>
-                            <div class="small">Not Checked In</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clock fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card bg-info text-white shadow h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <div class="h5 mb-0">{{ attendance_rate|floatformat:1 }}%</div>
-                            <div class="small">Attendance Rate</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-chart-line fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Filter Tabs -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <ul class="nav nav-tabs card-header-tabs">
-                <li class="nav-item">
-                    <a class="nav-link {% if status == 'all' %}active{% endif %}" 
-                       href="?status=all">
-                        <i class="fas fa-list me-1"></i>All ({{ total_registered }})
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if status == 'checked_in' %}active{% endif %}" 
-                       href="?status=checked_in">
-                        <i class="fas fa-check-circle me-1"></i>Checked In ({{ total_checked_in }})
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if status == 'pending' %}active{% endif %}" 
-                       href="?status=pending">
-                        <i class="fas fa-clock me-1"></i>Pending ({{ total_registered|add:total_checked_in }})
-                    </a>
-                </li>
-            </ul>
         </div>
 
-        <!-- Search -->
-        <div class="card-body border-bottom">
-            <form method="GET" action="{% url 'events:event_attendees' event.id %}" id="searchForm">
-                <input type="hidden" name="status" value="{{ status }}">
-                <div class="row">
-                    <div class="col-md-6 mb-2">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            <input type="text" name="search" class="form-control" 
-                                   placeholder="Search by name or ID..." value="{{ search_query }}">
+        <!-- Statistics Cards - Glass -->
+        <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-stat-primary">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="glass-stat-value text-white">{{ total_registered }}</div>
+                                <div class="glass-stat-label text-white-50">Total Registered</div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="glass-stat-icon">
+                                    <i class="fas fa-users fa-2x"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-2">
-                        <select name="session" class="form-select">
-                            <option value="">All Sessions</option>
-                            {% for session in sessions %}
-                                <option value="{{ session.id }}" {% if session_filter == session.id|stringformat:"s" %}selected{% endif %}>
-                                    {{ session.name }}
-                                </option>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-stat-success">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="glass-stat-value text-white">{{ total_checked_in }}</div>
+                                <div class="glass-stat-label text-white-50">Checked In</div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="glass-stat-icon">
+                                    <i class="fas fa-check-circle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-stat-warning">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="glass-stat-value text-white">{{ total_registered|add:total_checked_in }}</div>
+                                <div class="glass-stat-label text-white-50">Not Checked In</div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="glass-stat-icon">
+                                    <i class="fas fa-clock fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-stat-info">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="glass-stat-value text-white">{{ attendance_rate|floatformat:1 }}%</div>
+                                <div class="glass-stat-label text-white-50">Attendance Rate</div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="glass-stat-icon">
+                                    <i class="fas fa-chart-line fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Tabs - Glass Card -->
+        <div class="glass-tabs-card mb-4">
+            <div class="glass-tabs-header">
+                <ul class="nav nav-tabs glass-nav-tabs">
+                    <li class="nav-item">
+                        <a class="glass-nav-link {% if status == 'all' %}active{% endif %}" 
+                           href="?status=all">
+                            <i class="fas fa-list me-1"></i>All ({{ total_registered }})
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="glass-nav-link {% if status == 'checked_in' %}active{% endif %}" 
+                           href="?status=checked_in">
+                            <i class="fas fa-check-circle me-1"></i>Checked In ({{ total_checked_in }})
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="glass-nav-link {% if status == 'pending' %}active{% endif %}" 
+                           href="?status=pending">
+                            <i class="fas fa-clock me-1"></i>Pending ({{ total_registered|add:total_checked_in }})
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Search and Filter - Glass Form -->
+            <div class="card-body border-bottom" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                <form method="GET" action="{% url 'events:event_attendees' event.id %}" id="searchForm">
+                    <input type="hidden" name="status" value="{{ status }}">
+                    <div class="row g-2">
+                        <div class="col-md-5">
+                            <div class="glass-input-group">
+                                <i class="fas fa-search glass-input-icon"></i>
+                                <input type="text" name="search" class="glass-input" 
+                                       placeholder="Search by name or ID..." value="{{ search_query }}">
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <select name="session" class="glass-select">
+                                <option value="">All Sessions</option>
+                                {% for session in sessions %}
+                                    <option value="{{ session.id }}" {% if session_filter == session.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ session.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn glass-btn-primary w-100">
+                                <i class="fas fa-filter me-1"></i>Apply
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Attendees Table - Glass -->
+            <div class="glass-table-card">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead class="glass-table-header">
+                            <tr>
+                                <th width="50">
+                                    <div class="glass-checkbox-wrapper">
+                                        <input type="checkbox" class="glass-checkbox" id="selectAll">
+                                        <label for="selectAll" class="glass-checkbox-label"></label>
+                                    </div>
+                                </th>
+                                <th>Student</th>
+                                <th>ID</th>
+                                <th>Level</th>
+                                <th>Program</th>
+                                <th>Registered</th>
+                                <th>Status</th>
+                                <th>Check-in Time</th>
+                                <th>Sessions</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attendee in attendees %}
+                            <tr class="glass-table-row">
+                                <td>
+                                    <div class="glass-checkbox-wrapper">
+                                        <input type="checkbox" class="glass-checkbox attendee-checkbox" value="{{ attendee.id }}" id="attendee_{{ attendee.id }}">
+                                        <label for="attendee_{{ attendee.id }}" class="glass-checkbox-label"></label>
+                                    </div>
+                                </div>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        {% if attendee.user.profile_image %}
+                                            <img src="{{ attendee.user.profile_image.url }}" class="glass-avatar-sm">
+                                        {% else %}
+                                            <div class="glass-avatar-placeholder-sm">
+                                                <i class="fas fa-user text-white fa-xs"></i>
+                                            </div>
+                                        {% endif %}
+                                        {{ attendee.user.get_full_name }}
+                                    </div>
+                                </div>
+                                <td>{{ attendee.user.student_id }}</div>
+                                <td>Level {{ attendee.user.level }}</div>
+                                <td>{{ attendee.user.get_program_type_display }}</div>
+                                <td>
+                                    <small class="glass-text-muted">{{ attendee.registered_at|date:"M d, H:i" }}</small>
+                                </div>
+                                <td>
+                                    {% if attendee.attended %}
+                                        <span class="glass-badge-checked">
+                                            <i class="fas fa-check-circle me-1"></i>Checked In
+                                        </span>
+                                    {% else %}
+                                        <span class="glass-badge-pending">
+                                            <i class="fas fa-clock me-1"></i>Pending
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <td>
+                                    {% if attendee.checked_in_at %}
+                                        <small class="glass-text-muted">{{ attendee.checked_in_at|date:"M d, H:i" }}</small>
+                                    {% else %}
+                                        <span class="glass-text-muted">-</span>
+                                    {% endif %}
+                                </div>
+                                <td>
+                                    {% with attended_sessions=attendee.session_attendance %}
+                                        {% if attended_sessions %}
+                                            <span class="glass-badge-session">{{ attended_sessions }}/{{ sessions|length }}</span>
+                                        {% else %}
+                                            <span class="glass-badge-session">0/{{ sessions|length }}</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        {% if not attendee.attended %}
+                                            <form method="POST" action="{% url 'events:mark_attendance' attendee.id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn glass-btn-success" title="Mark Checked In">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        <a href="{% url 'directory:student_detail' attendee.user.id %}" class="btn glass-btn-info" title="View Profile">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </tr>
+                            {% empty %}
+                            <tr class="glass-table-row">
+                                <td colspan="10" class="text-center py-5">
+                                    <div class="glass-empty-state">
+                                        <i class="fas fa-users-slash fa-4x glass-text-muted mb-3"></i>
+                                        <h5 class="glass-text-muted">No Attendees Found</h5>
+                                        <p class="glass-text-muted">No attendees match your search criteria.</p>
+                                    </div>
+                                </div>
+                            </tr>
                             {% endfor %}
-                        </select>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bulk Actions - Glass Footer -->
+            {% if attendees %}
+            <div class="card-footer glass-card-footer bg-transparent">
+                <div class="row align-items-center g-2">
+                    <div class="col-auto">
+                        <span id="selectedCount" class="glass-text-muted">0 selected</span>
                     </div>
-                    <div class="col-md-2 mb-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-filter me-1"></i>Apply
+                    <div class="col-auto">
+                        <button class="btn glass-btn-primary btn-sm" onclick="markSelectedAttendance()">
+                            <i class="fas fa-check me-1"></i>Mark Checked In
+                        </button>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn glass-btn-primary btn-sm" onclick="sendMessageSelected()">
+                            <i class="fas fa-envelope me-1"></i>Send Message
                         </button>
                     </div>
                 </div>
-            </form>
-        </div>
-
-        <!-- Attendees Table -->
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="bg-light">
-                        <tr>
-                            <th width="50">
-                                <input type="checkbox" class="form-check-input" id="selectAll">
-                            </th>
-                            <th>Student</th>
-                            <th>ID</th>
-                            <th>Level</th>
-                            <th>Program</th>
-                            <th>Registered</th>
-                            <th>Status</th>
-                            <th>Check-in Time</th>
-                            <th>Sessions</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for attendee in attendees %}
-                        <tr>
-                            <td>
-                                <input type="checkbox" class="form-check-input attendee-checkbox" value="{{ attendee.id }}">
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    {% if attendee.user.profile_image %}
-                                        <img src="{{ attendee.user.profile_image.url }}" class="rounded-circle me-2" width="30" height="30">
-                                    {% else %}
-                                        <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
-                                            <i class="fas fa-user text-white"></i>
-                                        </div>
-                                    {% endif %}
-                                    {{ attendee.user.get_full_name }}
-                                </div>
-                            </td>
-                            <td>{{ attendee.user.student_id }}</td>
-                            <td>Level {{ attendee.user.level }}</td>
-                            <td>{{ attendee.user.get_program_type_display }}</td>
-                            <td>{{ attendee.registered_at|date:"M d, H:i" }}</td>
-                            <td>
-                                {% if attendee.attended %}
-                                    <span class="badge bg-success">Checked In</span>
-                                {% else %}
-                                    <span class="badge bg-warning">Pending</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if attendee.checked_in_at %}
-                                    {{ attendee.checked_in_at|date:"M d, H:i" }}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% with attended_sessions=attendee.session_attendance %}
-                                    {% if attended_sessions %}
-                                        <span class="badge bg-info">{{ attended_sessions }}/{{ sessions|length }}</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">0/{{ sessions|length }}</span>
-                                    {% endif %}
-                                {% endwith %}
-                            </td>
-                            <td>
-                                {% if not attendee.attended %}
-                                    <form method="POST" action="{% url 'events:mark_attendance' attendee.id %}" style="display: inline;">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-success">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </form>
-                                {% endif %}
-                                <a href="{% url 'directory:student_detail' attendee.user.id %}" class="btn btn-sm btn-info">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="10" class="text-center py-4">
-                                <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
-                                <p class="text-muted mb-0">No attendees found</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
             </div>
-        </div>
-
-        <!-- Bulk Actions -->
-        {% if attendees %}
-        <div class="card-footer">
-            <div class="row align-items-center">
-                <div class="col-auto">
-                    <span id="selectedCount" class="text-muted">0 selected</span>
-                </div>
-                <div class="col-auto">
-                    <button class="btn btn-sm btn-success" onclick="markSelectedAttendance()">
-                        <i class="fas fa-check me-1"></i>Mark Checked In
-                    </button>
-                </div>
-                <div class="col-auto">
-                    <button class="btn btn-sm btn-info" onclick="sendMessageSelected()">
-                        <i class="fas fa-envelope me-1"></i>Send Message
-                    </button>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- Pagination -->
-    {% if attendees.has_other_pages %}
-    <nav aria-label="Attendees pagination">
-        <ul class="pagination justify-content-center">
-            {% if attendees.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ attendees.previous_page_number }}&status={{ status }}{% if search_query %}&search={{ search_query }}{% endif %}">
-                        <i class="fas fa-chevron-left"></i>
-                    </a>
-                </li>
             {% endif %}
+        </div>
 
-            {% for i in attendees.paginator.page_range %}
-                {% if attendees.number == i %}
-                    <li class="page-item active"><span class="page-link">{{ i }}</span></li>
-                {% elif i > attendees.number|add:'-3' and i < attendees.number|add:'3' %}
+        <!-- Pagination - Glass -->
+        {% if attendees.has_other_pages %}
+        <nav aria-label="Attendees pagination">
+            <ul class="pagination glass-pagination justify-content-center">
+                {% if attendees.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ i }}&status={{ status }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ i }}</a>
+                        <a class="page-link glass-page-link" href="?page={{ attendees.previous_page_number }}&status={{ status }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link glass-page-link"><i class="fas fa-chevron-left"></i></span>
                     </li>
                 {% endif %}
-            {% endfor %}
 
-            {% if attendees.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ attendees.next_page_number }}&status={{ status }}{% if search_query %}&search={{ search_query }}{% endif %}">
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                </li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
+                {% for i in attendees.paginator.page_range %}
+                    {% if attendees.number == i %}
+                        <li class="page-item active">
+                            <span class="page-link glass-page-link glass-page-active">{{ i }}</span>
+                        </li>
+                    {% elif i > attendees.number|add:'-3' and i < attendees.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link glass-page-link" href="?page={{ i }}&status={{ status }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ i }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if attendees.has_next %}
+                    <li class="page-item">
+                        <a class="page-link glass-page-link" href="?page={{ attendees.next_page_number }}&status={{ status }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link glass-page-link"><i class="fas fa-chevron-right"></i></span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
 </div>
+
+<style>
+/* Additional Styles */
+.glass-stat-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+}
+
+.glass-stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.glass-stat-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.glass-stat-primary:hover .glass-stat-icon,
+.glass-stat-success:hover .glass-stat-icon,
+.glass-stat-warning:hover .glass-stat-icon,
+.glass-stat-info:hover .glass-stat-icon {
+    transform: scale(1.1);
+}
+
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.glass-card-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+}
+
+.glass-empty-state {
+    text-align: center;
+    padding: 2rem;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -310,7 +776,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function updateSelectedCount() {
         const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
-        selectedCount.textContent = checked + ' selected';
+        if (selectedCount) {
+            selectedCount.textContent = checked + ' selected';
+        }
     }
 });
 
@@ -324,7 +792,6 @@ function markSelectedAttendance() {
     }
     
     if (confirm('Mark attendance for ' + selected.length + ' attendee(s)?')) {
-        // Implement bulk attendance marking
         fetch('{% url "events:bulk_mark_attendance" event.id %}', {
             method: 'POST',
             headers: {
@@ -337,7 +804,12 @@ function markSelectedAttendance() {
         .then(data => {
             if (data.success) {
                 location.reload();
+            } else {
+                alert('Error marking attendance');
             }
+        })
+        .catch(error => {
+            alert('Error marking attendance');
         });
     }
 }

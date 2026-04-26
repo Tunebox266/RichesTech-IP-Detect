@@ -6,42 +6,54 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Page Heading -->
+    <!-- Page Heading - Glass Style -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
+        <h1 class="glass-title-registration">
             <i class="fas fa-pen me-2"></i>Course Registration
         </h1>
-        <div>
-            <span class="badge bg-primary me-2">
+        <div class="glass-badge-group">
+            <span class="glass-badge-primary">
                 <i class="fas fa-calendar me-1"></i>{{ current_academic }}
             </span>
-            <span class="badge bg-info">
+            <span class="glass-badge-info">
                 <i class="fas fa-layer-group me-1"></i>Level {{ request.user.level }}
             </span>
         </div>
     </div>
 
-    <!-- Registration Info -->
+    <!-- Registration Info - Glass Card -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card bg-gradient-primary text-white shadow-lg">
-                <div class="card-body">
+            <div class="glass-info-card">
+                <div class="card-body p-4">
                     <div class="row align-items-center">
                         <div class="col-lg-8">
-                            <h5 class="mb-2">
+                            <h5 class="mb-3 text-white">
                                 <i class="fas fa-info-circle me-2"></i>Registration Guidelines
                             </h5>
-                            <ul class="mb-0 small">
-                                <li>You can register for a maximum of 10 courses per semester</li>
-                                <li>Make sure to check course prerequisites before registering</li>
-                                <li>Registration deadline: {{ current_academic.registration_deadline|date:"F d, Y" }}</li>
-                                <li>You have currently registered <strong>{{ registered_count }}</strong> courses</li>
-                            </ul>
+                            <div class="glass-guideline-list">
+                                <div class="glass-guideline-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    You can register for a maximum of 10 courses per semester
+                                </div>
+                                <div class="glass-guideline-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Make sure to check course prerequisites before registering
+                                </div>
+                                <div class="glass-guideline-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Registration deadline: {{ current_academic.registration_deadline|date:"F d, Y" }}
+                                </div>
+                                <div class="glass-guideline-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    You have currently registered <strong class="text-warning">{{ registered_count }}</strong> courses
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-lg-4 text-lg-end">
-                            <div class="bg-white text-primary rounded p-3 d-inline-block">
-                                <h3 class="mb-0">{{ available_courses.count }}</h3>
-                                <small>Available Courses</small>
+                        <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                            <div class="glass-stats-badge">
+                                <div class="glass-stats-number">{{ available_courses.count }}</div>
+                                <div class="glass-stats-label">Available Courses</div>
                             </div>
                         </div>
                     </div>
@@ -53,37 +65,40 @@
     <form method="POST" action="{% url 'courses:register_courses' %}" id="registrationForm">
         {% csrf_token %}
         
-        <!-- Available Courses -->
+        <!-- Available Courses and Summary -->
         <div class="row">
             <div class="col-md-8">
-                <!-- Semester Tabs -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <ul class="nav nav-tabs card-header-tabs" id="semesterTab" role="tablist">
+                <!-- Semester Tabs - Glass Card -->
+                <div class="glass-tabs-card">
+                    <div class="card-header glass-tabs-header">
+                        <ul class="nav nav-tabs glass-nav-tabs" id="semesterTab" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="first-semester-tab" data-bs-toggle="tab" 
+                                <button class="nav-link glass-tab-link active" id="first-semester-tab" data-bs-toggle="tab" 
                                         data-bs-target="#first-semester" type="button" role="tab">
                                     <i class="fas fa-sun me-1"></i>First Semester
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="second-semester-tab" data-bs-toggle="tab" 
+                                <button class="nav-link glass-tab-link" id="second-semester-tab" data-bs-toggle="tab" 
                                         data-bs-target="#second-semester" type="button" role="tab">
                                     <i class="fas fa-cloud-sun me-1"></i>Second Semester
                                 </button>
                             </li>
                         </ul>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body glass-card-body">
                         <div class="tab-content" id="semesterTabContent">
                             <!-- First Semester -->
                             <div class="tab-pane fade show active" id="first-semester" role="tabpanel">
                                 <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="bg-light">
+                                    <table class="glass-table-registration">
+                                        <thead class="glass-table-header">
                                             <tr>
-                                                <th width="50">
-                                                    <input type="checkbox" id="selectAllFirst" class="form-check-input">
+                                                <th width="50" class="text-center">
+                                                    <div class="glass-checkbox-wrapper">
+                                                        <input type="checkbox" id="selectAllFirst" class="glass-checkbox">
+                                                        <label for="selectAllFirst" class="glass-checkbox-label"></label>
+                                                    </div>
                                                 </th>
                                                 <th>Code</th>
                                                 <th>Course Title</th>
@@ -94,29 +109,35 @@
                                         <tbody>
                                             {% for course in available_courses %}
                                                 {% if course.semester == 1 %}
-                                                <tr class="course-row" data-credits="{{ course.credit_hours }}">
-                                                    <td>
-                                                        <input type="checkbox" name="courses" value="{{ course.id }}" 
-                                                               class="form-check-input course-checkbox first-semester-checkbox"
-                                                               data-credits="{{ course.credit_hours }}">
+                                                <tr class="glass-table-row course-row" data-credits="{{ course.credit_hours }}">
+                                                    <td class="text-center">
+                                                        <div class="glass-checkbox-wrapper">
+                                                            <input type="checkbox" name="courses" value="{{ course.id }}" 
+                                                                   class="glass-checkbox course-checkbox first-semester-checkbox"
+                                                                   data-credits="{{ course.credit_hours }}"
+                                                                   id="course_{{ course.id }}">
+                                                            <label for="course_{{ course.id }}" class="glass-checkbox-label"></label>
+                                                        </div>
                                                     </td>
-                                                    <td><strong>{{ course.code }}</strong></td>
-                                                    <td>{{ course.title }}</td>
-                                                    <td>{{ course.credit_hours }}</td>
+                                                    <td><strong class="glass-text-primary">{{ course.code }}</strong></td>
+                                                    <td class="glass-text">{{ course.title }}</td>
+                                                    <td><span class="glass-badge-credit">{{ course.credit_hours }}</span></td>
                                                     <td>
                                                         {% if course.id in registered_courses %}
-                                                            <span class="badge bg-success">Registered</span>
+                                                            <span class="glass-badge-success-sm"><i class="fas fa-check-circle me-1"></i>Registered</span>
                                                         {% else %}
-                                                            <span class="badge bg-info">Available</span>
+                                                            <span class="glass-badge-info-sm"><i class="fas fa-clock me-1"></i>Available</span>
                                                         {% endif %}
                                                     </td>
                                                 </tr>
                                                 {% endif %}
                                             {% empty %}
                                                 <tr>
-                                                    <td colspan="5" class="text-center py-4">
-                                                        <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
-                                                        <p class="text-muted mb-0">No courses available for first semester</p>
+                                                    <td colspan="5" class="glass-empty-table">
+                                                        <div class="glass-empty-state">
+                                                            <i class="fas fa-book-open fa-3x glass-text-muted mb-3"></i>
+                                                            <p class="glass-text-muted mb-0">No courses available for first semester</p>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             {% endfor %}
@@ -128,11 +149,14 @@
                             <!-- Second Semester -->
                             <div class="tab-pane fade" id="second-semester" role="tabpanel">
                                 <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="bg-light">
+                                    <table class="glass-table-registration">
+                                        <thead class="glass-table-header">
                                             <tr>
-                                                <th width="50">
-                                                    <input type="checkbox" id="selectAllSecond" class="form-check-input">
+                                                <th width="50" class="text-center">
+                                                    <div class="glass-checkbox-wrapper">
+                                                        <input type="checkbox" id="selectAllSecond" class="glass-checkbox">
+                                                        <label for="selectAllSecond" class="glass-checkbox-label"></label>
+                                                    </div>
                                                 </th>
                                                 <th>Code</th>
                                                 <th>Course Title</th>
@@ -143,29 +167,35 @@
                                         <tbody>
                                             {% for course in available_courses %}
                                                 {% if course.semester == 2 %}
-                                                <tr class="course-row" data-credits="{{ course.credit_hours }}">
-                                                    <td>
-                                                        <input type="checkbox" name="courses" value="{{ course.id }}" 
-                                                               class="form-check-input course-checkbox second-semester-checkbox"
-                                                               data-credits="{{ course.credit_hours }}">
+                                                <tr class="glass-table-row course-row" data-credits="{{ course.credit_hours }}">
+                                                    <td class="text-center">
+                                                        <div class="glass-checkbox-wrapper">
+                                                            <input type="checkbox" name="courses" value="{{ course.id }}" 
+                                                                   class="glass-checkbox course-checkbox second-semester-checkbox"
+                                                                   data-credits="{{ course.credit_hours }}"
+                                                                   id="course_{{ course.id }}">
+                                                            <label for="course_{{ course.id }}" class="glass-checkbox-label"></label>
+                                                        </div>
                                                     </td>
-                                                    <td><strong>{{ course.code }}</strong></td>
-                                                    <td>{{ course.title }}</td>
-                                                    <td>{{ course.credit_hours }}</td>
+                                                    <td><strong class="glass-text-primary">{{ course.code }}</strong></td>
+                                                    <td class="glass-text">{{ course.title }}</td>
+                                                    <td><span class="glass-badge-credit">{{ course.credit_hours }}</span></td>
                                                     <td>
                                                         {% if course.id in registered_courses %}
-                                                            <span class="badge bg-success">Registered</span>
+                                                            <span class="glass-badge-success-sm"><i class="fas fa-check-circle me-1"></i>Registered</span>
                                                         {% else %}
-                                                            <span class="badge bg-info">Available</span>
+                                                            <span class="glass-badge-info-sm"><i class="fas fa-clock me-1"></i>Available</span>
                                                         {% endif %}
                                                     </td>
                                                 </tr>
                                                 {% endif %}
                                             {% empty %}
                                                 <tr>
-                                                    <td colspan="5" class="text-center py-4">
-                                                        <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
-                                                        <p class="text-muted mb-0">No courses available for second semester</p>
+                                                    <td colspan="5" class="glass-empty-table">
+                                                        <div class="glass-empty-state">
+                                                            <i class="fas fa-book-open fa-3x glass-text-muted mb-3"></i>
+                                                            <p class="glass-text-muted mb-0">No courses available for second semester</p>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             {% endfor %}
@@ -178,43 +208,44 @@
                 </div>
             </div>
 
-            <!-- Registration Summary -->
+            <!-- Registration Summary - Glass Sticky Card -->
             <div class="col-md-4">
-                <div class="card shadow sticky-top" style="top: 20px;">
-                    <div class="card-header bg-primary text-white">
-                        <h6 class="m-0 font-weight-bold">
+                <div class="glass-summary-card sticky-top" style="top: 20px;">
+                    <div class="card-header glass-summary-header">
+                        <h6 class="m-0 fw-bold text-white">
                             <i class="fas fa-shopping-cart me-1"></i>Registration Summary
                         </h6>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body glass-card-body">
                         <div id="selectedCourses">
-                            <p class="text-muted text-center py-3" id="noSelectionMsg">
-                                <i class="fas fa-arrow-left me-2"></i>Select courses from the list
-                            </p>
+                            <div id="noSelectionMsg" class="glass-no-selection">
+                                <i class="fas fa-arrow-left fa-2x glass-text-muted mb-2"></i>
+                                <p class="glass-text-muted mb-0">Select courses from the list</p>
+                            </div>
                             <div id="selectedList" style="display: none;">
-                                <h6 class="fw-bold mb-3">Selected Courses:</h6>
-                                <div id="selectedCoursesList" class="mb-3"></div>
+                                <h6 class="glass-summary-title mb-3">Selected Courses:</h6>
+                                <div id="selectedCoursesList" class="glass-selected-list mb-3"></div>
                                 
-                                <hr>
+                                <hr class="glass-divider">
                                 
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span>Total Courses:</span>
-                                    <span class="fw-bold" id="totalCourses">0</span>
+                                <div class="glass-summary-row">
+                                    <span class="glass-summary-label">Total Courses:</span>
+                                    <span class="glass-summary-value" id="totalCourses">0</span>
                                 </div>
-                                <div class="d-flex justify-content-between mb-3">
-                                    <span>Total Credits:</span>
-                                    <span class="fw-bold" id="totalCredits">0</span>
+                                <div class="glass-summary-row mb-3">
+                                    <span class="glass-summary-label">Total Credits:</span>
+                                    <span class="glass-summary-value glass-text-accent" id="totalCredits">0</span>
                                 </div>
                                 
-                                <div class="alert alert-warning small" id="limitWarning" style="display: none;">
-                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                <div id="limitWarning" class="glass-alert-warning-sm" style="display: none;">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
                                     Maximum course limit reached (10 courses)
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+                    <div class="card-footer glass-summary-footer">
+                        <button type="submit" class="btn glass-btn-primary w-100" id="submitBtn">
                             <i class="fas fa-check me-2"></i>Register Selected Courses
                         </button>
                     </div>
@@ -225,17 +256,458 @@
 </div>
 
 <style>
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+/* Glass Morphism Styles for Course Registration */
+
+/* Glass Title */
+.glass-title-registration {
+    font-size: 1.75rem;
+    font-weight: 800;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
-.course-row {
-    transition: background-color 0.2s ease;
+
+.glass-title-registration::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #4e73df, #224abe);
+    border-radius: 3px;
 }
-.course-row:hover {
-    background-color: #f8f9fc;
+
+/* Glass Badge Group */
+.glass-badge-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
 }
+
+.glass-badge-primary {
+    background: rgba(78, 115, 223, 0.2);
+    border: 1px solid rgba(78, 115, 223, 0.5);
+    color: #4e73df;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.glass-badge-info {
+    background: rgba(54, 185, 204, 0.2);
+    border: 1px solid rgba(54, 185, 204, 0.5);
+    color: #36b9cc;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Glass Info Card */
+.glass-info-card {
+    background: linear-gradient(135deg, rgba(78, 115, 223, 0.95), rgba(34, 66, 190, 0.95));
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.glass-info-card:hover {
+    transform: translateY(-2px);
+}
+
+.glass-guideline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.glass-guideline-item {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.85rem;
+}
+
+.glass-stats-badge {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 1rem 1.5rem;
+    text-align: center;
+    backdrop-filter: blur(5px);
+}
+
+.glass-stats-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: white;
+}
+
+.glass-stats-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Glass Tabs Card */
+.glass-tabs-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.glass-tabs-header {
+    background: rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 1.25rem 0 1.25rem;
+}
+
+.glass-nav-tabs {
+    border-bottom: none;
+    gap: 0.5rem;
+}
+
+.glass-tab-link {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--bs-body-color);
+    border-radius: 12px 12px 0 0;
+    padding: 0.6rem 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.glass-tab-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.glass-tab-link.active {
+    background: rgba(78, 115, 223, 0.2);
+    border-color: #4e73df;
+    color: #4e73df;
+}
+
+/* Glass Card Body */
+.glass-card-body {
+    padding: 1.25rem;
+}
+
+/* Glass Table */
+.glass-table-registration {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.glass-table-header th {
+    background: rgba(0, 0, 0, 0.03);
+    padding: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-table-row {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-table-row td {
+    padding: 0.875rem 1rem;
+    vertical-align: middle;
+}
+
+.glass-table-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(3px);
+}
+
+/* Glass Checkbox */
+.glass-checkbox-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.glass-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.glass-checkbox-label {
+    position: relative;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.glass-checkbox-label:hover {
+    border-color: #4e73df;
+}
+
+.glass-checkbox:checked + .glass-checkbox-label {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border-color: #4e73df;
+}
+
+.glass-checkbox:checked + .glass-checkbox-label::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    color: white;
+}
+
+/* Glass Badges */
+.glass-badge-credit {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    background: rgba(78, 115, 223, 0.15);
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #4e73df;
+}
+
+.glass-badge-success-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.65rem;
+    background: rgba(28, 200, 138, 0.15);
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #1cc88a;
+}
+
+.glass-badge-info-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.65rem;
+    background: rgba(54, 185, 204, 0.15);
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #36b9cc;
+}
+
+/* Glass Text */
+.glass-text {
+    color: var(--bs-body-color);
+}
+
+.glass-text-primary {
+    color: #4e73df;
+}
+
+.glass-text-muted {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.glass-text-accent {
+    color: #4e73df;
+}
+
+[data-bs-theme="dark"] .glass-text-muted {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Glass Empty State */
+.glass-empty-table {
+    text-align: center;
+    padding: 2rem;
+}
+
+.glass-empty-state {
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Glass Summary Card */
+.glass-summary-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.glass-summary-header {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-summary-footer {
+    background: rgba(0, 0, 0, 0.03);
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Glass No Selection */
+.glass-no-selection {
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Glass Selected List */
+.glass-selected-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.glass-selected-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.glass-selected-item:last-child {
+    border-bottom: none;
+}
+
+/* Glass Summary Row */
+.glass-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.glass-summary-label {
+    font-size: 0.85rem;
+    color: var(--bs-gray-600);
+}
+
+.glass-summary-value {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--bs-body-color);
+}
+
+/* Glass Divider */
+.glass-divider {
+    margin: 1rem 0;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Glass Alert Warning */
+.glass-alert-warning-sm {
+    background: rgba(246, 194, 62, 0.15);
+    border: 1px solid rgba(246, 194, 62, 0.3);
+    border-radius: 10px;
+    padding: 0.75rem;
+    font-size: 0.75rem;
+    color: #f6c23e;
+    margin-top: 0.5rem;
+}
+
+/* Glass Summary Title */
+.glass-summary-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--bs-body-color);
+}
+
+/* Glass Button Primary */
+.glass-btn-primary {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(78, 115, 223, 0.3);
+}
+
+.glass-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Select All Checkbox Alignment */
+.glass-table-header th:first-child {
+    text-align: center;
+}
+
+/* Sticky Summary Card */
 .sticky-top {
+    position: sticky;
+    top: 20px;
     z-index: 100;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .glass-title-registration {
+        font-size: 1.25rem;
+    }
+    
+    .glass-badge-group {
+        flex-wrap: wrap;
+    }
+    
+    .glass-stats-number {
+        font-size: 1.5rem;
+    }
+    
+    .glass-tab-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .glass-table-registration {
+        font-size: 0.8rem;
+    }
+    
+    .glass-table-row td,
+    .glass-table-header th {
+        padding: 0.6rem;
+    }
+}
+
+/* Dark Theme Adjustments */
+[data-bs-theme="dark"] .glass-tabs-card,
+[data-bs-theme="dark"] .glass-summary-card {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+[data-bs-theme="dark"] .glass-table-header th {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+[data-bs-theme="dark"] .glass-selected-item {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
 }
 </style>
 
@@ -251,19 +723,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('submitBtn');
     
     // Select All functionality
-    document.getElementById('selectAllFirst')?.addEventListener('change', function(e) {
-        document.querySelectorAll('.first-semester-checkbox').forEach(cb => {
-            cb.checked = e.target.checked;
-        });
-        updateSummary();
-    });
+    const selectAllFirst = document.getElementById('selectAllFirst');
+    const selectAllSecond = document.getElementById('selectAllSecond');
     
-    document.getElementById('selectAllSecond')?.addEventListener('change', function(e) {
-        document.querySelectorAll('.second-semester-checkbox').forEach(cb => {
-            cb.checked = e.target.checked;
+    if (selectAllFirst) {
+        selectAllFirst.addEventListener('change', function(e) {
+            document.querySelectorAll('.first-semester-checkbox').forEach(cb => {
+                cb.checked = e.target.checked;
+                // Update the custom checkbox visual
+                const label = cb.nextElementSibling;
+                if (label && label.classList.contains('glass-checkbox-label')) {
+                    // Visual is handled by CSS :checked state
+                }
+            });
+            updateSummary();
         });
-        updateSummary();
-    });
+    }
+    
+    if (selectAllSecond) {
+        selectAllSecond.addEventListener('change', function(e) {
+            document.querySelectorAll('.second-semester-checkbox').forEach(cb => {
+                cb.checked = e.target.checked;
+            });
+            updateSummary();
+        });
+    }
     
     // Update summary on checkbox change
     checkboxes.forEach(checkbox => {
@@ -290,10 +774,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const row = cb.closest('tr');
                 const code = row.cells[1].textContent.trim();
                 const title = row.cells[2].textContent.trim();
-                html += `<div class="d-flex justify-content-between align-items-center mb-2 small">
-                            <span><strong>${code}</strong> - ${title}</span>
-                            <button type="button" class="btn btn-sm btn-link text-danger p-0" onclick="deselectCourse('${cb.value}')">
-                                <i class="fas fa-times"></i>
+                html += `<div class="glass-selected-item d-flex justify-content-between align-items-center mb-2 small">
+                            <span><strong class="glass-text-primary">${code}</strong> <span class="glass-text-muted">- ${title}</span></span>
+                            <button type="button" class="btn btn-sm btn-link text-danger p-0" onclick="deselectCourse('${cb.value}')" style="text-decoration: none;">
+                                <i class="fas fa-times-circle"></i>
                             </button>
                         </div>`;
             });

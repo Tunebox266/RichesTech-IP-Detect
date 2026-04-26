@@ -7,81 +7,89 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Page Heading -->
+    <!-- Page Heading - Glass Style -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
+        <h1 class="glass-title">
             <i class="fas fa-user-circle me-2"></i>User Details
         </h1>
-        <div>
-            <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary btn-sm">
+        <div class="glass-button-group">
+            <a href="{% url 'accounts:user_list' %}" class="btn glass-btn-secondary btn-sm">
                 <i class="fas fa-arrow-left me-1"></i>Back to Users
             </a>
-            <a href="{% url 'accounts:user_edit' profile_user.id %}" class="btn btn-warning btn-sm">
+            <a href="{% url 'accounts:user_edit' profile_user.id %}" class="btn glass-btn-warning btn-sm">
                 <i class="fas fa-edit me-1"></i>Edit User
             </a>
-            <button class="btn btn-danger btn-sm" onclick="confirmDelete({{ profile_user.id }})">
+            <button class="btn glass-btn-danger btn-sm" onclick="confirmDelete({{ profile_user.id }})">
                 <i class="fas fa-trash me-1"></i>Delete User
             </button>
         </div>
     </div>
 
-    <!-- User Overview Cards -->
+    <!-- User Overview Cards - Glass Morphism -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-primary text-white shadow h-100">
+            <div class="glass-stat-card-primary">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">
-                            <div class="h5 mb-0">{{ registered_courses|length }}</div>
-                            <div class="small">Registered Courses</div>
+                            <div class="glass-stat-value">{{ registered_courses|length }}</div>
+                            <div class="glass-stat-label">Registered Courses</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-book-open fa-2x"></i>
+                            <div class="glass-stat-icon">
+                                <i class="fas fa-book-open fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-success text-white shadow h-100">
+            <div class="glass-stat-card-success">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">
-                            <div class="h5 mb-0">GHS {{ total_paid|floatformat:2 }}</div>
-                            <div class="small">Total Paid</div>
+                            <div class="glass-stat-value">GHS {{ total_paid|floatformat:2 }}</div>
+                            <div class="glass-stat-label">Total Paid</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-credit-card fa-2x"></i>
+                            <div class="glass-stat-icon">
+                                <i class="fas fa-credit-card fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-info text-white shadow h-100">
+            <div class="glass-stat-card-info">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">
-                            <div class="h5 mb-0">{{ successful_payments }}</div>
-                            <div class="small">Successful Payments</div>
+                            <div class="glass-stat-value">{{ successful_payments }}</div>
+                            <div class="glass-stat-label">Successful Payments</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x"></i>
+                            <div class="glass-stat-icon">
+                                <i class="fas fa-check-circle fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-warning text-white shadow h-100">
+            <div class="glass-stat-card-warning">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">
-                            <div class="h5 mb-0">{{ pending_payments }}</div>
-                            <div class="small">Pending Payments</div>
+                            <div class="glass-stat-value">{{ pending_payments }}</div>
+                            <div class="glass-stat-label">Pending Payments</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-clock fa-2x"></i>
+                            <div class="glass-stat-icon">
+                                <i class="fas fa-clock fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -90,127 +98,115 @@
     </div>
 
     <div class="row">
-        <!-- Left Column - User Profile Card -->
+        <!-- Left Column - User Profile Card Glass -->
         <div class="col-xl-4 col-lg-5 mb-4">
-            <div class="card glass-card shadow h-100">
-                <div class="card-header bg-gradient-primary text-white py-3">
-                    <h6 class="m-0 font-weight-bold">
+            <div class="glass-profile-card">
+                <div class="card-header glass-profile-header">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-id-card me-1"></i>User Information
                     </h6>
                 </div>
                 <div class="card-body text-center">
                     <!-- Profile Image -->
-                    <div class="mb-4">
+                    <div class="glass-profile-image mb-4">
                         {% if profile_user.profile_image %}
-                            <img src="{{ profile_user.profile_image.url }}" class="rounded-circle img-thumbnail" 
+                            <img src="{{ profile_user.profile_image.url }}" class="rounded-circle glass-avatar-large" 
                                  width="150" height="150" style="object-fit: cover;">
                         {% else %}
-                            <div class="bg-gradient-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" 
-                                 style="width: 150px; height: 150px; font-size: 3rem;">
+                            <div class="glass-avatar-initials">
                                 {{ profile_user.first_name|first|upper }}{{ profile_user.last_name|first|upper }}
                             </div>
                         {% endif %}
                     </div>
                     
-                    <h4 class="mb-1">{{ profile_user.get_full_name }}</h4>
-                    <p class="text-primary mb-2">
+                    <h4 class="mb-1 glass-text">{{ profile_user.get_full_name }}</h4>
+                    <p class="glass-text-primary mb-2">
                         <i class="fas fa-id-card me-1"></i>
                         {% if profile_user.student_id %}{{ profile_user.student_id }}{% else %}{{ profile_user.staff_id }}{% endif %}
                     </p>
                     
                     <div class="mb-3">
-                        <span class="badge bg-{% if profile_user.user_type == 'student' %}info{% elif profile_user.user_type == 'staff' %}success{% elif profile_user.user_type == 'executive' %}warning{% else %}primary{% endif %} p-2">
-                            <i class="fas 
-                                {% if profile_user.user_type == 'student' %}fa-user-graduate
-                                {% elif profile_user.user_type == 'staff' %}fa-chalkboard-teacher
-                                {% elif profile_user.user_type == 'executive' %}fa-user-tie
-                                {% else %}fa-user-shield{% endif %} me-1"></i>
-                            {{ profile_user.get_user_type_display }}
-                        </span>
+                        {% if profile_user.user_type == 'student' %}
+                            <span class="glass-badge-info"><i class="fas fa-user-graduate me-1"></i>{{ profile_user.get_user_type_display }}</span>
+                        {% elif profile_user.user_type == 'staff' %}
+                            <span class="glass-badge-success"><i class="fas fa-chalkboard-user me-1"></i>{{ profile_user.get_user_type_display }}</span>
+                        {% elif profile_user.user_type == 'executive' %}
+                            <span class="glass-badge-warning"><i class="fas fa-user-tie me-1"></i>{{ profile_user.get_user_type_display }}</span>
+                        {% else %}
+                            <span class="glass-badge-primary"><i class="fas fa-user-shield me-1"></i>{{ profile_user.get_user_type_display }}</span>
+                        {% endif %}
                         
                         {% if profile_user.is_active %}
-                            <span class="badge bg-success ms-1 p-2">
-                                <i class="fas fa-check-circle me-1"></i>Active
-                            </span>
+                            <span class="glass-badge-active ms-1"><i class="fas fa-circle fa-xs me-1"></i>Active</span>
                         {% else %}
-                            <span class="badge bg-danger ms-1 p-2">
-                                <i class="fas fa-times-circle me-1"></i>Inactive
-                            </span>
+                            <span class="glass-badge-inactive ms-1"><i class="fas fa-circle fa-xs me-1"></i>Inactive</span>
                         {% endif %}
                     </div>
 
                     <!-- Contact Information -->
                     <div class="text-start mt-4">
-                        <h6 class="fw-bold border-bottom pb-2">Contact Information</h6>
-                        <table class="table table-sm">
-                            <tr>
-                                <th width="35%"><i class="fas fa-envelope text-primary me-2"></i>Email:</th>
-                                <td>
-                                    <a href="mailto:{{ profile_user.email }}">{{ profile_user.email }}</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th><i class="fas fa-phone text-success me-2"></i>Phone:</th>
-                                <td>{{ profile_user.phone_number|default:"Not provided" }}</td>
-                            </tr>
-                            <tr>
-                                <th><i class="fas fa-map-marker-alt text-danger me-2"></i>Address:</th>
-                                <td>{{ profile_user.address|default:"Not provided" }}</td>
-                            </tr>
-                            <tr>
-                                <th><i class="fas fa-birthday-cake text-info me-2"></i>DOB:</th>
-                                <td>{{ profile_user.date_of_birth|date:"M d, Y"|default:"Not provided" }}</td>
-                            </tr>
-                        </table>
+                        <h6 class="glass-section-title">Contact Information</h6>
+                        <div class="glass-info-row">
+                            <div class="glass-info-label"><i class="fas fa-envelope text-primary me-2"></i>Email:</div>
+                            <div class="glass-info-value"><a href="mailto:{{ profile_user.email }}" class="glass-link">{{ profile_user.email }}</a></div>
+                        </div>
+                        <div class="glass-info-row">
+                            <div class="glass-info-label"><i class="fas fa-phone text-success me-2"></i>Phone:</div>
+                            <div class="glass-info-value">{{ profile_user.phone_number|default:"<span class='glass-text-muted'>Not provided</span>"|safe }}</div>
+                        </div>
+                        <div class="glass-info-row">
+                            <div class="glass-info-label"><i class="fas fa-map-marker-alt text-danger me-2"></i>Address:</div>
+                            <div class="glass-info-value">{{ profile_user.address|default:"<span class='glass-text-muted'>Not provided</span>"|safe }}</div>
+                        </div>
+                        <div class="glass-info-row">
+                            <div class="glass-info-label"><i class="fas fa-birthday-cake text-info me-2"></i>DOB:</div>
+                            <div class="glass-info-value">{{ profile_user.date_of_birth|date:"M d, Y"|default:"<span class='glass-text-muted'>Not provided</span>"|safe }}</div>
+                        </div>
                     </div>
 
                     <!-- Account Information -->
                     <div class="text-start mt-3">
-                        <h6 class="fw-bold border-bottom pb-2">Account Information</h6>
-                        <table class="table table-sm">
-                            <tr>
-                                <th width="35%"><i class="fas fa-user me-2"></i>Username:</th>
-                                <td><code>{{ profile_user.username }}</code></td>
-                            </tr>
-                            <tr>
-                                <th><i class="fas fa-calendar-plus me-2"></i>Joined:</th>
-                                <td>{{ profile_user.date_joined|date:"M d, Y H:i" }}</td>
-                            </tr>
-                            <tr>
-                                <th><i class="fas fa-clock me-2"></i>Last Login:</th>
-                                <td>{{ profile_user.last_login|date:"M d, Y H:i"|default:"Never" }}</td>
-                            </tr>
-                            {% if profile_user.requires_password_change %}
-                            <tr>
-                                <th><i class="fas fa-key me-2"></i>Password:</th>
-                                <td><span class="badge bg-warning">Change Required</span></td>
-                            </tr>
-                            {% endif %}
-                        </table>
+                        <h6 class="glass-section-title">Account Information</h6>
+                        <div class="glass-info-row">
+                            <div class="glass-info-label"><i class="fas fa-user me-2"></i>Username:</div>
+                            <div class="glass-info-value"><code>{{ profile_user.username }}</code></div>
+                        </div>
+                        <div class="glass-info-row">
+                            <div class="glass-info-label"><i class="fas fa-calendar-plus me-2"></i>Joined:</div>
+                            <div class="glass-info-value">{{ profile_user.date_joined|date:"M d, Y H:i" }}</div>
+                        </div>
+                        <div class="glass-info-row">
+                            <div class="glass-info-label"><i class="fas fa-clock me-2"></i>Last Login:</div>
+                            <div class="glass-info-value">{{ profile_user.last_login|date:"M d, Y H:i"|default:"Never" }}</div>
+                        </div>
+                        {% if profile_user.requires_password_change %}
+                        <div class="glass-info-row">
+                            <div class="glass-info-label"><i class="fas fa-key me-2"></i>Password:</div>
+                            <div class="glass-info-value"><span class="glass-badge-warning">Change Required</span></div>
+                        </div>
+                        {% endif %}
                     </div>
 
                     <!-- Security Information (Admin Only) -->
                     {% if request.user.user_type == 'admin' %}
                     <div class="text-start mt-3">
-                        <h6 class="fw-bold border-bottom pb-2">Security Information</h6>
-                        <table class="table table-sm">
-                            <tr>
-                                <th width="35%"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Failed Logins:</th>
-                                <td>{{ profile_user.failed_login_attempts }}</td>
-                            </tr>
-                            {% if profile_user.account_locked_until %}
-                            <tr>
-                                <th><i class="fas fa-lock text-danger me-2"></i>Locked Until:</th>
-                                <td>{{ profile_user.account_locked_until|date:"M d, Y H:i" }}</td>
-                            </tr>
-                            {% endif %}
-                        </table>
+                        <h6 class="glass-section-title">Security Information</h6>
+                        <div class="glass-info-row">
+                            <div class="glass-info-label"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Failed Logins:</div>
+                            <div class="glass-info-value">{{ profile_user.failed_login_attempts }}</div>
+                        </div>
+                        {% if profile_user.account_locked_until %}
+                        <div class="glass-info-row">
+                            <div class="glass-info-label"><i class="fas fa-lock text-danger me-2"></i>Locked Until:</div>
+                            <div class="glass-info-value">{{ profile_user.account_locked_until|date:"M d, Y H:i" }}</div>
+                        </div>
+                        {% endif %}
                         
-                        <div class="d-grid gap-2 mt-3">
-                            <button class="btn btn-sm btn-warning" onclick="unlockAccount({{ profile_user.id }})">
+                        <div class="glass-action-buttons mt-3">
+                            <button class="btn glass-btn-outline-info btn-sm" onclick="unlockAccount({{ profile_user.id }})">
                                 <i class="fas fa-unlock me-1"></i>Unlock Account
                             </button>
-                            <button class="btn btn-sm btn-info" onclick="resetPassword({{ profile_user.id }})">
+                            <button class="btn glass-btn-outline-warning btn-sm" onclick="resetPassword({{ profile_user.id }})">
                                 <i class="fas fa-key me-1"></i>Reset Password
                             </button>
                         </div>
@@ -220,154 +216,120 @@
             </div>
         </div>
 
-        <!-- Right Column - Detailed Information -->
+        <!-- Right Column - Detailed Information Glass Cards -->
         <div class="col-xl-8 col-lg-7">
-            <!-- Academic Information (for students/executives) -->
+            <!-- Academic Information -->
             {% if profile_user.user_type in 'student,executive' %}
-            <div class="card glass-card shadow mb-4">
-                <div class="card-header bg-gradient-info text-white py-3">
-                    <h6 class="m-0 font-weight-bold">
+            <div class="glass-info-card mb-4">
+                <div class="card-header glass-card-header-success">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-graduation-cap me-1"></i>Academic Information
                     </h6>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <table class="table">
-                                <tr>
-                                    <th width="40%">Program Type:</th>
-                                    <td>{{ profile_user.get_program_type_display|default:"-" }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Current Level:</th>
-                                    <td>
-                                        {% if profile_user.level %}
-                                            Level {{ profile_user.level }}
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Year of Admission:</th>
-                                    <td>{{ profile_user.year_of_admission|default:"-" }}</td>
-                                </tr>
-                            </table>
+                <div class="card-body glass-card-body">
+                    <div class="glass-info-grid">
+                        <div class="glass-info-item">
+                            <span class="glass-info-label-sm">Program Type:</span>
+                            <span class="glass-info-value-sm">{{ profile_user.get_program_type_display|default:"-" }}</span>
                         </div>
-                        <div class="col-md-6">
-                            <table class="table">
-                                <tr>
-                                    <th width="40%">Department:</th>
-                                    <td>Medical Laboratory Science</td>
-                                </tr>
-                                <tr>
-                                    <th>Current Semester:</th>
-                                    <td>{{ current_academic.current_semester|default:"First" }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Academic Year:</th>
-                                    <td>{{ current_academic.academic_year|default:"2024/2025" }}</td>
-                                </tr>
-                            </table>
+                        <div class="glass-info-item">
+                            <span class="glass-info-label-sm">Current Level:</span>
+                            <span class="glass-info-value-sm">{% if profile_user.level %}Level {{ profile_user.level }}{% else %}-{% endif %}</span>
+                        </div>
+                        <div class="glass-info-item">
+                            <span class="glass-info-label-sm">Year of Admission:</span>
+                            <span class="glass-info-value-sm">{{ profile_user.year_of_admission|default:"-" }}</span>
+                        </div>
+                        <div class="glass-info-item">
+                            <span class="glass-info-label-sm">Department:</span>
+                            <span class="glass-info-value-sm">Medical Laboratory Science</span>
+                        </div>
+                        <div class="glass-info-item">
+                            <span class="glass-info-label-sm">Current Semester:</span>
+                            <span class="glass-info-value-sm">{{ current_academic.current_semester|default:"First" }}</span>
+                        </div>
+                        <div class="glass-info-item">
+                            <span class="glass-info-label-sm">Academic Year:</span>
+                            <span class="glass-info-value-sm">{{ current_academic.academic_year|default:"2024/2025" }}</span>
                         </div>
                     </div>
                 </div>
             </div>
             {% endif %}
 
-            <!-- Executive Profile (if applicable) -->
+            <!-- Executive Profile -->
             {% if executive_profile %}
-            <div class="card glass-card shadow mb-4">
-                <div class="card-header bg-gradient-warning text-white py-3">
-                    <h6 class="m-0 font-weight-bold">
+            <div class="glass-info-card mb-4">
+                <div class="card-header glass-card-header-warning">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-user-tie me-1"></i>Executive Information
                     </h6>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <table class="table">
-                                <tr>
-                                    <th width="40%">Position:</th>
-                                    <td>
-                                        <span class="badge bg-warning p-2">{{ executive_profile.get_position_display }}</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Executive Level:</th>
-                                    <td>{{ executive_profile.get_executive_level_display }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Tenure Start:</th>
-                                    <td>{{ executive_profile.tenure_start_date|date:"M d, Y" }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Tenure End:</th>
-                                    <td>{{ executive_profile.tenure_end_date|date:"M d, Y" }}</td>
-                                </tr>
-                            </table>
+                <div class="card-body glass-card-body">
+                    <div class="glass-info-grid">
+                        <div class="glass-info-item">
+                            <span class="glass-info-label-sm">Position:</span>
+                            <span class="glass-badge-warning-sm">{{ executive_profile.get_position_display }}</span>
                         </div>
-                        <div class="col-md-6">
-                            <table class="table">
-                                <tr>
-                                    <th width="40%">Status:</th>
-                                    <td>
-                                        <span class="badge bg-{% if executive_profile.tenure_status == 'active' %}success{% else %}secondary{% endif %}">
-                                            {{ executive_profile.get_tenure_status_display }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Remaining Days:</th>
-                                    <td>{{ executive_profile.remaining_tenure_days }} days</td>
-                                </tr>
-                                <tr>
-                                    <th>Official Email:</th>
-                                    <td>
-                                        {% if executive_profile.official_email %}
-                                            <a href="mailto:{{ executive_profile.official_email }}">{{ executive_profile.official_email }}</a>
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Office Hours:</th>
-                                    <td>{{ executive_profile.office_hours|default:"Not specified" }}</td>
-                                </tr>
-                            </table>
+                        <div class="glass-info-item">
+                            <span class="glass-info-label-sm">Executive Level:</span>
+                            <span class="glass-info-value-sm">{{ executive_profile.get_executive_level_display }}</span>
+                        </div>
+                        <div class="glass-info-item">
+                            <span class="glass-info-label-sm">Tenure Start:</span>
+                            <span class="glass-info-value-sm">{{ executive_profile.tenure_start_date|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="glass-info-item">
+                            <span class="glass-info-label-sm">Tenure End:</span>
+                            <span class="glass-info-value-sm">{{ executive_profile.tenure_end_date|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="glass-info-item">
+                            <span class="glass-info-label-sm">Status:</span>
+                            <span class="glass-badge-{% if executive_profile.tenure_status == 'active' %}success{% else %}secondary{% endif %}">{{ executive_profile.get_tenure_status_display }}</span>
+                        </div>
+                        <div class="glass-info-item">
+                            <span class="glass-info-label-sm">Remaining Days:</span>
+                            <span class="glass-info-value-sm">{{ executive_profile.remaining_tenure_days }} days</span>
+                        </div>
+                        <div class="glass-info-item glass-info-item-full">
+                            <span class="glass-info-label-sm">Official Email:</span>
+                            <span class="glass-info-value-sm">{% if executive_profile.official_email %}<a href="mailto:{{ executive_profile.official_email }}" class="glass-link">{{ executive_profile.official_email }}</a>{% else %}-{% endif %}</span>
+                        </div>
+                        <div class="glass-info-item glass-info-item-full">
+                            <span class="glass-info-label-sm">Office Hours:</span>
+                            <span class="glass-info-value-sm">{{ executive_profile.office_hours|default:"Not specified" }}</span>
                         </div>
                     </div>
                     
                     {% if executive_profile.manifesto %}
-                    <div class="mt-3">
-                        <h6 class="fw-bold">Manifesto:</h6>
-                        <p class="small">{{ executive_profile.manifesto }}</p>
+                    <div class="glass-text-block mt-3">
+                        <h6 class="glass-section-title-sm">Manifesto:</h6>
+                        <p class="glass-text-muted small">{{ executive_profile.manifesto }}</p>
                     </div>
                     {% endif %}
                     
                     {% if executive_profile.achievements %}
-                    <div class="mt-3">
-                        <h6 class="fw-bold">Achievements:</h6>
-                        <p class="small">{{ executive_profile.achievements }}</p>
+                    <div class="glass-text-block mt-3">
+                        <h6 class="glass-section-title-sm">Achievements:</h6>
+                        <p class="glass-text-muted small">{{ executive_profile.achievements }}</p>
                     </div>
                     {% endif %}
                 </div>
             </div>
             {% endif %}
 
-            <!-- Registered Courses -->
+            <!-- Registered Courses Table -->
             {% if registered_courses %}
-            <div class="card glass-card shadow mb-4">
-                <div class="card-header bg-gradient-success text-white py-3">
-                    <h6 class="m-0 font-weight-bold">
+            <div class="glass-table-card mb-4">
+                <div class="card-header glass-card-header-success">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-book-open me-1"></i>Registered Courses ({{ registered_courses|length }})
                     </h6>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="bg-light">
+                        <table class="glass-table">
+                            <thead class="glass-table-header">
                                 <tr>
                                     <th>Course Code</th>
                                     <th>Course Title</th>
@@ -379,9 +341,9 @@
                             </thead>
                             <tbody>
                                 {% for registration in registered_courses %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'courses:course_detail' registration.course.id %}">
+                                <tr class="glass-table-row">
+                                    <td class="fw-semibold">
+                                        <a href="{% url 'courses:course_detail' registration.course.id %}" class="glass-link">
                                             {{ registration.course.code }}
                                         </a>
                                     </td>
@@ -389,7 +351,7 @@
                                     <td>Level {{ registration.course.level }}</td>
                                     <td>{{ registration.course.get_semester_display }}</td>
                                     <td>{{ registration.course.credit_hours }}</td>
-                                    <td>{{ registration.registered_at|date:"M d, Y" }}</td>
+                                    <td class="glass-text-muted">{{ registration.registered_at|date:"M d, Y" }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -399,18 +361,18 @@
             </div>
             {% endif %}
 
-            <!-- Payment History -->
+            <!-- Payment History Table -->
             {% if payments %}
-            <div class="card glass-card shadow mb-4">
-                <div class="card-header bg-gradient-primary text-white py-3">
-                    <h6 class="m-0 font-weight-bold">
+            <div class="glass-table-card mb-4">
+                <div class="card-header glass-card-header-primary">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-credit-card me-1"></i>Payment History
                     </h6>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="bg-light">
+                        <table class="glass-table">
+                            <thead class="glass-table-header">
                                 <tr>
                                     <th>Date</th>
                                     <th>Due</th>
@@ -422,19 +384,21 @@
                             </thead>
                             <tbody>
                                 {% for payment in payments %}
-                                <tr>
-                                    <td>{{ payment.created_at|date:"M d, Y" }}</td>
+                                <tr class="glass-table-row">
+                                    <td class="glass-text-muted">{{ payment.created_at|date:"M d, Y" }}</td>
                                     <td>{{ payment.due.title }}</td>
-                                    <td>GHS {{ payment.amount|floatformat:2 }}</td>
+                                    <td class="fw-semibold">GHS {{ payment.amount|floatformat:2 }}</td>
+                                    <td><code class="glass-code">{{ payment.reference|truncatechars:12 }}</code></td>
                                     <td>
-                                        <small class="text-muted">{{ payment.reference|truncatechars:12 }}</small>
+                                        {% if payment.status == 'success' %}
+                                            <span class="glass-badge-active-sm"><i class="fas fa-check-circle me-1"></i>Success</span>
+                                        {% elif payment.status == 'pending' %}
+                                            <span class="glass-badge-warning-sm"><i class="fas fa-clock me-1"></i>Pending</span>
+                                        {% else %}
+                                            <span class="glass-badge-danger-sm"><i class="fas fa-times-circle me-1"></i>Failed</span>
+                                        {% endif %}
                                     </td>
-                                    <td>
-                                        <span class="badge bg-{% if payment.status == 'success' %}success{% elif payment.status == 'pending' %}warning{% else %}danger{% endif %}">
-                                            {{ payment.get_status_display }}
-                                        </span>
-                                    </td>
-                                    <td>{{ payment.paid_at|date:"M d, Y H:i"|default:"-" }}</td>
+                                    <td class="glass-text-muted">{{ payment.paid_at|date:"M d, Y H:i"|default:"-" }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -446,32 +410,28 @@
 
             <!-- Recent Activity -->
             {% if recent_activity %}
-            <div class="card glass-card shadow">
-                <div class="card-header bg-gradient-secondary text-white py-3">
-                    <h6 class="m-0 font-weight-bold">
+            <div class="glass-activity-card">
+                <div class="card-header glass-card-header-secondary">
+                    <h6 class="m-0 fw-bold text-dark">
                         <i class="fas fa-history me-1"></i>Recent Activity
                     </h6>
                 </div>
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
+                    <div class="glass-activity-list">
                         {% for activity in recent_activity %}
-                        <div class="list-group-item">
-                            <div class="row align-items-center">
-                                <div class="col-auto">
-                                    <div class="activity-icon bg-{{ activity.action_type|activity_color }} text-white rounded-circle p-2">
-                                        <i class="fas fa-{{ activity.action_type|activity_icon }}"></i>
-                                    </div>
+                        <div class="glass-activity-item">
+                            <div class="glass-activity-icon bg-{{ activity.action_type|activity_color }}">
+                                <i class="fas fa-{{ activity.action_type|activity_icon }}"></i>
+                            </div>
+                            <div class="glass-activity-content">
+                                <div class="glass-activity-header">
+                                    <span class="glass-activity-title">{{ activity.get_action_type_display }}</span>
+                                    <small class="glass-activity-time">{{ activity.timestamp|timesince }} ago</small>
                                 </div>
-                                <div class="col">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">{{ activity.get_action_type_display }}</h6>
-                                        <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
-                                    </div>
-                                    <p class="mb-1 small">{{ activity.details|default:"" }}</p>
-                                    <small class="text-muted">
-                                        <i class="fas fa-map-marker-alt me-1"></i>{{ activity.ip_address }}
-                                    </small>
-                                </div>
+                                <p class="glass-activity-details">{{ activity.details|default:"" }}</p>
+                                <small class="glass-activity-meta">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ activity.ip_address }}
+                                </small>
                             </div>
                         </div>
                         {% endfor %}
@@ -483,21 +443,26 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+<!-- Delete Confirmation Modal - Glass Style -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content glass-modal">
-            <div class="modal-header bg-gradient-danger text-white">
-                <h5 class="modal-title">
+            <div class="modal-header glass-modal-header-danger">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-exclamation-triangle me-2"></i>Delete User
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete <strong>{{ profile_user.get_full_name }}</strong>?</p>
-                <p class="small text-muted">This action cannot be undone. All user data including courses, payments, and activity logs will be permanently deleted.</p>
+            <div class="modal-body glass-modal-body">
+                <div class="text-center mb-3">
+                    <div class="glass-icon-danger mx-auto">
+                        <i class="fas fa-user-slash fa-3x"></i>
+                    </div>
+                </div>
+                <p class="text-center mb-3">Are you sure you want to delete <strong class="glass-text">{{ profile_user.get_full_name }}</strong>?</p>
+                <p class="small glass-text-muted text-center mb-3">This action cannot be undone. All user data including courses, payments, and activity logs will be permanently deleted.</p>
                 
-                <div class="alert alert-warning mt-3">
+                <div class="glass-alert-warning">
                     <i class="fas fa-exclamation-circle me-2"></i>
                     This will also delete:
                     <ul class="mb-0 mt-2">
@@ -507,79 +472,82 @@
                     </ul>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Delete User</a>
+            <div class="modal-footer glass-modal-footer">
+                <button type="button" class="btn glass-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmDeleteBtn" class="btn glass-btn-danger">Delete User</a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Reset Password Modal -->
+<!-- Reset Password Modal - Glass Style -->
 <div class="modal fade" id="resetPasswordModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content glass-modal">
-            <div class="modal-header bg-gradient-warning text-white">
-                <h5 class="modal-title">
+            <div class="modal-header glass-modal-header-warning">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-key me-2"></i>Reset Password
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" action="{% url 'accounts:reset_user_password' profile_user.id %}" id="resetPasswordForm">
                 {% csrf_token %}
-                <div class="modal-body">
-                    <p>Reset password for <strong>{{ profile_user.get_full_name }}</strong>?</p>
+                <div class="modal-body glass-modal-body">
+                    <p>Reset password for <strong class="glass-text">{{ profile_user.get_full_name }}</strong>?</p>
                     
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">New Password</label>
-                        <input type="password" name="new_password" class="form-control" required>
+                    <div class="glass-form-group mb-3">
+                        <label class="glass-label">New Password</label>
+                        <input type="password" name="new_password" class="glass-input w-100" required>
                     </div>
                     
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Confirm Password</label>
-                        <input type="password" name="confirm_password" class="form-control" required>
+                    <div class="glass-form-group mb-3">
+                        <label class="glass-label">Confirm Password</label>
+                        <input type="password" name="confirm_password" class="glass-input w-100" required>
                     </div>
                     
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="require_change" id="requireChange" checked>
-                        <label class="form-check-label" for="requireChange">
+                    <div class="glass-checkbox mb-3">
+                        <input class="glass-checkbox-input" type="checkbox" name="require_change" id="requireChange" checked>
+                        <label class="glass-checkbox-label" for="requireChange">
                             Require password change on next login
                         </label>
                     </div>
                     
-                    <div class="alert alert-info mt-3">
+                    <div class="glass-alert-info">
                         <i class="fas fa-info-circle me-2"></i>
                         The user will receive an email with the new password.
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-warning">Reset Password</button>
+                <div class="modal-footer glass-modal-footer">
+                    <button type="button" class="btn glass-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn glass-btn-warning">Reset Password</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- Unlock Account Modal -->
+<!-- Unlock Account Modal - Glass Style -->
 <div class="modal fade" id="unlockAccountModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content glass-modal">
-            <div class="modal-header bg-gradient-info text-white">
-                <h5 class="modal-title">
+            <div class="modal-header glass-modal-header-info">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-unlock me-2"></i>Unlock Account
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" action="{% url 'accounts:unlock_user_account' profile_user.id %}" id="unlockAccountForm">
                 {% csrf_token %}
-                <div class="modal-body">
-                    <p>Unlock account for <strong>{{ profile_user.get_full_name }}</strong>?</p>
-                    <p class="small text-muted">This will reset failed login attempts and remove any account lock.</p>
+                <div class="modal-body glass-modal-body text-center">
+                    <div class="glass-icon-info mx-auto mb-3">
+                        <i class="fas fa-unlock-alt fa-3x"></i>
+                    </div>
+                    <p>Unlock account for <strong class="glass-text">{{ profile_user.get_full_name }}</strong>?</p>
+                    <p class="small glass-text-muted">This will reset failed login attempts and remove any account lock.</p>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-info">Unlock Account</button>
+                <div class="modal-footer glass-modal-footer">
+                    <button type="button" class="btn glass-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn glass-btn-info">Unlock Account</button>
                 </div>
             </form>
         </div>
@@ -587,60 +555,715 @@
 </div>
 
 <style>
-.glass-card {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+/* Glass Morphism Styles for User Details */
+
+/* Glass Title */
+.glass-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+    background: linear-gradient(135deg, var(--bs-primary), #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-[data-bs-theme="dark"] .glass-card {
-    background: rgba(30, 30, 47, 0.7);
+.glass-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--bs-primary), #764ba2);
+    border-radius: 3px;
 }
 
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.bg-gradient-success {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-}
-
-.bg-gradient-info {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.bg-gradient-warning {
-    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-}
-
-.bg-gradient-danger {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.bg-gradient-secondary {
-    background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
-}
-
-.activity-icon {
-    width: 40px;
-    height: 40px;
+/* Glass Button Group */
+.glass-button-group {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
-.table td, .table th {
-    padding: 0.75rem;
-    vertical-align: middle;
-}
-
-.list-group-item {
+.glass-btn-secondary,
+.glass-btn-warning,
+.glass-btn-danger {
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
     transition: all 0.3s ease;
 }
 
-.list-group-item:hover {
-    background-color: var(--hover-bg);
+.glass-btn-secondary {
+    background: rgba(108, 117, 125, 0.2);
+    border: 1px solid rgba(108, 117, 125, 0.5);
+    color: #6c757d;
+}
+
+.glass-btn-secondary:hover {
+    background: rgba(108, 117, 125, 0.3);
+    transform: translateY(-2px);
+}
+
+.glass-btn-warning {
+    background: linear-gradient(135deg, #f6c23e, #dda20a);
+    border: none;
+    color: white;
+}
+
+.glass-btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(246, 194, 62, 0.3);
+}
+
+.glass-btn-danger {
+    background: linear-gradient(135deg, #e74a3b, #be2617);
+    border: none;
+    color: white;
+}
+
+.glass-btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 74, 59, 0.3);
+}
+
+/* Glass Stat Cards */
+.glass-stat-card-primary,
+.glass-stat-card-success,
+.glass-stat-card-info,
+.glass-stat-card-warning {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.glass-stat-card-primary { background: linear-gradient(135deg, rgba(78, 115, 223, 0.9), rgba(34, 66, 190, 0.9)); }
+.glass-stat-card-success { background: linear-gradient(135deg, rgba(28, 200, 138, 0.9), rgba(19, 133, 92, 0.9)); }
+.glass-stat-card-info { background: linear-gradient(135deg, rgba(54, 185, 204, 0.9), rgba(37, 131, 145, 0.9)); }
+.glass-stat-card-warning { background: linear-gradient(135deg, rgba(246, 194, 62, 0.9), rgba(218, 165, 32, 0.9)); }
+
+.glass-stat-card-primary:hover,
+.glass-stat-card-success:hover,
+.glass-stat-card-info:hover,
+.glass-stat-card-warning:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.glass-stat-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 0.25rem;
+}
+
+.glass-stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.glass-stat-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.glass-stat-card:hover .glass-stat-icon {
+    transform: scale(1.1);
+}
+
+/* Glass Profile Card */
+.glass-profile-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.glass-profile-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-profile-image {
+    position: relative;
+    display: inline-block;
+}
+
+.glass-avatar-large {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.glass-avatar-large:hover {
+    transform: scale(1.05);
+    border-color: var(--bs-primary);
+}
+
+.glass-avatar-initials {
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.glass-avatar-initials:hover {
+    transform: scale(1.05);
+}
+
+/* Glass Badges */
+.glass-badge-primary,
+.glass-badge-success,
+.glass-badge-warning,
+.glass-badge-info,
+.glass-badge-active,
+.glass-badge-inactive {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.glass-badge-primary { background: rgba(78, 115, 223, 0.2); border: 1px solid rgba(78, 115, 223, 0.5); color: #4e73df; }
+.glass-badge-success { background: rgba(28, 200, 138, 0.2); border: 1px solid rgba(28, 200, 138, 0.5); color: #1cc88a; }
+.glass-badge-warning { background: rgba(246, 194, 62, 0.2); border: 1px solid rgba(246, 194, 62, 0.5); color: #f6c23e; }
+.glass-badge-info { background: rgba(54, 185, 204, 0.2); border: 1px solid rgba(54, 185, 204, 0.5); color: #36b9cc; }
+.glass-badge-active { background: rgba(28, 200, 138, 0.15); border: 1px solid rgba(28, 200, 138, 0.4); color: #1cc88a; }
+.glass-badge-inactive { background: rgba(108, 117, 125, 0.15); border: 1px solid rgba(108, 117, 125, 0.4); color: #adb5bd; }
+
+/* Glass Section Title */
+.glass-section-title {
+    font-weight: 700;
+    border-bottom: 2px solid transparent;
+    border-image: linear-gradient(90deg, var(--bs-primary), transparent);
+    border-image-slice: 1;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.glass-section-title-sm {
+    font-weight: 600;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    color: var(--bs-primary);
+}
+
+/* Glass Info Rows */
+.glass-info-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+}
+
+.glass-info-label {
+    width: 35%;
+    min-width: 120px;
+    font-weight: 600;
+    color: var(--bs-body-color);
+}
+
+.glass-info-value {
+    flex: 1;
+    color: var(--bs-body-color);
+    word-break: break-word;
+}
+
+/* Glass Info Grid */
+.glass-info-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.glass-card-header-success {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    padding: 1rem 1.25rem;
+}
+
+.glass-card-header-warning {
+    background: linear-gradient(135deg, #f6d365, #fda085);
+    padding: 1rem 1.25rem;
+}
+
+.glass-card-header-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 1rem 1.25rem;
+}
+
+.glass-card-header-secondary {
+    background: linear-gradient(135deg, #cfd9df, #e2ebf0);
+    padding: 1rem 1.25rem;
+}
+
+.glass-card-body {
+    padding: 1.25rem;
+}
+
+.glass-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.glass-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.glass-info-item-full {
+    grid-column: span 2;
+}
+
+.glass-info-label-sm {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--bs-gray-600);
+}
+
+.glass-info-value-sm {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--bs-body-color);
+}
+
+/* Glass Table */
+.glass-table-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.glass-table {
+    width: 100%;
+    color: var(--bs-body-color);
+}
+
+.glass-table-header {
+    background: rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-table-header th {
+    padding: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.glass-table-row {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-table-row td {
+    padding: 0.875rem 1rem;
+    vertical-align: middle;
+}
+
+.glass-table-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(2px);
+}
+
+/* Glass Activity */
+.glass-activity-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.glass-activity-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.glass-activity-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.glass-activity-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(5px);
+}
+
+.glass-activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.glass-activity-icon:hover {
+    transform: scale(1.05);
+}
+
+.glass-activity-content {
+    flex: 1;
+}
+
+.glass-activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.glass-activity-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.glass-activity-time {
+    font-size: 0.7rem;
+    color: var(--bs-gray-500);
+}
+
+.glass-activity-details {
+    font-size: 0.8rem;
+    color: var(--bs-gray-600);
+    margin-bottom: 0.25rem;
+}
+
+.glass-activity-meta {
+    font-size: 0.7rem;
+    color: var(--bs-gray-500);
+}
+
+/* Glass Form Elements */
+.glass-form-group {
+    margin-bottom: 1rem;
+}
+
+.glass-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    color: var(--bs-body-color);
+}
+
+.glass-input {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem;
+    color: var(--bs-body-color);
+    transition: all 0.3s ease;
+}
+
+.glass-input:focus {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--bs-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+}
+
+.glass-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.glass-checkbox-input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--bs-primary);
+}
+
+.glass-checkbox-label {
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+/* Glass Alerts */
+.glass-alert-warning {
+    background: rgba(246, 194, 62, 0.15);
+    border: 1px solid rgba(246, 194, 62, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+}
+
+.glass-alert-info {
+    background: rgba(54, 185, 204, 0.15);
+    border: 1px solid rgba(54, 185, 204, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+}
+
+/* Glass Modal */
+.glass-modal {
+    background: rgba(30, 30, 47, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+.glass-modal-header-danger,
+.glass-modal-header-warning,
+.glass-modal-header-info {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-modal-header-danger { background: linear-gradient(135deg, #e74a3b, #be2617); }
+.glass-modal-header-warning { background: linear-gradient(135deg, #f6c23e, #dda20a); }
+.glass-modal-header-info { background: linear-gradient(135deg, #36b9cc, #258391); }
+
+.glass-modal-body {
+    padding: 1.5rem;
+}
+
+.glass-modal-footer {
+    padding: 1rem 1.25rem;
+    background: rgba(0, 0, 0, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-icon-danger,
+.glass-icon-info {
+    width: 70px;
+    height: 70px;
+    border-radius: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.glass-icon-danger {
+    background: rgba(231, 74, 59, 0.2);
+    color: #e74a3b;
+}
+
+.glass-icon-info {
+    background: rgba(54, 185, 204, 0.2);
+    color: #36b9cc;
+}
+
+/* Glass Outlined Buttons */
+.glass-btn-outline-info,
+.glass-btn-outline-warning {
+    border-radius: 10px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-outline-info {
+    background: rgba(54, 185, 204, 0.1);
+    border: 1px solid rgba(54, 185, 204, 0.5);
+    color: #36b9cc;
+}
+
+.glass-btn-outline-info:hover {
+    background: rgba(54, 185, 204, 0.2);
+    transform: translateY(-2px);
+}
+
+.glass-btn-outline-warning {
+    background: rgba(246, 194, 62, 0.1);
+    border: 1px solid rgba(246, 194, 62, 0.5);
+    color: #f6c23e;
+}
+
+.glass-btn-outline-warning:hover {
+    background: rgba(246, 194, 62, 0.2);
+    transform: translateY(-2px);
+}
+
+.glass-btn-info {
+    background: linear-gradient(135deg, #36b9cc, #258391);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(54, 185, 204, 0.3);
+}
+
+/* Glass Action Buttons */
+.glass-action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Glass Text */
+.glass-text {
+    color: var(--bs-body-color);
+    background: linear-gradient(135deg, var(--bs-primary), #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glass-text-muted {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+[data-bs-theme="dark"] .glass-text-muted {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Glass Links */
+.glass-link {
+    color: var(--bs-primary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.glass-link:hover {
+    color: #224abe;
+    text-decoration: underline;
+}
+
+/* Glass Code */
+.glass-code {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+}
+
+/* Glass Badge Small */
+.glass-badge-active-sm,
+.glass-badge-warning-sm,
+.glass-badge-danger-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.glass-badge-active-sm { background: rgba(28, 200, 138, 0.15); color: #1cc88a; }
+.glass-badge-warning-sm { background: rgba(246, 194, 62, 0.15); color: #f6c23e; }
+.glass-badge-danger-sm { background: rgba(231, 74, 59, 0.15); color: #e74a3b; }
+.glass-badge-secondary { background: rgba(108, 117, 125, 0.15); color: #adb5bd; }
+
+/* Glass Badge Warning Small */
+.glass-badge-warning-sm {
+    background: rgba(246, 194, 62, 0.15);
+    color: #f6c23e;
+}
+
+/* Glass Text Block */
+.glass-text-block {
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 12px;
+    padding: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .glass-title {
+        font-size: 1.25rem;
+    }
+    
+    .glass-button-group {
+        flex-wrap: wrap;
+    }
+    
+    .glass-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .glass-info-item-full {
+        grid-column: span 1;
+    }
+    
+    .glass-stat-value {
+        font-size: 1.25rem;
+    }
+    
+    .glass-stat-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .glass-stat-icon i {
+        font-size: 1.25rem;
+    }
+}
+
+/* Dark Theme Adjustments */
+[data-bs-theme="dark"] .glass-profile-card,
+[data-bs-theme="dark"] .glass-info-card,
+[data-bs-theme="dark"] .glass-table-card,
+[data-bs-theme="dark"] .glass-activity-card {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+[data-bs-theme="dark"] .glass-code {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .glass-text-block {
+    background: rgba(255, 255, 255, 0.05);
 }
 </style>
 
@@ -698,5 +1321,12 @@ function toggleUserStatus(userId, currentStatus) {
         });
     }
 }
+
+// Smooth table row animations
+document.querySelectorAll('.glass-table-row').forEach(row => {
+    row.addEventListener('mouseenter', function() {
+        this.style.transition = 'all 0.3s ease';
+    });
+});
 </script>
 {% endblock %}

@@ -5,200 +5,587 @@
 
 {% block title %}{{ blog.title }} - MELTSA-TaTU Blog{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Blog Detail */
+    .glass-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+        padding: 2rem 0;
+    }
+    
+    .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-card-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-body {
+        padding: 1.5rem;
+    }
+    
+    .glass-card-footer {
+        padding: 1rem 1.5rem;
+        background: rgba(0, 0, 0, 0.03);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Blog Featured Image */
+    .glass-featured-image {
+        width: 100%;
+        max-height: 450px;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .glass-card:hover .glass-featured-image {
+        transform: scale(1.02);
+    }
+    
+    /* Blog Content */
+    .glass-blog-content {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: var(--bs-body-color);
+    }
+    
+    .glass-blog-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 16px;
+        margin: 1.5rem 0;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-blog-content h2, 
+    .glass-blog-content h3 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+        color: #4e73df;
+    }
+    
+    .glass-blog-content blockquote {
+        border-left: 4px solid #4e73df;
+        padding-left: 1.5rem;
+        margin: 1.5rem 0;
+        font-style: italic;
+        color: var(--bs-gray-600);
+    }
+    
+    /* Glass Avatar */
+    .glass-avatar-lg {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid rgba(78, 115, 223, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-avatar-lg:hover {
+        transform: scale(1.05);
+        border-color: #4e73df;
+    }
+    
+    .glass-avatar-placeholder-lg {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Glass Badges */
+    .glass-badge-category {
+        background: rgba(54, 185, 204, 0.2);
+        border: 1px solid rgba(54, 185, 204, 0.4);
+        color: #36b9cc;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-tag {
+        background: rgba(78, 115, 223, 0.15);
+        border: 1px solid rgba(78, 115, 223, 0.3);
+        color: #4e73df;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    /* Glass Like Button */
+    .glass-like-btn {
+        background: rgba(231, 74, 59, 0.1);
+        border: 1px solid rgba(231, 74, 59, 0.3);
+        color: #e74a3b;
+        border-radius: 30px;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-like-btn:hover {
+        background: rgba(231, 74, 59, 0.2);
+        transform: scale(1.05);
+    }
+    
+    .glass-like-btn i {
+        transition: transform 0.2s ease;
+    }
+    
+    .glass-like-btn:hover i {
+        transform: scale(1.1);
+    }
+    
+    .glass-share-btn {
+        background: rgba(54, 185, 204, 0.1);
+        border: 1px solid rgba(54, 185, 204, 0.3);
+        color: #36b9cc;
+        border-radius: 30px;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-share-btn:hover {
+        background: rgba(54, 185, 204, 0.2);
+        transform: scale(1.05);
+    }
+    
+    /* Glass Comment */
+    .glass-comment-item {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .glass-comment-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .glass-comment-item:hover {
+        transform: translateX(8px);
+        background: rgba(78, 115, 223, 0.05);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .glass-comment-item .comment-content {
+        flex: 1;
+    }
+    
+    /* Glass Reply */
+    .glass-reply-item {
+        margin-left: 3rem;
+        padding: 0.5rem 0 0.5rem 1rem;
+        border-left: 2px solid rgba(78, 115, 223, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-reply-item:hover {
+        border-left-color: #4e73df;
+    }
+    
+    /* Glass Author Info */
+    .glass-author-card {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 20px;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-author-card:hover {
+        background: rgba(78, 115, 223, 0.1);
+        transform: translateX(5px);
+    }
+    
+    /* Attachment Box */
+    .glass-attachment-box {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 16px;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-attachment-box:hover {
+        background: rgba(78, 115, 223, 0.1);
+    }
+    
+    /* Glass Comments Section */
+    .glass-comments-section {
+        max-height: 500px;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+        scrollbar-width: thin;
+    }
+    
+    .glass-comments-section::-webkit-scrollbar {
+        width: 5px;
+    }
+    
+    .glass-comments-section::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    }
+    
+    .glass-comments-section::-webkit-scrollbar-thumb {
+        background: rgba(78, 115, 223, 0.3);
+        border-radius: 10px;
+    }
+    
+    .glass-comments-section::-webkit-scrollbar-thumb:hover {
+        background: #4e73df;
+    }
+    
+    /* Glass Modal */
+    .glass-modal {
+        background: rgba(30, 30, 47, 0.98);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        overflow: hidden;
+    }
+    
+    .glass-modal-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-modal-footer {
+        padding: 1rem 1.25rem;
+        background: rgba(0, 0, 0, 0.05);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-textarea:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .glass-divider {
+        margin: 1rem 0;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    @media (max-width: 768px) {
+        .glass-card-body {
+            padding: 1rem;
+        }
+        
+        .glass-blog-content {
+            font-size: 0.95rem;
+        }
+        
+        .glass-reply-item {
+            margin-left: 1rem;
+        }
+        
+        .glass-avatar-lg {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .glass-avatar-placeholder-lg {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .glass-comment-item:hover {
+            transform: translateX(5px);
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    [data-bs-theme="dark"] .glass-author-card {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    [data-bs-theme="dark"] .glass-attachment-box {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .glass-card {
+        animation: fadeInUp 0.5s ease-out;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <!-- Blog Post -->
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <!-- Back to Blog Link -->
-            <div class="mb-4">
-                <a href="{% url 'core:blog_list' %}" class="btn btn-outline-primary btn-sm">
-                    <i class="fas fa-arrow-left me-1"></i>Back to Blog
-                </a>
-            </div>
+<div class="glass-container">
+    <div class="container">
+        <!-- Blog Post -->
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <!-- Back to Blog Link -->
+                <div class="mb-4">
+                    <a href="{% url 'core:blog_list' %}" class="btn glass-btn-outline-primary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Blog
+                    </a>
+                </div>
 
-            <!-- Blog Post Card -->
-            <div class="card shadow mb-4">
-                {% if blog.featured_image %}
-                <img src="{{ blog.featured_image.url }}" class="card-img-top" alt="{{ blog.title }}" style="max-height: 400px; object-fit: cover;">
-                {% endif %}
-                
-                <div class="card-body">
-                    <!-- Meta Info -->
-                    <div class="mb-3">
-                        <h1 class="display-5 fw-bold">{{ blog.title }}</h1>
-                        
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="text-muted">
-                                <i class="fas fa-user me-1"></i>{{ blog.author.get_full_name|default:blog.author.username }} |
-                                <i class="fas fa-calendar me-1 ms-2"></i>{{ blog.created_at|date:"F d, Y" }} |
-                                <i class="fas fa-clock me-1 ms-2"></i>{{ blog.read_time|default:"5" }} min read |
-                                <i class="fas fa-eye me-1 ms-2"></i>{{ blog.views }} views
-                            </div>
-                            <div>
-                                {% for tag in blog.tags.all %}
-                                <span class="badge bg-primary">{{ tag.name }}</span>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        
-                        {% if blog.category %}
-                        <span class="badge bg-info mb-3">
-                            <i class="fas fa-folder me-1"></i>{{ blog.category.name }}
-                        </span>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Blog Content -->
-                    <div class="blog-content">
-                        {{ blog.content|safe }}
-                    </div>
-                    
-                    <!-- Attachment -->
-                    {% if blog.attachment %}
-                    <div class="mt-4 p-3 bg-light rounded">
-                        <h6><i class="fas fa-paperclip me-2"></i>Attachments:</h6>
-                        <a href="{{ blog.attachment.url }}" class="btn btn-sm btn-outline-primary" download>
-                            <i class="fas fa-download me-1"></i>Download Attachment
-                        </a>
-                    </div>
+                <!-- Blog Post Card - Glass -->
+                <div class="glass-card mb-4">
+                    {% if blog.featured_image %}
+                        <img src="{{ blog.featured_image.url }}" class="glass-featured-image" alt="{{ blog.title }}">
                     {% endif %}
-                </div>
-                
-                <!-- Footer with Like Button -->
-                <div class="card-footer">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <button class="btn btn-outline-danger btn-sm like-button" 
-                                    data-type="post" 
-                                    data-id="{{ blog.id }}"
-                                    data-liked="{% if user_liked_post %}true{% else %}false{% endif %}">
-                                <i class="{% if user_liked_post %}fas{% else %}far{% endif %} fa-heart me-1"></i>
-                                <span class="like-count">{{ blog_likes_count }}</span> Likes
-                            </button>
-                            <button class="btn btn-outline-info btn-sm ms-2" onclick="sharePost()">
-                                <i class="fas fa-share me-1"></i>Share
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Author Info -->
-            <div class="card shadow mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>About the Author</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        {% if blog.author.profile_image %}
-                        <img src="{{ blog.author.profile_image.url }}" class="rounded-circle me-3" width="60" height="60">
-                        {% else %}
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:60px;height:60px;">
-                            <i class="fas fa-user fa-2x"></i>
-                        </div>
-                        {% endif %}
-                        <div>
-                            <h6 class="mb-1">{{ blog.author.get_full_name|default:blog.author.username }}</h6>
-                            <p class="text-muted small mb-0">{{ blog.author.bio|default:"No bio available." }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Comments Section -->
-            <div class="card shadow">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Comments ({{ comments.count }})</h5>
-                </div>
-                <div class="card-body">
-                    {% if request.user.is_authenticated %}
-                    <form method="POST" action="{% url 'core:blog_comment_add' blog.id %}" class="mb-4" id="commentForm">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <textarea name="content" class="form-control" rows="3" placeholder="Write a comment..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane me-1"></i>Post Comment
-                        </button>
-                    </form>
-                    {% else %}
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Please <a href="{% url 'accounts:login' %}?next={{ request.path }}">login</a> to leave a comment.
-                    </div>
-                    {% endif %}
-
-                    <!-- Comments List -->
-                    <div class="comments-section">
-                        {% for comment in comments %}
-                        <div class="d-flex mb-3 pb-3 border-bottom" id="comment-{{ comment.id }}">
-                            <div class="flex-shrink-0 me-2">
-                                {% if comment.user.profile_image %}
-                                <img src="{{ comment.user.profile_image.url }}" class="rounded-circle" width="40" height="40">
-                                {% else %}
-                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px;">
-                                    <i class="fas fa-user"></i>
+                    
+                    <div class="glass-card-body">
+                        <!-- Meta Info -->
+                        <div class="mb-4">
+                            <h1 class="display-5 fw-bold glass-text">{{ blog.title }}</h1>
+                            
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+                                <div class="glass-text-muted small">
+                                    <i class="fas fa-user me-1"></i>{{ blog.author.get_full_name|default:blog.author.username }}
+                                    <i class="fas fa-calendar me-1 ms-2"></i>{{ blog.created_at|date:"F d, Y" }}
+                                    <i class="fas fa-clock me-1 ms-2"></i>{{ blog.read_time|default:"5" }} min read
+                                    <i class="fas fa-eye me-1 ms-2"></i>{{ blog.views }} views
                                 </div>
+                                <div class="d-flex flex-wrap gap-1">
+                                    {% for tag in blog.tags.all %}
+                                        <span class="glass-badge-tag">
+                                            <i class="fas fa-tag me-1"></i>{{ tag.name }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            {% if blog.category %}
+                                <div class="mt-2">
+                                    <span class="glass-badge-category">
+                                        <i class="fas fa-folder me-1"></i>{{ blog.category.name }}
+                                    </span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Blog Content -->
+                        <div class="glass-blog-content">
+                            {{ blog.content|safe }}
+                        </div>
+                        
+                        <!-- Attachment -->
+                        {% if blog.attachment %}
+                            <div class="glass-attachment-box">
+                                <h6 class="glass-text-primary mb-2">
+                                    <i class="fas fa-paperclip me-2"></i>Attachments:
+                                </h6>
+                                <a href="{{ blog.attachment.url }}" class="btn btn-sm glass-btn-outline-primary" download>
+                                    <i class="fas fa-download me-1"></i>Download Attachment
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Footer with Like Button -->
+                    <div class="glass-card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex gap-2">
+                                <button class="btn glass-like-btn btn-sm like-button" 
+                                        data-type="post" 
+                                        data-id="{{ blog.id }}"
+                                        data-liked="{% if user_liked_post %}true{% else %}false{% endif %}">
+                                    <i class="{% if user_liked_post %}fas{% else %}far{% endif %} fa-heart me-1"></i>
+                                    <span class="like-count">{{ blog_likes_count }}</span> Likes
+                                </button>
+                                <button class="btn glass-share-btn btn-sm" onclick="sharePost()">
+                                    <i class="fas fa-share me-1"></i>Share
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Author Info Card - Glass -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header">
+                        <h5 class="mb-0 text-white">
+                            <i class="fas fa-user-circle me-2"></i>About the Author
+                        </h5>
+                    </div>
+                    <div class="glass-author-card">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="flex-shrink-0">
+                                {% if blog.author.profile_image %}
+                                    <img src="{{ blog.author.profile_image.url }}" class="glass-avatar-lg">
+                                {% else %}
+                                    <div class="glass-avatar-placeholder-lg">
+                                        <i class="fas fa-user fa-2x text-white"></i>
+                                    </div>
                                 {% endif %}
                             </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between">
-                                    <h6 class="mb-1">{{ comment.user.get_full_name }}</h6>
-                                    <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
-                                </div>
-                                <p class="mb-1">{{ comment.content }}</p>
-                                <div class="d-flex align-items-center">
-                                    <button class="btn btn-sm btn-link p-0 me-3 like-button" 
-                                            data-type="comment" 
-                                            data-id="{{ comment.id }}"
-                                            data-liked="{% if comment.id in liked_comment_ids %}true{% else %}false{% endif %}">
-                                        <i class="{% if comment.id in liked_comment_ids %}fas{% else %}far{% endif %} fa-heart text-danger me-1"></i>
-                                        <span class="like-count">{{ comment.likes_count }}</span>
-                                    </button>
-                                    <button class="btn btn-sm btn-link p-0" onclick="replyToComment({{ comment.id }})">
-                                        <i class="far fa-comment me-1"></i> Reply
-                                    </button>
-                                    {% if request.user == comment.user %}
-                                    <button class="btn btn-sm btn-link text-danger p-0 ms-3" onclick="deleteComment({{ comment.id }})">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    {% endif %}
-                                </div>
-                                
-                                <!-- Replies -->
-                                {% for reply in comment.replies.all %}
-                                <div class="d-flex mt-3 ms-4">
-                                    <div class="flex-shrink-0 me-2">
-                                        {% if reply.user.profile_image %}
-                                        <img src="{{ reply.user.profile_image.url }}" class="rounded-circle" width="30" height="30">
-                                        {% else %}
-                                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
-                                            <i class="fas fa-user"></i>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                    <div>
-                                        <div class="d-flex justify-content-between">
-                                            <h6 class="mb-1">{{ reply.user.get_full_name }}</h6>
-                                            <small class="text-muted ms-2">{{ reply.created_at|timesince }} ago</small>
-                                        </div>
-                                        <p class="mb-1">{{ reply.content }}</p>
-                                        <button class="btn btn-sm btn-link p-0 like-button" 
-                                                data-type="comment" 
-                                                data-id="{{ reply.id }}"
-                                                data-liked="{% if reply.id in liked_comment_ids %}true{% else %}false{% endif %}">
-                                            <i class="{% if reply.id in liked_comment_ids %}fas{% else %}far{% endif %} fa-heart text-danger me-1"></i>
-                                            <span class="like-count">{{ reply.likes_count }}</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                {% endfor %}
+                            <div>
+                                <h6 class="mb-1 glass-text">{{ blog.author.get_full_name|default:blog.author.username }}</h6>
+                                <p class="glass-text-muted small mb-0">{{ blog.author.bio|default:"No bio available." }}</p>
                             </div>
                         </div>
-                        {% empty %}
-                        <p class="text-muted text-center py-3">No comments yet. Be the first to comment!</p>
-                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Comments Section - Glass Card -->
+                <div class="glass-card">
+                    <div class="glass-card-header">
+                        <h5 class="mb-0 text-white">
+                            <i class="fas fa-comments me-2"></i>Comments ({{ comments.count }})
+                        </h5>
+                    </div>
+                    <div class="glass-card-body">
+                        {% if request.user.is_authenticated %}
+                            <form method="POST" action="{% url 'core:blog_comment_add' blog.id %}" class="mb-4" id="commentForm">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <textarea name="content" class="glass-textarea" rows="3" placeholder="Write a comment..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn glass-btn-primary">
+                                    <i class="fas fa-paper-plane me-1"></i>Post Comment
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="glass-alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Please <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="glass-link">login</a> to leave a comment.
+                            </div>
+                        {% endif %}
+
+                        <!-- Comments List -->
+                        <div class="glass-comments-section">
+                            {% for comment in comments %}
+                            <div class="glass-comment-item" id="comment-{{ comment.id }}">
+                                <div class="d-flex gap-3">
+                                    <div class="flex-shrink-0">
+                                        {% if comment.user.profile_image %}
+                                            <img src="{{ comment.user.profile_image.url }}" class="rounded-circle" width="40" height="40">
+                                        {% else %}
+                                            <div class="glass-avatar-placeholder-sm">
+                                                <i class="fas fa-user text-white fa-sm"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
+                                            <h6 class="mb-0 glass-text">{{ comment.user.get_full_name }}</h6>
+                                            <small class="glass-text-muted">
+                                                <i class="fas fa-clock me-1"></i>{{ comment.created_at|timesince }} ago
+                                            </small>
+                                        </div>
+                                        <p class="mb-2 glass-text-muted">{{ comment.content }}</p>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <button class="btn btn-sm btn-link p-0 like-button" 
+                                                    data-type="comment" 
+                                                    data-id="{{ comment.id }}"
+                                                    data-liked="{% if comment.id in liked_comment_ids %}true{% else %}false{% endif %}">
+                                                <i class="{% if comment.id in liked_comment_ids %}fas{% else %}far{% endif %} fa-heart text-danger me-1"></i>
+                                                <span class="like-count">{{ comment.likes_count }}</span>
+                                            </button>
+                                            <button class="btn btn-sm btn-link p-0 glass-link-sm" onclick="replyToComment({{ comment.id }})">
+                                                <i class="far fa-comment me-1"></i> Reply
+                                            </button>
+                                            {% if request.user == comment.user %}
+                                                <button class="btn btn-sm btn-link p-0 text-danger" onclick="deleteComment({{ comment.id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- Replies -->
+                                        {% for reply in comment.replies.all %}
+                                        <div class="glass-reply-item mt-2">
+                                            <div class="d-flex gap-2">
+                                                <div class="flex-shrink-0">
+                                                    {% if reply.user.profile_image %}
+                                                        <img src="{{ reply.user.profile_image.url }}" class="rounded-circle" width="30" height="30">
+                                                    {% else %}
+                                                        <div class="glass-avatar-placeholder-xs">
+                                                            <i class="fas fa-user text-white fa-xs"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                                                        <h6 class="mb-1 glass-text">{{ reply.user.get_full_name }}</h6>
+                                                        <small class="glass-text-muted">{{ reply.created_at|timesince }} ago</small>
+                                                    </div>
+                                                    <p class="mb-1 glass-text-muted">{{ reply.content }}</p>
+                                                    <button class="btn btn-sm btn-link p-0 like-button" 
+                                                            data-type="comment" 
+                                                            data-id="{{ reply.id }}"
+                                                            data-liked="{% if reply.id in liked_comment_ids %}true{% else %}false{% endif %}">
+                                                        <i class="{% if reply.id in liked_comment_ids %}fas{% else %}far{% endif %} fa-heart text-danger me-1"></i>
+                                                        <span class="like-count">{{ reply.likes_count }}</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-comment-dots fa-3x glass-text-muted mb-3"></i>
+                                <p class="glass-text-muted mb-0">No comments yet. Be the first to comment!</p>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -206,25 +593,27 @@
     </div>
 </div>
 
-<!-- Reply Modal -->
+<!-- Reply Modal - Glass Style -->
 <div class="modal fade" id="replyModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title"><i class="fas fa-reply me-2"></i>Reply to Comment</h5>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-modal">
+            <div class="modal-header glass-modal-header">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-reply me-2"></i>Reply to Comment
+                </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" action="{% url 'core:blog_comment_reply' %}" id="replyForm">
                 {% csrf_token %}
                 <input type="hidden" name="comment_id" id="replyCommentId">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <textarea name="content" class="form-control" rows="3" placeholder="Write your reply..." required></textarea>
+                <div class="modal-body p-4">
+                    <div class="glass-form-group">
+                        <textarea name="content" class="glass-textarea" rows="3" placeholder="Write your reply..." required></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Post Reply</button>
+                <div class="modal-footer glass-modal-footer">
+                    <button type="button" class="btn glass-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn glass-btn-primary">Post Reply</button>
                 </div>
             </form>
         </div>
@@ -235,41 +624,114 @@
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;"></div>
 
 <style>
-.blog-content {
-    font-size: 1.1rem;
-    line-height: 1.8;
+/* Additional Styles */
+.glass-btn-outline-primary {
+    background: rgba(78, 115, 223, 0.1);
+    border: 1px solid rgba(78, 115, 223, 0.3);
+    color: #4e73df;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
 }
-.blog-content img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin: 20px 0;
+
+.glass-btn-outline-primary:hover {
+    background: rgba(78, 115, 223, 0.2);
+    transform: translateY(-2px);
 }
-.blog-content h2, .blog-content h3 {
-    margin-top: 30px;
-    margin-bottom: 15px;
+
+.glass-btn-primary {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border: none;
+    border-radius: 12px;
+    padding: 0.6rem 1.25rem;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
-.comments-section {
-    max-height: 500px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    padding-right: 10px;
+
+.glass-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(78, 115, 223, 0.3);
 }
-.comments-section::-webkit-scrollbar {
-    width: 5px;
+
+.glass-btn-secondary {
+    background: rgba(108, 117, 125, 0.2);
+    border: 1px solid rgba(108, 117, 125, 0.5);
+    color: #6c757d;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
 }
-.comments-section::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 5px;
+
+.glass-btn-secondary:hover {
+    background: rgba(108, 117, 125, 0.3);
+    transform: translateY(-2px);
 }
-.like-button {
-    transition: transform 0.2s ease;
+
+.glass-alert-info {
+    background: rgba(54, 185, 204, 0.15);
+    border: 1px solid rgba(54, 185, 204, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem;
+    color: #36b9cc;
 }
-.like-button:hover {
-    transform: scale(1.1);
+
+.glass-link {
+    color: #36b9cc;
+    text-decoration: none;
+    transition: all 0.3s ease;
 }
-.like-button i {
-    transition: all 0.2s ease;
+
+.glass-link:hover {
+    color: #258391;
+    text-decoration: underline;
+}
+
+.glass-avatar-placeholder-sm {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.glass-avatar-placeholder-xs {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.glass-link-sm {
+    font-size: 0.8rem;
+    color: #4e73df;
+    text-decoration: none;
+}
+
+.glass-link-sm:hover {
+    text-decoration: underline;
+}
+
+.glass-text {
+    color: var(--bs-body-color);
+}
+
+.display-5 {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .display-5 {
+        font-size: 1.75rem;
+    }
 }
 </style>
 
@@ -314,7 +776,6 @@ document.querySelectorAll('.like-button').forEach(button => {
             ? `/core/blog/${id}/like/` 
             : `/core/blog/comment/${id}/like/`;
         
-        // Disable button to prevent double clicks
         this.disabled = true;
         
         fetch(url, {
@@ -327,11 +788,9 @@ document.querySelectorAll('.like-button').forEach(button => {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update like count
                 const countSpan = this.querySelector('.like-count');
                 countSpan.textContent = data.like_count;
                 
-                // Update heart icon
                 const icon = this.querySelector('i');
                 if (data.liked) {
                     icon.classList.remove('far');
@@ -341,10 +800,7 @@ document.querySelectorAll('.like-button').forEach(button => {
                     icon.classList.add('far');
                 }
                 
-                // Update data-liked attribute
                 this.dataset.liked = data.liked;
-                
-                // Show success message
                 showToast(data.liked ? 'Liked!' : 'Unliked', 'success');
             } else {
                 showToast('Error: ' + (data.error || 'Failed to process like'), 'error');
@@ -355,7 +811,6 @@ document.querySelectorAll('.like-button').forEach(button => {
             showToast('Network error occurred', 'error');
         })
         .finally(() => {
-            // Re-enable button
             this.disabled = false;
         });
     });
@@ -394,13 +849,16 @@ function deleteComment(commentId) {
             if (data.success) {
                 const commentElement = document.getElementById(`comment-${commentId}`);
                 if (commentElement) {
-                    commentElement.remove();
-                    showToast('Comment deleted successfully', 'success');
-                    
-                    // Update comment count in header
-                    const commentHeader = document.querySelector('.card-header h5');
-                    const currentCount = parseInt(commentHeader.innerText.match(/\d+/)[0]);
-                    commentHeader.innerHTML = `<i class="fas fa-comments me-2"></i>Comments (${currentCount - 1})`;
+                    commentElement.style.transition = 'opacity 0.3s';
+                    commentElement.style.opacity = '0';
+                    setTimeout(() => {
+                        commentElement.remove();
+                        showToast('Comment deleted successfully', 'success');
+                        
+                        const commentHeader = document.querySelector('.glass-card-header h5');
+                        const currentCount = parseInt(commentHeader.innerText.match(/\d+/)[0]);
+                        commentHeader.innerHTML = `<i class="fas fa-comments me-2"></i>Comments (${currentCount - 1})`;
+                    }, 300);
                 }
             } else {
                 showToast('Error deleting comment', 'error');
@@ -414,95 +872,94 @@ function deleteComment(commentId) {
 }
 
 // Handle comment form submission
-document.getElementById('commentForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const submitBtn = this.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    
-    // Disable button and show loading
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Posting...';
-    
-    fetch(this.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Clear the form
-            this.reset();
-            showToast('Comment posted successfully!', 'success');
-            
-            // Reload to show new comment (simplest approach)
-            setTimeout(() => location.reload(), 1000);
-        } else {
-            showToast(data.error || 'Error adding comment', 'error');
+const commentForm = document.getElementById('commentForm');
+if (commentForm) {
+    commentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Posting...';
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                this.reset();
+                showToast('Comment posted successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(data.error || 'Error adding comment', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Network error occurred', 'error');
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('Network error occurred', 'error');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        });
     });
-});
+}
 
 // Handle reply form submission
-document.getElementById('replyForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const submitBtn = this.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Posting...';
-    
-    fetch(this.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Close modal
-            bootstrap.Modal.getInstance(document.getElementById('replyModal')).hide();
-            showToast('Reply posted successfully!', 'success');
-            
-            // Reload to show new reply
-            setTimeout(() => location.reload(), 1000);
-        } else {
-            showToast(data.error || 'Error posting reply', 'error');
+const replyForm = document.getElementById('replyForm');
+if (replyForm) {
+    replyForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Posting...';
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                bootstrap.Modal.getInstance(document.getElementById('replyModal')).hide();
+                showToast('Reply posted successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(data.error || 'Error posting reply', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Network error occurred', 'error');
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('Network error occurred', 'error');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        });
     });
-});
+}
 
 // Track reading time for analytics
 let startTime = Date.now();
 window.addEventListener('beforeunload', function() {
     const timeSpent = Math.round((Date.now() - startTime) / 1000);
-    if (timeSpent > 30) { // Only track if spent more than 30 seconds
+    if (timeSpent > 30) {
         navigator.sendBeacon(`/core/blog/{{ blog.id }}/read-time/`, JSON.stringify({
             time_spent: timeSpent
         }));

@@ -1,94 +1,87 @@
 <!-- templates/payments/payment_history.html -->
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Payment History - MELTSA-TaTU{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Page Heading -->
+    <!-- Page Heading - Glass Style -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
+        <h1 class="glass-title-payment">
             <i class="fas fa-history me-2"></i>Payment History
         </h1>
-        <div>
-            <span class="badge bg-success me-2">
+        <div class="glass-badge-group">
+            <span class="glass-badge-success">
                 <i class="fas fa-check-circle me-1"></i>Total Paid: GHS {{ total_paid|floatformat:2 }}
             </span>
-            <a href="{% url 'payments:due_list' %}" class="btn btn-sm btn-primary shadow-sm">
+            <a href="{% url 'payments:due_list' %}" class="btn glass-btn-primary btn-sm">
                 <i class="fas fa-credit-card me-1"></i>Make Payment
             </a>
         </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Successful Payments
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ payment_count }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+    <!-- Summary Cards - Glass Morphism -->
+    <div class="glass-stats-row mb-4">
+        <div class="glass-stat-card-success">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <div class="glass-stat-label">Successful Payments</div>
+                        <div class="glass-stat-value">{{ payment_count }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="glass-stat-icon">
+                            <i class="fas fa-check-circle fa-2x"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Pending Payments
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ pending_count|default:"0" }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+        <div class="glass-stat-card-warning">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <div class="glass-stat-label">Pending Payments</div>
+                        <div class="glass-stat-value">{{ pending_count|default:"0" }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="glass-stat-icon">
+                            <i class="fas fa-clock fa-2x"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                This Month
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">GHS {{ monthly_total|floatformat:2 }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+        <div class="glass-stat-card-primary">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <div class="glass-stat-label">This Month</div>
+                        <div class="glass-stat-value">GHS {{ monthly_total|floatformat:2 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="glass-stat-icon">
+                            <i class="fas fa-calendar fa-2x"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                This Year
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">GHS {{ yearly_total|floatformat:2 }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+        <div class="glass-stat-card-info">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <div class="glass-stat-label">This Year</div>
+                        <div class="glass-stat-value">GHS {{ yearly_total|floatformat:2 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="glass-stat-icon">
+                            <i class="fas fa-calendar-alt fa-2x"></i>
                         </div>
                     </div>
                 </div>
@@ -96,208 +89,231 @@
         </div>
     </div>
 
-    <!-- Filters -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-body">
-                    <form method="get" class="row g-3">
-                        <div class="col-md-3">
-                            <label class="form-label">Date From</label>
-                            <input type="date" name="from" class="form-control" value="{{ request.GET.from }}">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Date To</label>
-                            <input type="date" name="to" class="form-control" value="{{ request.GET.to }}">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Status</label>
-                            <select name="status" class="form-select">
-                                <option value="">All</option>
-                                <option value="success" {% if request.GET.status == 'success' %}selected{% endif %}>Success</option>
-                                <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
-                                <option value="failed" {% if request.GET.status == 'failed' %}selected{% endif %}>Failed</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Sort By</label>
-                            <select name="sort" class="form-select">
-                                <option value="-created_at">Newest First</option>
-                                <option value="created_at">Oldest First</option>
-                                <option value="-amount">Highest Amount</option>
-                                <option value="amount">Lowest Amount</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-filter me-1"></i>Apply
-                            </button>
-                        </div>
-                    </form>
+    <!-- Filters - Glass Card -->
+    <div class="glass-filter-card mb-4">
+        <div class="card-header glass-card-header-primary">
+            <h6 class="m-0 fw-bold text-white">
+                <i class="fas fa-filter me-1"></i>Filter Payment History
+            </h6>
+        </div>
+        <div class="card-body glass-card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="glass-label">
+                        <i class="fas fa-calendar-alt me-1"></i>Date From
+                    </label>
+                    <div class="glass-input-group">
+                        <i class="fas fa-calendar glass-input-icon-left"></i>
+                        <input type="date" name="from" class="glass-input" value="{{ request.GET.from }}">
+                    </div>
                 </div>
-            </div>
+                <div class="col-md-3">
+                    <label class="glass-label">
+                        <i class="fas fa-calendar-check me-1"></i>Date To
+                    </label>
+                    <div class="glass-input-group">
+                        <i class="fas fa-calendar glass-input-icon-left"></i>
+                        <input type="date" name="to" class="glass-input" value="{{ request.GET.to }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label class="glass-label">
+                        <i class="fas fa-tag me-1"></i>Status
+                    </label>
+                    <select name="status" class="glass-select">
+                        <option value="">All</option>
+                        <option value="success" {% if request.GET.status == 'success' %}selected{% endif %}>Success</option>
+                        <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="failed" {% if request.GET.status == 'failed' %}selected{% endif %}>Failed</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="glass-label">
+                        <i class="fas fa-sort-amount-down me-1"></i>Sort By
+                    </label>
+                    <select name="sort" class="glass-select">
+                        <option value="-created_at" {% if request.GET.sort == '-created_at' %}selected{% endif %}>Newest First</option>
+                        <option value="created_at" {% if request.GET.sort == 'created_at' %}selected{% endif %}>Oldest First</option>
+                        <option value="-amount" {% if request.GET.sort == '-amount' %}selected{% endif %}>Highest Amount</option>
+                        <option value="amount" {% if request.GET.sort == 'amount' %}selected{% endif %}>Lowest Amount</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn glass-btn-primary w-100">
+                        <i class="fas fa-search me-1"></i>Apply Filters
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Payments Table -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-list me-1"></i>Payment Records
-                    </h6>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th>Reference</th>
-                                    <th>Due</th>
-                                    <th>Amount</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Payment Method</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for payment in payments %}
-                                <tr>
-                                    <td>
-                                        <small class="text-muted">{{ payment.reference|truncatechars:12 }}</small>
-                                    </td>
-                                    <td>
-                                        <strong>{{ payment.due.title }}</strong>
-                                        <br>
-                                        <small class="text-muted">{{ payment.due.get_due_type_display }}</small>
-                                    </td>
-                                    <td>
-                                        <strong class="text-primary">GHS {{ payment.amount|floatformat:2 }}</strong>
-                                    </td>
-                                    <td>
-                                        {{ payment.created_at|date:"M d, Y" }}
-                                        <br>
-                                        <small class="text-muted">{{ payment.created_at|time:"h:i A" }}</small>
-                                    </td>
-                                    <td>
-                                        {% if payment.status == 'success' %}
-                                            <span class="badge bg-success">
-                                                <i class="fas fa-check-circle me-1"></i>Success
-                                            </span>
-                                        {% elif payment.status == 'pending' %}
-                                            <span class="badge bg-warning">
-                                                <i class="fas fa-clock me-1"></i>Pending
-                                            </span>
-                                        {% else %}
-                                            <span class="badge bg-danger">
-                                                <i class="fas fa-times-circle me-1"></i>Failed
-                                            </span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if payment.paystack_reference %}
-                                            <small>Paystack</small>
-                                        {% else %}
-                                            <small class="text-muted">Manual</small>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            {% if payment.status == 'success' %}
-                                                <a href="{% url 'payments:payment_receipt' payment.id %}" class="btn btn-outline-primary" title="View Receipt">
-                                                    <i class="fas fa-receipt"></i>
-                                                </a>
-                                            {% endif %}
-                                            <a href="{% url 'payments:due_detail' payment.due.id %}" class="btn btn-outline-info" title="View Due">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="7" class="text-center py-5">
-                                        <i class="fas fa-credit-card fa-4x text-muted mb-3"></i>
-                                        <h5>No Payment History</h5>
-                                        <p class="text-muted">You haven't made any payments yet.</p>
-                                        <a href="{% url 'payments:due_list' %}" class="btn btn-primary">
-                                            <i class="fas fa-credit-card me-2"></i>Make a Payment
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Pagination -->
-                {% if payments.has_other_pages %}
-                <div class="card-footer bg-transparent">
-                    <nav>
-                        <ul class="pagination justify-content-center mb-0">
-                            {% if payments.has_previous %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
-                                        <i class="fas fa-angle-double-left"></i>
-                                    </a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ payments.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
-                                        <i class="fas fa-angle-left"></i>
-                                    </a>
-                                </li>
-                            {% endif %}
-
-                            {% for num in payments.paginator.page_range %}
-                                {% if payments.number == num %}
-                                    <li class="page-item active">
-                                        <span class="page-link">{{ num }}</span>
-                                    </li>
-                                {% elif num > payments.number|add:'-3' and num < payments.number|add:'3' %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
-                                            {{ num }}
-                                        </a>
-                                    </li>
+    <!-- Payments Table - Glass Card -->
+    <div class="glass-table-card">
+        <div class="card-header glass-card-header-primary">
+            <h6 class="m-0 fw-bold text-white">
+                <i class="fas fa-list me-1"></i>Payment Records
+                <span class="glass-badge-light ml-2">{{ payments.paginator.count }} records</span>
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="glass-table">
+                    <thead class="glass-table-header">
+                        <tr>
+                            <th>Reference</th>
+                            <th>Due</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Payment Method</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                        <tr class="glass-table-row">
+                            <td>
+                                <code class="glass-code">{{ payment.reference|truncatechars:12 }}</code>
+                            </td>
+                            <td>
+                                <div class="glass-due-info">
+                                    <strong class="glass-text">{{ payment.due.title }}</strong>
+                                    <br>
+                                    <small class="glass-text-muted">{{ payment.due.get_due_type_display }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <strong class="glass-text-success">GHS {{ payment.amount|floatformat:2 }}</strong>
+                            </td>
+                            <td>
+                                <div class="glass-date-info">
+                                    <i class="fas fa-calendar-alt me-1 glass-text-muted"></i>
+                                    {{ payment.created_at|date:"M d, Y" }}
+                                    <br>
+                                    <small class="glass-text-muted">
+                                        <i class="fas fa-clock me-1"></i>{{ payment.created_at|time:"h:i A" }}
+                                    </small>
+                                </div>
+                            </td>
+                            <td>
+                                {% if payment.status == 'success' %}
+                                    <span class="glass-badge-success-sm">
+                                        <i class="fas fa-check-circle me-1"></i>Success
+                                    </span>
+                                {% elif payment.status == 'pending' %}
+                                    <span class="glass-badge-warning-sm">
+                                        <i class="fas fa-clock me-1"></i>Pending
+                                    </span>
+                                {% else %}
+                                    <span class="glass-badge-danger-sm">
+                                        <i class="fas fa-times-circle me-1"></i>Failed
+                                    </span>
                                 {% endif %}
-                            {% endfor %}
-
-                            {% if payments.has_next %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ payments.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
-                                        <i class="fas fa-angle-right"></i>
+                            </td>
+                            <td>
+                                {% if payment.paystack_reference %}
+                                    <span class="glass-badge-info-sm">
+                                        <i class="fab fa-paystack me-1"></i>Paystack
+                                    </span>
+                                {% else %}
+                                    <span class="glass-badge-secondary-sm">
+                                        <i class="fas fa-file-invoice me-1"></i>Manual
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="glass-action-group">
+                                    {% if payment.status == 'success' %}
+                                        <a href="{% url 'payments:payment_receipt' payment.id %}" class="glass-action-btn primary" title="View Receipt">
+                                            <i class="fas fa-receipt"></i>
+                                        </a>
+                                    {% endif %}
+                                    <a href="{% url 'payments:due_detail' payment.due.id %}" class="glass-action-btn info" title="View Due">
+                                        <i class="fas fa-eye"></i>
                                     </a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ payments.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
-                                        <i class="fas fa-angle-double-right"></i>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="glass-empty-table">
+                                <div class="glass-empty-state">
+                                    <div class="glass-empty-icon">
+                                        <i class="fas fa-credit-card fa-4x"></i>
+                                    </div>
+                                    <h5 class="glass-text-muted mt-3">No Payment History</h5>
+                                    <p class="glass-text-muted">You haven't made any payments yet.</p>
+                                    <a href="{% url 'payments:due_list' %}" class="btn glass-btn-primary">
+                                        <i class="fas fa-credit-card me-2"></i>Make a Payment
                                     </a>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </nav>
-                </div>
-                {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
+        
+        <!-- Pagination - Glass Style -->
+        {% if payments.has_other_pages %}
+        <div class="card-footer glass-card-footer">
+            <nav>
+                <ul class="pagination glass-pagination justify-content-center mb-0">
+                    {% if payments.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link glass-page-link" href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link glass-page-link" href="?page={{ payments.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in payments.paginator.page_range %}
+                        {% if payments.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link glass-page-link glass-page-active">{{ num }}</span>
+                            </li>
+                        {% elif num > payments.number|add:'-3' and num < payments.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link glass-page-link" href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if payments.has_next %}
+                        <li class="page-item">
+                            <a class="page-link glass-page-link" href="?page={{ payments.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link glass-page-link" href="?page={{ payments.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
     </div>
 
-    <!-- Payment Chart (Optional) -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-line me-1"></i>Payment History Chart
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="paymentChart" height="100"></canvas>
-                </div>
-            </div>
+    <!-- Payment Chart - Glass Card -->
+    <div class="glass-chart-card mt-4">
+        <div class="card-header glass-card-header-primary">
+            <h6 class="m-0 fw-bold text-white">
+                <i class="fas fa-chart-line me-1"></i>Payment History Chart
+            </h6>
+        </div>
+        <div class="card-body glass-card-body">
+            <canvas id="paymentChart" height="80"></canvas>
         </div>
     </div>
 </div>
@@ -314,24 +330,55 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'Payments (GHS)',
                 data: {{ chart_data|safe }},
-                backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
                 borderColor: '#4e73df',
-                pointRadius: 3,
+                pointRadius: 4,
                 pointBackgroundColor: '#4e73df',
-                pointBorderColor: '#4e73df',
-                pointHoverRadius: 5,
-                tension: 0.1
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#4e73df',
+                pointHoverBorderColor: '#fff',
+                tension: 0.3,
+                fill: true
             }]
         },
         options: {
-            maintainAspectRatio: false,
+            maintainAspectRatio: true,
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: getComputedStyle(document.documentElement).getPropertyValue('--bs-body-color')
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'GHS ' + context.raw.toFixed(2);
+                        }
+                    }
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
                     ticks: {
                         callback: function(value) {
                             return 'GHS ' + value;
-                        }
+                        },
+                        color: getComputedStyle(document.documentElement).getPropertyValue('--bs-body-color')
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: getComputedStyle(document.documentElement).getPropertyValue('--bs-body-color')
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
                     }
                 }
             }
@@ -341,23 +388,489 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-.border-left-success {
-    border-left: 4px solid #1cc88a;
+/* Glass Morphism Styles for Payment History */
+
+/* Glass Title */
+.glass-title-payment {
+    font-size: 1.75rem;
+    font-weight: 800;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
-.border-left-warning {
-    border-left: 4px solid #f6c23e;
+
+.glass-title-payment::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #4e73df, #224abe);
+    border-radius: 3px;
 }
-.border-left-primary {
-    border-left: 4px solid #4e73df;
+
+/* Glass Badge Group */
+.glass-badge-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
 }
-.border-left-info {
-    border-left: 4px solid #36b9cc;
+
+.glass-badge-success {
+    background: rgba(28, 200, 138, 0.2);
+    border: 1px solid rgba(28, 200, 138, 0.5);
+    color: #1cc88a;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
 }
-.table td {
+
+.glass-badge-light {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    margin-left: 0.5rem;
+}
+
+/* Glass Buttons */
+.glass-btn-primary {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border: none;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(78, 115, 223, 0.3);
+}
+
+/* Glass Stats Row */
+.glass-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.glass-stat-card-success,
+.glass-stat-card-warning,
+.glass-stat-card-primary,
+.glass-stat-card-info {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.glass-stat-card-success { background: linear-gradient(135deg, rgba(28, 200, 138, 0.9), rgba(19, 133, 92, 0.9)); }
+.glass-stat-card-warning { background: linear-gradient(135deg, rgba(246, 194, 62, 0.9), rgba(218, 165, 32, 0.9)); }
+.glass-stat-card-primary { background: linear-gradient(135deg, rgba(78, 115, 223, 0.9), rgba(34, 66, 190, 0.9)); }
+.glass-stat-card-info { background: linear-gradient(135deg, rgba(54, 185, 204, 0.9), rgba(37, 131, 145, 0.9)); }
+
+.glass-stat-card-success:hover,
+.glass-stat-card-warning:hover,
+.glass-stat-card-primary:hover,
+.glass-stat-card-info:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.glass-stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.glass-stat-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+}
+
+.glass-stat-icon {
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.glass-stat-card-success:hover .glass-stat-icon,
+.glass-stat-card-warning:hover .glass-stat-icon,
+.glass-stat-card-primary:hover .glass-stat-icon,
+.glass-stat-card-info:hover .glass-stat-icon {
+    transform: scale(1.1);
+}
+
+/* Glass Filter Card */
+.glass-filter-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.glass-card-header-primary {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card-body {
+    padding: 1.25rem;
+}
+
+/* Glass Form Elements */
+.glass-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--bs-body-color);
+    margin-bottom: 0.5rem;
+}
+
+.glass-input-group {
+    position: relative;
+}
+
+.glass-input-icon-left {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--bs-gray-500);
+    z-index: 1;
+}
+
+.glass-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem 0.6rem 2.5rem;
+    color: var(--bs-body-color);
+    transition: all 0.3s ease;
+}
+
+.glass-input:focus {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #4e73df;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+}
+
+.glass-select {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem;
+    color: var(--bs-body-color);
+    transition: all 0.3s ease;
+}
+
+.glass-select:focus {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #4e73df;
+    outline: none;
+}
+
+/* Glass Table Card */
+.glass-table-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.glass-table {
+    width: 100%;
+    color: var(--bs-body-color);
+}
+
+.glass-table-header {
+    background: rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-table-header th {
+    padding: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.glass-table-row {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-table-row td {
+    padding: 1rem;
     vertical-align: middle;
 }
-.btn-group-sm .btn {
-    padding: 0.25rem 0.5rem;
+
+.glass-table-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(3px);
+}
+
+/* Glass Card Footer */
+.glass-card-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+}
+
+/* Glass Code */
+.glass-code {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-family: monospace;
+}
+
+/* Glass Due Info */
+.glass-due-info {
+    line-height: 1.4;
+}
+
+/* Glass Date Info */
+.glass-date-info {
+    line-height: 1.4;
+}
+
+/* Glass Text */
+.glass-text {
+    color: var(--bs-body-color);
+}
+
+.glass-text-success {
+    color: #1cc88a;
+}
+
+.glass-text-muted {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+[data-bs-theme="dark"] .glass-text-muted {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Glass Badges Small */
+.glass-badge-success-sm,
+.glass-badge-warning-sm,
+.glass-badge-danger-sm,
+.glass-badge-info-sm,
+.glass-badge-secondary-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.glass-badge-success-sm {
+    background: rgba(28, 200, 138, 0.15);
+    color: #1cc88a;
+}
+
+.glass-badge-warning-sm {
+    background: rgba(246, 194, 62, 0.15);
+    color: #f6c23e;
+}
+
+.glass-badge-danger-sm {
+    background: rgba(231, 74, 59, 0.15);
+    color: #e74a3b;
+}
+
+.glass-badge-info-sm {
+    background: rgba(54, 185, 204, 0.15);
+    color: #36b9cc;
+}
+
+.glass-badge-secondary-sm {
+    background: rgba(108, 117, 125, 0.15);
+    color: #adb5bd;
+}
+
+/* Glass Action Group */
+.glass-action-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.glass-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.6rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.glass-action-btn.primary {
+    background: rgba(78, 115, 223, 0.1);
+    border: 1px solid rgba(78, 115, 223, 0.3);
+    color: #4e73df;
+}
+
+.glass-action-btn.primary:hover {
+    background: rgba(78, 115, 223, 0.2);
+    transform: translateY(-2px);
+}
+
+.glass-action-btn.info {
+    background: rgba(54, 185, 204, 0.1);
+    border: 1px solid rgba(54, 185, 204, 0.3);
+    color: #36b9cc;
+}
+
+.glass-action-btn.info:hover {
+    background: rgba(54, 185, 204, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Glass Empty Table */
+.glass-empty-table {
+    text-align: center;
+    padding: 2rem;
+}
+
+.glass-empty-state {
+    text-align: center;
+    padding: 2rem;
+}
+
+.glass-empty-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: var(--bs-gray-500);
+}
+
+/* Glass Pagination */
+.glass-pagination {
+    gap: 0.25rem;
+}
+
+.glass-page-link {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--bs-body-color);
+    border-radius: 10px;
+    margin: 0 2px;
+    transition: all 0.3s ease;
+}
+
+.glass-page-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.glass-page-active {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border-color: transparent;
+    color: white;
+}
+
+.page-item.active .glass-page-active {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border-color: transparent;
+}
+
+/* Glass Chart Card */
+.glass-chart-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .glass-title-payment {
+        font-size: 1.25rem;
+    }
+    
+    .glass-badge-group {
+        flex-wrap: wrap;
+    }
+    
+    .glass-stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .glass-stat-value {
+        font-size: 1rem;
+    }
+    
+    .glass-stat-icon {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .glass-stat-icon i {
+        font-size: 1rem;
+    }
+    
+    .glass-table {
+        font-size: 0.8rem;
+    }
+    
+    .glass-table-row td,
+    .glass-table-header th {
+        padding: 0.6rem;
+    }
+    
+    .glass-action-group {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}
+
+/* Dark Theme Adjustments */
+[data-bs-theme="dark"] .glass-filter-card,
+[data-bs-theme="dark"] .glass-table-card,
+[data-bs-theme="dark"] .glass-chart-card {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+[data-bs-theme="dark"] .glass-code {
+    background: rgba(255, 255, 255, 0.1);
 }
 </style>
 {% endblock %}

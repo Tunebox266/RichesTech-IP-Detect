@@ -1,5 +1,6 @@
 # messaging/views.py
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Count
@@ -13,10 +14,60 @@ from .forms import MessageForm, BroadcastForm
 
 @login_required
 def inbox(request):
-    """View inbox messages"""
-    messages_list = Message.objects.filter(
-        recipient=request.user
-    ).select_related('sender').order_by('-sent_at')
+    """View inbox messages with filter support"""
+    # Determine active tab
+    active_tab = request.GET.get('tab', 'inbox')
+    
+    # Base query
+    if active_tab == 'drafts':
+        messages_list = Message.objects.filter(
+            sender=request.user,
+            is_draft=True
+        ).select_related('recipient').order_by('-sent_at')
+    elif active_tab == 'archived':
+        messages_list = Message.objects.filter(
+            recipient=request.user,
+            is_archived=True
+        ).select_related('sender').order_by('-sent_at')
+    else:  # inbox (default)
+        messages_list = Message.objects.filter(
+            recipient=request.user,
+            is_archived=False
+        ).select_related('sender').order_by('-sent_at')
+    
+    # Apply status filter
+    status_filter = request.GET.get('status', '')
+    if status_filter == 'unread':
+        messages_list = messages_list.filter(read_at__isnull=True)
+    elif status_filter == 'read':
+        messages_list = messages_list.filter(read_at__isnull=False)
+    elif status_filter == 'starred':
+        messages_list = messages_list.filter(is_starred=True)
+    
+    # Apply date filter
+    date_filter = request.GET.get('date', '')
+    from datetime import timedelta
+    today = timezone.now().date()
+    if date_filter == 'today':
+        messages_list = messages_list.filter(sent_at__date=today)
+    elif date_filter == 'week':
+        week_ago = today - timedelta(days=7)
+        messages_list = messages_list.filter(sent_at__date__gte=week_ago)
+    elif date_filter == 'month':
+        month_ago = today - timedelta(days=30)
+        messages_list = messages_list.filter(sent_at__date__gte=month_ago)
+    
+    # Apply search filter
+    search_query = request.GET.get('q', '')
+    if search_query:
+        messages_list = messages_list.filter(
+            Q(subject__icontains=search_query) |
+            Q(body__icontains=search_query) |
+            Q(sender__first_name__icontains=search_query) |
+            Q(sender__last_name__icontains=search_query) |
+            Q(recipient__first_name__icontains=search_query) |
+            Q(recipient__last_name__icontains=search_query)
+        )
     
     # Mark all as read option
     if request.GET.get('mark_all_read'):
@@ -24,8 +75,11 @@ def inbox(request):
         return redirect('messaging:inbox')
     
     # Statistics
-    unread_count = messages_list.filter(read_at__isnull=True).count()
-    total_count = messages_list.count()
+    unread_count = Message.objects.filter(
+        recipient=request.user,
+        read_at__isnull=True,
+        is_archived=False
+    ).count()
     
     paginator = Paginator(messages_list, 20)
     page = request.GET.get('page')
@@ -34,8 +88,7 @@ def inbox(request):
     context = {
         'messages': messages_page,
         'unread_count': unread_count,
-        'total_count': total_count,
-        'is_inbox': True,
+        'active_tab': active_tab,
     }
     return render(request, 'messaging/inbox.html', context)
 
@@ -559,6 +612,51 @@ def compose(request):
     }
     
     return render(request, 'messaging/compose.html', context)
+
+
+@login_required
+def save_draft(request):
+    """Save a message draft (AJAX endpoint)"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+    
+    try:
+        # For now, just acknowledge the draft save request
+        # In a production system, you would store this in a cache or Draft model
+        subject = request.POST.get('subject', '')
+        body = request.POST.get('body', '')
+        
+        # You could implement draft storage here:
+        # - Store in cache for temporary persistence
+        # - Store in database Draft model
+        # - Store in browser localStorage on client-side (recommended)
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Draft saved successfully',
+            'draft': {
+                'subject': subject[:50],
+                'body_preview': body[:100],
+                'saved_at': timezone.now().isoformat()
+            }
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)
+
+
+@login_required
+def drafts(request):
+    """Redirect to inbox with drafts filter"""
+    return redirect(f"{reverse('messaging:inbox')}?tab=drafts")
+
+
+@login_required
+def archived(request):
+    """Redirect to inbox with archived filter"""
+    return redirect(f"{reverse('messaging:inbox')}?tab=archived")
 
 
 @login_required

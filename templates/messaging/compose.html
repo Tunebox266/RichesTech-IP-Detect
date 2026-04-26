@@ -4,327 +4,766 @@
 
 {% block title %}Compose Message - MELTSA-TaTU{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Compose Message */
+    .glass-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+        padding-bottom: 2rem;
+    }
+    
+    .glass-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #224abe);
+        border-radius: 3px;
+    }
+    
+    /* Glass Card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-card-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Glass Form Elements */
+    .glass-form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .glass-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--bs-body-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .glass-label i {
+        margin-right: 0.5rem;
+        color: #4e73df;
+    }
+    
+    .glass-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+        min-height: 200px;
+        resize: vertical;
+    }
+    
+    .glass-textarea:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-select {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-select:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    /* Glass Buttons */
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.6rem 1.25rem;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-btn-secondary {
+        background: rgba(108, 117, 125, 0.2);
+        border: 1px solid rgba(108, 117, 125, 0.5);
+        color: #6c757d;
+        border-radius: 12px;
+        padding: 0.6rem 1.25rem;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-secondary:hover {
+        background: rgba(108, 117, 125, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-outline-danger {
+        background: rgba(231, 74, 59, 0.1);
+        border: 1px solid rgba(231, 74, 59, 0.3);
+        color: #e74a3b;
+        border-radius: 12px;
+        padding: 0.6rem 1.25rem;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-danger:hover {
+        background: rgba(231, 74, 59, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    /* Glass Input Group */
+    .glass-input-group {
+        position: relative;
+        margin-bottom: 0.5rem;
+    }
+    
+    .glass-input-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--bs-gray-500);
+        z-index: 1;
+    }
+    
+    .glass-input-with-icon {
+        padding-left: 2.5rem;
+    }
+    
+    /* Search Results Dropdown */
+    .glass-search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(30, 30, 47, 0.98);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        margin-top: 4px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .glass-search-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-search-item:hover {
+        background: rgba(78, 115, 223, 0.15);
+    }
+    
+    .glass-search-item:last-child {
+        border-bottom: none;
+    }
+    
+    /* Glass Checkbox */
+    .glass-checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+    
+    .glass-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #4e73df;
+    }
+    
+    .glass-checkbox-label {
+        font-size: 0.85rem;
+        color: var(--bs-body-color);
+        cursor: pointer;
+    }
+    
+    /* Attachment Preview */
+    .glass-attachment-preview {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.5rem 0.75rem;
+        margin: 0.25rem;
+        font-size: 0.8rem;
+    }
+    
+    .glass-attachment-remove {
+        color: #e74a3b;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-attachment-remove:hover {
+        transform: scale(1.1);
+    }
+    
+    /* Glass Template List */
+    .glass-template-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .glass-template-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .glass-template-item:hover {
+        background: rgba(78, 115, 223, 0.15);
+        transform: translateX(5px);
+    }
+    
+    /* Glass Recipient List */
+    .glass-recipient-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-recipient-item:hover {
+        background: rgba(78, 115, 223, 0.15);
+        transform: translateX(5px);
+    }
+    
+    /* Glass Stats Card */
+    .glass-stats-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 1rem;
+    }
+    
+    .glass-stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+    }
+    
+    .glass-stat-label {
+        font-size: 0.8rem;
+        color: var(--bs-gray-600);
+    }
+    
+    .glass-stat-value {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #4e73df;
+    }
+    
+    .glass-progress {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        height: 8px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+    
+    .glass-progress-bar {
+        height: 100%;
+        transition: width 0.3s ease;
+        border-radius: 10px;
+    }
+    
+    .glass-progress-bar.bg-success { background: linear-gradient(90deg, #1cc88a, #13855c); }
+    .glass-progress-bar.bg-warning { background: linear-gradient(90deg, #f6c23e, #dda20a); }
+    .glass-progress-bar.bg-danger { background: linear-gradient(90deg, #e74a3b, #be2617); }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Glass Modal */
+    .glass-modal {
+        background: rgba(30, 30, 47, 0.98);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        overflow: hidden;
+    }
+    
+    .glass-modal-header {
+        background: linear-gradient(135deg, #f6c23e, #dda20a);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-modal-footer {
+        padding: 1rem 1.25rem;
+        background: rgba(0, 0, 0, 0.05);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    @media (max-width: 768px) {
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-card-body {
+            padding: 1rem;
+        }
+        
+        .glass-btn-primary,
+        .glass-btn-secondary,
+        .glass-btn-outline-danger {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .d-flex.justify-content-between > div {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-card,
+    [data-bs-theme="dark"] .glass-stats-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    [data-bs-theme="dark"] .glass-search-results {
+        background: rgba(0, 0, 0, 0.95);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-pen me-2"></i>Compose Message
-        </h1>
-        <div>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="saveDraft()">
-                <i class="fas fa-save me-1"></i>Save Draft
-            </button>
-            <a href="{% url 'messaging:inbox' %}" class="btn btn-primary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Back to Inbox
-            </a>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Compose Form -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-edit me-1"></i>New Message
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{% url 'messaging:compose' %}" enctype="multipart/form-data" id="composeForm">
-                        {% csrf_token %}
-                        
-                        <!-- Recipient Selection with Search -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-user me-1"></i>To: <span class="text-danger">*</span>
-                            </label>
-                            
-                            <!-- Search Input -->
-                            <div class="input-group mb-2">
-                                <span class="input-group-text">
-                                    <i class="fas fa-search"></i>
-                                </span>
-                                <input type="text" class="form-control" id="recipientSearch" 
-                                       placeholder="Search by name, email, or ID..." autocomplete="off">
-                            </div>
-                            
-                            <!-- Search Results Dropdown -->
-                            <div id="searchResults" class="list-group mt-1" style="display: none; max-height: 250px; overflow-y: auto; position: absolute; z-index: 1000; width: 95%;"></div>
-                            
-                            <!-- Recipient Select Dropdown -->
-                            <select name="recipient" class="form-select mt-2" id="recipientSelect" required>
-                                <option value="">-- Select Recipient --</option>
-                                {% for user in users %}
-                                    <option value="{{ user.id }}" 
-                                            data-name="{{ user.get_full_name }}"
-                                            data-email="{{ user.email }}"
-                                            data-id="{{ user.student_id|default:user.staff_id|default:'' }}"
-                                            data-type="{{ user.user_type }}">
-                                        {{ user.get_full_name }} ({{ user.user_type|title }}) - {{ user.email }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            <div class="form-text text-muted">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Type to search or select from dropdown
-                            </div>
-                        </div>
-
-                        <!-- Subject -->
-                        <div class="mb-3">
-                            <label for="subject" class="form-label fw-bold">
-                                <i class="fas fa-heading me-1"></i>Subject: <span class="text-danger">*</span>
-                            </label>
-                            <input type="text" class="form-control" id="subject" name="subject" 
-                                   placeholder="Enter message subject" required value="{{ subject|default:'' }}">
-                        </div>
-
-                        <!-- Message Body -->
-                        <div class="mb-3">
-                            <label for="body" class="form-label fw-bold">
-                                <i class="fas fa-align-left me-1"></i>Message: <span class="text-danger">*</span>
-                            </label>
-                            <textarea class="form-control" id="body" name="body" rows="8" 
-                                      placeholder="Write your message here..." required>{{ body|default:'' }}</textarea>
-                            <div class="d-flex justify-content-between mt-1">
-                                <small class="text-muted">
-                                    <span id="charCount">0</span>/5000 characters
-                                </small>
-                                <small class="text-muted">
-                                    <span id="wordCount">0</span> words
-                                </small>
-                            </div>
-                        </div>
-
-                        <!-- Attachments -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-paperclip me-1"></i>Attachments:
-                            </label>
-                            <input type="file" class="form-control" id="attachments" name="attachments" 
-                                   multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
-                            <small class="text-muted">
-                                Allowed: PDF, DOC, DOCX, JPG, PNG, TXT (Max 10MB each)
-                            </small>
-                            <div id="attachmentPreview" class="mt-2"></div>
-                        </div>
-
-                        <!-- Options -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="urgent" name="urgent">
-                                    <label class="form-check-label" for="urgent">
-                                        <i class="fas fa-exclamation-triangle text-danger me-1"></i>
-                                        Mark as Urgent
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="requestReadReceipt" name="request_read_receipt">
-                                    <label class="form-check-label" for="requestReadReceipt">
-                                        <i class="fas fa-check-double text-info me-1"></i>
-                                        Request Read Receipt
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <hr>
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <button type="submit" name="action" value="send" class="btn btn-primary">
-                                    <i class="fas fa-paper-plane me-1"></i>Send Message
-                                </button>
-                                <button type="button" class="btn btn-secondary" onclick="saveDraft()">
-                                    <i class="fas fa-save me-1"></i>Save Draft
-                                </button>
-                            </div>
-                            <div>
-                                <button type="button" class="btn btn-outline-danger" onclick="discardMessage()">
-                                    <i class="fas fa-trash me-1"></i>Discard
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+<div class="glass-container">
+    <div class="container-fluid">
+        <!-- Page Heading - Glass Style -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-pen me-2"></i>Compose Message
+                </h1>
+                <p class="glass-text-muted mt-2">Create and send new messages</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <button type="button" class="btn glass-btn-secondary btn-sm" onclick="saveDraft()">
+                    <i class="fas fa-save me-1"></i>Save Draft
+                </button>
+                <a href="{% url 'messaging:inbox' %}" class="btn glass-btn-primary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Inbox
+                </a>
             </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Quick Templates -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-file-alt me-1"></i>Quick Templates
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="list-group">
-                        <button type="button" class="list-group-item list-group-item-action" onclick="useTemplate('academic')">
-                            <i class="fas fa-graduation-cap me-2 text-primary"></i>
-                            Academic Inquiry
-                        </button>
-                        <button type="button" class="list-group-item list-group-item-action" onclick="useTemplate('payment')">
-                            <i class="fas fa-credit-card me-2 text-success"></i>
-                            Payment Question
-                        </button>
-                        <button type="button" class="list-group-item list-group-item-action" onclick="useTemplate('event')">
-                            <i class="fas fa-calendar me-2 text-info"></i>
-                            Event Query
-                        </button>
-                        <button type="button" class="list-group-item list-group-item-action" onclick="useTemplate('general')">
-                            <i class="fas fa-question-circle me-2 text-warning"></i>
-                            General Inquiry
-                        </button>
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Compose Form - Glass Card -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-edit me-1"></i>New Message
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <form method="POST" action="{% url 'messaging:compose' %}" enctype="multipart/form-data" id="composeForm">
+                            {% csrf_token %}
+                            
+                            <!-- Recipient Selection -->
+                            <div class="glass-form-group">
+                                <label class="glass-label">
+                                    <i class="fas fa-user me-1"></i>To: <span class="text-danger">*</span>
+                                </label>
+                                
+                                <!-- Search Input -->
+                                <div class="glass-input-group">
+                                    <i class="fas fa-search glass-input-icon"></i>
+                                    <input type="text" class="glass-input glass-input-with-icon" id="recipientSearch" 
+                                           placeholder="Search by name, email, or ID..." autocomplete="off">
+                                    <div id="searchResults" class="glass-search-results" style="display: none;"></div>
+                                </div>
+                                
+                                <!-- Recipient Select Dropdown -->
+                                <select name="recipient" class="glass-select mt-2" id="recipientSelect" required>
+                                    <option value="">-- Select Recipient --</option>
+                                    {% for user in users %}
+                                        <option value="{{ user.id }}" 
+                                                data-name="{{ user.get_full_name }}"
+                                                data-email="{{ user.email }}"
+                                                data-id="{{ user.student_id|default:user.staff_id|default:'' }}"
+                                                data-type="{{ user.user_type }}">
+                                            {{ user.get_full_name }} ({{ user.user_type|title }}) - {{ user.email }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="glass-text-muted small mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Type to search or select from dropdown
+                                </div>
+                            </div>
+
+                            <!-- Subject -->
+                            <div class="glass-form-group">
+                                <label for="subject" class="glass-label">
+                                    <i class="fas fa-heading me-1"></i>Subject: <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="glass-input" id="subject" name="subject" 
+                                       placeholder="Enter message subject" required value="{{ subject|default:'' }}">
+                            </div>
+
+                            <!-- Message Body -->
+                            <div class="glass-form-group">
+                                <label for="body" class="glass-label">
+                                    <i class="fas fa-align-left me-1"></i>Message: <span class="text-danger">*</span>
+                                </label>
+                                <textarea class="glass-textarea" id="body" name="body" rows="8" 
+                                          placeholder="Write your message here..." required>{{ body|default:'' }}</textarea>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <small class="glass-text-muted">
+                                        <span id="charCount">0</span>/5000 characters
+                                    </small>
+                                    <small class="glass-text-muted">
+                                        <span id="wordCount">0</span> words
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Attachments -->
+                            <div class="glass-form-group">
+                                <label class="glass-label">
+                                    <i class="fas fa-paperclip me-1"></i>Attachments:
+                                </label>
+                                <input type="file" class="glass-input" id="attachments" name="attachments" 
+                                       multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+                                <small class="glass-text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Allowed: PDF, DOC, DOCX, JPG, PNG, TXT (Max 10MB each)
+                                </small>
+                                <div id="attachmentPreview" class="mt-2"></div>
+                            </div>
+
+                            <!-- Options -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="glass-checkbox-wrapper">
+                                        <input class="glass-checkbox" type="checkbox" id="urgent" name="urgent">
+                                        <label class="glass-checkbox-label" for="urgent">
+                                            <i class="fas fa-exclamation-triangle text-danger me-1"></i>
+                                            Mark as Urgent
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="glass-checkbox-wrapper">
+                                        <input class="glass-checkbox" type="checkbox" id="requestReadReceipt" name="request_read_receipt">
+                                        <label class="glass-checkbox-label" for="requestReadReceipt">
+                                            <i class="fas fa-check-double text-info me-1"></i>
+                                            Request Read Receipt
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <hr class="glass-divider">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <button type="submit" name="action" value="send" class="btn glass-btn-primary">
+                                        <i class="fas fa-paper-plane me-1"></i>Send Message
+                                    </button>
+                                    <button type="button" class="btn glass-btn-secondary" onclick="saveDraft()">
+                                        <i class="fas fa-save me-1"></i>Save Draft
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn glass-btn-outline-danger" onclick="discardMessage()">
+                                        <i class="fas fa-trash me-1"></i>Discard
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
 
-            <!-- Recent Recipients -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-clock me-1"></i>Recent Recipients
-                    </h6>
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Quick Templates - Glass Card -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-file-alt me-1"></i>Quick Templates
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <div class="glass-template-list">
+                            <div class="glass-template-item" onclick="useTemplate('academic')">
+                                <i class="fas fa-graduation-cap fa-lg text-primary"></i>
+                                <div>
+                                    <div class="fw-bold">Academic Inquiry</div>
+                                    <small class="glass-text-muted">Course registration, prerequisites, etc.</small>
+                                </div>
+                            </div>
+                            <div class="glass-template-item" onclick="useTemplate('payment')">
+                                <i class="fas fa-credit-card fa-lg text-success"></i>
+                                <div>
+                                    <div class="fw-bold">Payment Question</div>
+                                    <small class="glass-text-muted">Deadlines, methods, receipts, etc.</small>
+                                </div>
+                            </div>
+                            <div class="glass-template-item" onclick="useTemplate('event')">
+                                <i class="fas fa-calendar fa-lg text-info"></i>
+                                <div>
+                                    <div class="fw-bold">Event Query</div>
+                                    <small class="glass-text-muted">Dates, venues, registration, etc.</small>
+                                </div>
+                            </div>
+                            <div class="glass-template-item" onclick="useTemplate('general')">
+                                <i class="fas fa-question-circle fa-lg text-warning"></i>
+                                <div>
+                                    <div class="fw-bold">General Inquiry</div>
+                                    <small class="glass-text-muted">Other questions or concerns</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        {% if recent_recipients %}
-                            {% for recipient in recent_recipients %}
-                            <a href="#" class="list-group-item list-group-item-action" onclick="selectRecipient({{ recipient.id }}, '{{ recipient.get_full_name|escapejs }}')">
-                                <div class="d-flex align-items-center">
+
+                <!-- Recent Recipients - Glass Card -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-clock me-1"></i>Recent Recipients
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div>
+                            {% if recent_recipients %}
+                                {% for recipient in recent_recipients %}
+                                <div class="glass-recipient-item" onclick="selectRecipient({{ recipient.id }}, '{{ recipient.get_full_name|escapejs }}')">
                                     {% if recipient.profile_image %}
-                                        <img src="{{ recipient.profile_image.url }}" class="rounded-circle me-2" width="30" height="30">
+                                        <img src="{{ recipient.profile_image.url }}" class="rounded-circle" width="35" height="35" style="object-fit: cover;">
                                     {% else %}
-                                        <div class="bg-secondary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" 
-                                             style="width:30px;height:30px;">
-                                            <i class="fas fa-user"></i>
+                                        <div class="glass-avatar-placeholder-sm">
+                                            <i class="fas fa-user text-white fa-sm"></i>
                                         </div>
                                     {% endif %}
                                     <div>
-                                        <strong>{{ recipient.get_full_name }}</strong>
-                                        <small class="text-muted d-block">{{ recipient.user_type|title }}</small>
+                                        <div class="fw-bold">{{ recipient.get_full_name }}</div>
+                                        <small class="glass-text-muted">{{ recipient.user_type|title }}</small>
                                     </div>
                                 </div>
-                            </a>
-                            {% endfor %}
-                        {% else %}
-                            <div class="list-group-item text-muted text-center py-3">
-                                <i class="fas fa-users me-2"></i>
-                                No recent recipients
-                            </div>
-                        {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-users fa-3x glass-text-muted mb-2"></i>
+                                    <p class="glass-text-muted mb-0">No recent recipients</p>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Message Stats -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-bar me-1"></i>Message Stats
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Characters:</span>
-                            <span class="fw-bold" id="charCount">0</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Words:</span>
-                            <span class="fw-bold" id="wordCount">0</span>
-                        </div>
-                        <div class="progress mt-2" style="height: 8px;">
-                            <div id="charProgress" class="progress-bar" style="width: 0%;"></div>
-                        </div>
-                        <small class="text-muted">Max: 5000 characters</small>
+                <!-- Message Stats - Glass Card -->
+                <div class="glass-stats-card">
+                    <div class="glass-stat-row">
+                        <span class="glass-stat-label">
+                            <i class="fas fa-font me-1"></i>Characters
+                        </span>
+                        <span class="glass-stat-value" id="sidebarCharCount">0</span>
                     </div>
+                    <div class="glass-stat-row">
+                        <span class="glass-stat-label">
+                            <i class="fas fa-paragraph me-1"></i>Words
+                        </span>
+                        <span class="glass-stat-value" id="sidebarWordCount">0</span>
+                    </div>
+                    <div class="glass-progress">
+                        <div id="charProgress" class="glass-progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <small class="glass-text-muted">Max: 5000 characters</small>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Discard Confirmation Modal -->
+<!-- Discard Confirmation Modal - Glass Style -->
 <div class="modal fade" id="discardModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-modal">
+            <div class="modal-header glass-modal-header">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-exclamation-triangle me-2"></i>Discard Message
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>Are you sure you want to discard this message?</p>
-                <p class="small text-muted">This action cannot be undone.</p>
+            <div class="modal-body glass-modal-body text-center">
+                <div class="glass-icon-warning mx-auto mb-3">
+                    <i class="fas fa-trash-alt fa-3x"></i>
+                </div>
+                <p class="mb-2">Are you sure you want to discard this message?</p>
+                <p class="small glass-text-muted">This action cannot be undone.</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <a href="{% url 'messaging:inbox' %}" class="btn btn-danger">Discard</a>
+            <div class="modal-footer glass-modal-footer">
+                <button type="button" class="btn glass-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="{% url 'messaging:inbox' %}" class="btn glass-btn-danger">Discard</a>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-#searchResults {
-    position: absolute;
-    z-index: 1000;
-    width: 95%;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+/* Additional Glass Styles */
+.glass-divider {
+    margin: 1rem 0;
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
-[data-bs-theme="dark"] #searchResults {
-    background: var(--card-bg);
-    border-color: var(--border-color);
+.glass-avatar-placeholder-sm {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-#searchResults .list-group-item {
-    cursor: pointer;
-    border-left: none;
-    border-right: none;
+.glass-icon-warning {
+    width: 70px;
+    height: 70px;
+    background: rgba(246, 194, 62, 0.2);
+    border-radius: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: #f6c23e;
 }
 
-#searchResults .list-group-item:hover {
-    background-color: var(--hover-bg);
+.glass-btn-danger {
+    background: linear-gradient(135deg, #e74a3b, #be2617);
+    border: none;
+    border-radius: 10px;
+    padding: 0.5rem 1.25rem;
+    color: white;
+    transition: all 0.3s ease;
 }
 
-.attachment-preview {
-    display: inline-block;
-    margin: 5px;
-    padding: 5px 10px;
-    background: #f8f9fc;
-    border-radius: 4px;
-    border: 1px solid #ddd;
+.glass-btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 74, 59, 0.3);
 }
 
-[data-bs-theme="dark"] .attachment-preview {
-    background: var(--card-bg);
-    border-color: var(--border-color);
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.attachment-preview i {
-    margin-right: 5px;
-}
-
-.attachment-preview .remove {
-    margin-left: 5px;
-    cursor: pointer;
-    color: #dc3545;
-}
-
-.attachment-preview .remove:hover {
-    color: #c82333;
+.glass-card {
+    animation: fadeInUp 0.5s ease-out;
 }
 </style>
 
@@ -332,8 +771,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Character counter
     const bodyTextarea = document.getElementById('body');
-    const charCountElements = document.querySelectorAll('#charCount');
-    const wordCountElements = document.querySelectorAll('#wordCount');
+    const charCountElements = document.querySelectorAll('#charCount, #sidebarCharCount');
+    const wordCountElements = document.querySelectorAll('#wordCount, #sidebarWordCount');
     const charProgress = document.getElementById('charProgress');
     
     if (bodyTextarea) {
@@ -351,14 +790,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 charProgress.style.width = progress + '%';
                 
                 if (progress > 90) {
-                    charProgress.className = 'progress-bar bg-danger';
+                    charProgress.className = 'glass-progress-bar bg-danger';
                 } else if (progress > 75) {
-                    charProgress.className = 'progress-bar bg-warning';
+                    charProgress.className = 'glass-progress-bar bg-warning';
                 } else {
-                    charProgress.className = 'progress-bar bg-success';
+                    charProgress.className = 'glass-progress-bar bg-success';
                 }
             }
         });
+        
+        // Initial trigger
+        bodyTextarea.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     // Attachment preview
@@ -373,11 +815,11 @@ document.addEventListener('DOMContentLoaded', function() {
             Array.from(this.files).forEach((file, index) => {
                 const size = (file.size / 1024 / 1024).toFixed(2);
                 const div = document.createElement('div');
-                div.className = 'attachment-preview';
+                div.className = 'glass-attachment-preview';
                 div.innerHTML = `
                     <i class="fas fa-file"></i>
                     <span>${file.name} (${size} MB)</span>
-                    <i class="fas fa-times remove" onclick="removeAttachment(${index})"></i>
+                    <i class="fas fa-times glass-attachment-remove" onclick="removeAttachment(${index})"></i>
                 `;
                 preview.appendChild(div);
             });
@@ -400,7 +842,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const results = [];
             Array.from(recipientSelect.options).forEach(option => {
-                if (!option.value) return; // Skip placeholder option
+                if (!option.value) return;
                 
                 const searchText = (
                     option.getAttribute('data-name') + ' ' + 
@@ -420,25 +862,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     const name = option.getAttribute('data-name');
                     const email = option.getAttribute('data-email');
                     const type = option.getAttribute('data-type');
+                    const userId = option.value;
                     
-                    const item = document.createElement('a');
-                    item.href = '#';
-                    item.className = 'list-group-item list-group-item-action';
+                    const item = document.createElement('div');
+                    item.className = 'glass-search-item';
                     item.innerHTML = `
-                        <div class="d-flex align-items-center">
-                            <div class="me-2">
-                                <i class="fas fa-user-circle fa-2x text-primary"></i>
-                            </div>
-                            <div>
-                                <strong>${name}</strong>
-                                <br>
-                                <small>${email} (${type})</small>
-                            </div>
+                        <i class="fas fa-user-circle fa-2x text-primary"></i>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">${name}</div>
+                            <small class="glass-text-muted">${email} (${type})</small>
                         </div>
                     `;
                     item.onclick = (e) => {
                         e.preventDefault();
-                        recipientSelect.value = option.value;
+                        recipientSelect.value = userId;
                         searchInput.value = '';
                         searchResults.style.display = 'none';
                         
@@ -447,18 +884,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         setTimeout(() => {
                             recipientSelect.classList.remove('border-success');
                         }, 1000);
+                        
+                        recipientSelect.dispatchEvent(new Event('change', { bubbles: true }));
                     };
                     searchResults.appendChild(item);
                 });
                 searchResults.style.display = 'block';
             } else {
-                searchResults.innerHTML = '<div class="list-group-item text-muted">No users found</div>';
+                searchResults.innerHTML = '<div class="glass-search-item text-center text-muted">No users found</div>';
                 searchResults.style.display = 'block';
             }
         });
     }
 
-    // Hide search results when clicking outside
+    // Hide search results when clicking outside or pressing Escape
     document.addEventListener('click', function(e) {
         if (searchInput && searchResults && 
             !searchInput.contains(e.target) && 
@@ -466,6 +905,16 @@ document.addEventListener('DOMContentLoaded', function() {
             searchResults.style.display = 'none';
         }
     });
+    
+    // Escape key to close search results
+    if (searchInput) {
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                searchResults.style.display = 'none';
+                this.value = '';
+            }
+        });
+    }
 
     // Auto-select if URL has recipient parameter
     const urlParams = new URLSearchParams(window.location.search);
@@ -501,7 +950,7 @@ function saveDraft() {
     const formData = new FormData(form);
     formData.append('action', 'draft');
     
-    fetch('/messaging/save-draft/', {
+    fetch('{% url "messaging:api_save_draft" %}', {
         method: 'POST',
         body: formData,
         headers: {

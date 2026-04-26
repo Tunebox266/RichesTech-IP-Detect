@@ -1209,15 +1209,25 @@ def event_feedback(request, pk):
         rating = request.POST.get('rating')
         comment = request.POST.get('comment')
         
-        # Create feedback
-        feedback = EventFeedback.objects.create(
+        # Use get_or_create to handle duplicate submissions
+        feedback, created = EventFeedback.objects.get_or_create(
             event=event,
             user=request.user,
-            rating=rating,
-            comment=comment
+            defaults={
+                'rating': rating,
+                'comment': comment
+            }
         )
         
-        messages.success(request, 'Thank you for your feedback!')
+        # If feedback already exists, update it
+        if not created:
+            feedback.rating = rating
+            feedback.comment = comment
+            feedback.save()
+            messages.success(request, 'Your feedback has been updated!')
+        else:
+            messages.success(request, 'Thank you for your feedback!')
+        
         return redirect('events:my_events')
     
     return render(request, 'events/feedback_form.html', {'event': event})

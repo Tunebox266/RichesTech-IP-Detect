@@ -23,6 +23,8 @@ class Message(models.Model):
     is_urgent = models.BooleanField(default=False)
     is_replied = models.BooleanField(default=False)
     is_starred = models.BooleanField(default=False)
+    is_archived = models.BooleanField(default=False)
+    is_draft = models.BooleanField(default=False)
     
     class Meta:
         ordering = ['-sent_at']
@@ -30,6 +32,8 @@ class Message(models.Model):
             models.Index(fields=['sender', 'sent_at']),
             models.Index(fields=['recipient', 'sent_at']),
             models.Index(fields=['is_broadcast']),
+            models.Index(fields=['is_archived']),
+            models.Index(fields=['is_draft']),
         ]
     
     def __str__(self):

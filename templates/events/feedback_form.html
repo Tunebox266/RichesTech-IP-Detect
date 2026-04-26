@@ -4,50 +4,472 @@
 
 {% block title %}Event Feedback - {{ event.title }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Feedback Form */
+    .glass-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+        padding: 2rem 0;
+    }
+    
+    .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .glass-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .glass-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+        animation: shimmer 20s infinite linear;
+    }
+    
+    @keyframes shimmer {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .glass-header-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+    }
+    
+    .glass-header-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        margin-bottom: 0.25rem;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .glass-body {
+        padding: 2rem;
+    }
+    
+    .glass-event-info {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 20px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-event-info:hover {
+        background: rgba(78, 115, 223, 0.08);
+        transform: translateY(-2px);
+    }
+    
+    .glass-event-title {
+        font-size: 1.35rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.25rem;
+    }
+    
+    .glass-event-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 1rem;
+        background: rgba(78, 115, 223, 0.15);
+        border-radius: 30px;
+        font-size: 0.85rem;
+        color: #4e73df;
+    }
+    
+    /* Glass Rating Section */
+    .glass-rating-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .glass-rating-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--bs-body-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-rating-label i {
+        color: #f6c23e;
+    }
+    
+    .glass-rating-stars {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .glass-rating-option {
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .glass-rating-option input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    .glass-rating-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(8px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        padding: 0.75rem 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .glass-rating-card:hover {
+        background: rgba(78, 115, 223, 0.15);
+        transform: translateY(-3px);
+    }
+    
+    .glass-rating-option input:checked + .glass-rating-card {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.3), rgba(34, 66, 190, 0.2));
+        border-color: #4e73df;
+        box-shadow: 0 0 20px rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-rating-number {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #4e73df;
+        line-height: 1;
+    }
+    
+    .glass-rating-star {
+        font-size: 0.8rem;
+        color: #f6c23e;
+    }
+    
+    .glass-rating-text {
+        font-size: 0.7rem;
+        color: var(--bs-gray-500);
+        margin-top: 0.25rem;
+    }
+    
+    /* Glass Textarea */
+    .glass-textarea-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .glass-textarea-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--bs-body-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        padding: 1rem;
+        color: var(--bs-body-color);
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        resize: vertical;
+    }
+    
+    .glass-textarea:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-textarea::placeholder {
+        color: var(--bs-gray-500);
+        font-size: 0.85rem;
+    }
+    
+    /* Glass Button Group */
+    .glass-button-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 1rem;
+    }
+    
+    .glass-btn-secondary {
+        background: rgba(108, 117, 125, 0.2);
+        border: 1px solid rgba(108, 117, 125, 0.5);
+        color: #6c757d;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-btn-secondary:hover {
+        background: rgba(108, 117, 125, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    @media (max-width: 768px) {
+        .glass-header-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-rating-stars {
+            gap: 0.5rem;
+        }
+        
+        .glass-rating-card {
+            padding: 0.5rem 1rem;
+        }
+        
+        .glass-rating-number {
+            font-size: 1rem;
+        }
+        
+        .glass-button-group {
+            flex-direction: column;
+        }
+        
+        .glass-btn-secondary,
+        .glass-btn-primary {
+            justify-content: center;
+        }
+        
+        .glass-body {
+            padding: 1.5rem;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    [data-bs-theme="dark"] .glass-event-info {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Animation for form */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .glass-card {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    /* Additional hover effects */
+    .glass-rating-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Event Feedback</h4>
-                </div>
-                <div class="card-body">
-                    <h5>{{ event.title }}</h5>
-                    <p class="text-muted">{{ event.start_date|date:"F d, Y" }}</p>
+<div class="glass-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <!-- Glass Card -->
+                <div class="glass-card">
+                    <!-- Glass Header -->
+                    <div class="glass-header">
+                        <div class="glass-header-icon">
+                            <i class="fas fa-star fa-2x text-white"></i>
+                        </div>
+                        <h4 class="glass-header-title text-white mb-0">Event Feedback</h4>
+                        <p class="text-white-50 small mb-0">Your opinion matters to us</p>
+                    </div>
                     
-                    <form method="POST">
-                        {% csrf_token %}
-                        
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">How would you rate this event?</label>
-                            <div class="rating-stars">
-                                {% for i in "12345"|make_list %}
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="rating" 
-                                           id="rating{{ i }}" value="{{ i }}" required>
-                                    <label class="form-check-label" for="rating{{ i }}">
-                                        {{ i }} star{% if i != '1' %}s{% endif %}
-                                    </label>
-                                </div>
-                                {% endfor %}
+                    <!-- Glass Body -->
+                    <div class="glass-body">
+                        <!-- Event Info -->
+                        <div class="glass-event-info">
+                            <div class="glass-event-title">{{ event.title }}</div>
+                            <div class="glass-event-date mt-2">
+                                <i class="fas fa-calendar-alt"></i>
+                                {{ event.start_date|date:"F d, Y" }}
                             </div>
                         </div>
                         
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Additional Comments</label>
-                            <textarea name="comment" class="form-control" rows="5" 
-                                      placeholder="Share your thoughts about the event..."></textarea>
-                        </div>
-                        
-                        <div class="text-end">
-                            <a href="{% url 'events:my_events' %}" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Submit Feedback</button>
-                        </div>
-                    </form>
+                        <form method="POST">
+                            {% csrf_token %}
+                            
+                            <!-- Rating Section -->
+                            <div class="glass-rating-section">
+                                <div class="glass-rating-label">
+                                    <i class="fas fa-star"></i>
+                                    How would you rate this event?
+                                </div>
+                                <div class="glass-rating-stars">
+                                    {% for i in "12345"|make_list %}
+                                    <label class="glass-rating-option">
+                                        <input type="radio" name="rating" value="{{ i }}" required>
+                                        <div class="glass-rating-card">
+                                            <div class="glass-rating-number">{{ i }}</div>
+                                            <div class="glass-rating-star">
+                                                {% for j in "12345"|make_list %}
+                                                    {% if forloop.counter <= i|add:0 %}
+                                                        <i class="fas fa-star"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            <div class="glass-rating-text">
+                                                {% if i == "1" %}Poor
+                                                {% elif i == "2" %}Fair
+                                                {% elif i == "3" %}Good
+                                                {% elif i == "4" %}Very Good
+                                                {% else %}Excellent
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <!-- Comments Section -->
+                            <div class="glass-textarea-section">
+                                <div class="glass-textarea-label">
+                                    <i class="fas fa-comment-dots"></i>
+                                    Additional Comments
+                                </div>
+                                <textarea name="comment" class="glass-textarea" rows="5" 
+                                          placeholder="Share your thoughts, suggestions, or feedback about the event..."></textarea>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="glass-button-group">
+                                <a href="{% url 'events:my_events' %}" class="glass-btn-secondary">
+                                    <i class="fas fa-times"></i>
+                                    Cancel
+                                </a>
+                                <button type="submit" class="glass-btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                    Submit Feedback
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Help Text -->
+                <div class="text-center mt-4">
+                    <small class="glass-text-muted">
+                        <i class="fas fa-lock me-1"></i>
+                        Your feedback is anonymous and helps us improve future events
+                    </small>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+/* Additional Styles */
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.form-check-input {
+    margin-top: 0.3rem;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
 {% endblock %}

@@ -4,44 +4,317 @@
 
 {% block title %}Processing Payment - MELTSA-TaTU{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Payment Processing */
+    .glass-payment-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+    
+    .glass-payment-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    }
+    
+    .glass-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .glass-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+        animation: shimmer 15s infinite linear;
+    }
+    
+    @keyframes shimmer {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .glass-spinner {
+        width: 80px;
+        height: 80px;
+        border: 4px solid rgba(78, 115, 223, 0.2);
+        border-top-color: #4e73df;
+        border-right-color: #1cc88a;
+        border-bottom-color: #f6c23e;
+        border-left-color: #e74a3b;
+        border-radius: 50%;
+        animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        margin: 0 auto;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .glass-summary {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 20px;
+        padding: 1.25rem;
+        backdrop-filter: blur(5px);
+    }
+    
+    .glass-summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-summary-item:last-child {
+        border-bottom: none;
+    }
+    
+    .glass-summary-label {
+        font-size: 0.85rem;
+        color: var(--bs-gray-500);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .glass-summary-value {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--bs-body-color);
+    }
+    
+    .glass-payment-amount {
+        font-size: 2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #4e73df, #1cc88a);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-footer {
+        background: rgba(0, 0, 0, 0.05);
+        padding: 1rem;
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-badge-secure {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(28, 200, 138, 0.15);
+        border: 1px solid rgba(28, 200, 138, 0.3);
+        border-radius: 20px;
+        padding: 0.35rem 1rem;
+        font-size: 0.75rem;
+        color: #1cc88a;
+        margin-bottom: 1rem;
+    }
+    
+    .glass-progress-step {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .glass-step {
+        text-align: center;
+        flex: 1;
+        position: relative;
+    }
+    
+    .glass-step-icon {
+        width: 45px;
+        height: 45px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-step.active .glass-step-icon {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        box-shadow: 0 0 20px rgba(78, 115, 223, 0.5);
+    }
+    
+    .glass-step.completed .glass-step-icon {
+        background: linear-gradient(135deg, #1cc88a, #13855c);
+    }
+    
+    .glass-step-label {
+        font-size: 0.7rem;
+        margin-top: 0.5rem;
+        color: var(--bs-gray-500);
+    }
+    
+    .glass-step.active .glass-step-label {
+        color: #4e73df;
+        font-weight: 600;
+    }
+    
+    .glass-step-connector {
+        position: absolute;
+        top: 22px;
+        left: 50%;
+        width: 100%;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.1);
+        z-index: -1;
+    }
+    
+    .glass-step:last-child .glass-step-connector {
+        display: none;
+    }
+    
+    .glass-pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(78, 115, 223, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 15px rgba(78, 115, 223, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(78, 115, 223, 0);
+        }
+    }
+    
+    .glass-credit-cards {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+        opacity: 0.7;
+    }
+    
+    .glass-credit-cards i {
+        font-size: 2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-credit-cards i:hover {
+        opacity: 1;
+        transform: translateY(-3px);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
-            <div class="card shadow-lg border-0 rounded-lg mt-5">
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <h3 class="mb-0">
+            <!-- Glass Payment Card -->
+            <div class="glass-payment-card mt-5 mb-5">
+                <div class="glass-header">
+                    <div class="glass-badge-secure mx-auto" style="width: fit-content;">
+                        <i class="fas fa-lock"></i>
+                        <span>Secure Payment</span>
+                    </div>
+                    <h3 class="mb-0 text-white">
                         <i class="fas fa-credit-card me-2"></i>Processing Payment
                     </h3>
                 </div>
                 
+                <!-- Progress Steps -->
+                <div class="glass-progress-step px-4 pt-4">
+                    <div class="glass-step active">
+                        <div class="glass-step-icon">
+                            <i class="fas fa-credit-card text-white"></i>
+                        </div>
+                        <div class="glass-step-label">Initiate</div>
+                        <div class="glass-step-connector"></div>
+                    </div>
+                    <div class="glass-step">
+                        <div class="glass-step-icon">
+                            <i class="fas fa-spinner fa-spin text-white"></i>
+                        </div>
+                        <div class="glass-step-label">Processing</div>
+                        <div class="glass-step-connector"></div>
+                    </div>
+                    <div class="glass-step">
+                        <div class="glass-step-icon">
+                            <i class="fas fa-check-circle text-white"></i>
+                        </div>
+                        <div class="glass-step-label">Complete</div>
+                    </div>
+                </div>
+                
                 <div class="card-body p-4 text-center">
                     <!-- Loading Spinner -->
-                    <div class="py-5">
-                        <div class="spinner-border text-primary mb-3" style="width: 4rem; height: 4rem;" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <h5 class="mt-3">Initializing Payment...</h5>
-                        <p class="text-muted">Please wait while we redirect you to the secure payment page.</p>
+                    <div class="py-4">
+                        <div class="glass-spinner glass-pulse mb-4"></div>
+                        <h5 class="glass-text mt-3">Initializing Payment...</h5>
+                        <p class="glass-text-muted">Please wait while we redirect you to the secure payment page.</p>
                     </div>
 
-                    <!-- Payment Details Summary -->
-                    <div class="alert alert-info text-start mt-4">
-                        <h6 class="alert-heading fw-bold mb-3">
-                            <i class="fas fa-receipt me-2"></i>Payment Summary
+                    <!-- Payment Details Summary - Glass Card -->
+                    <div class="glass-summary mt-4">
+                        <h6 class="fw-bold mb-3 text-start">
+                            <i class="fas fa-receipt me-2 text-primary"></i>Payment Summary
                         </h6>
-                        <div class="row mb-2">
-                            <div class="col-6 text-muted">Reference:</div>
-                            <div class="col-6 text-end fw-bold">{{ payment.reference }}</div>
+                        <div class="glass-summary-item">
+                            <div class="glass-summary-label">
+                                <i class="fas fa-hashtag text-muted"></i>Reference:
+                            </div>
+                            <div class="glass-summary-value">
+                                <code class="glass-code">{{ payment.reference }}</code>
+                            </div>
                         </div>
-                        <div class="row mb-2">
-                            <div class="col-6 text-muted">Amount:</div>
-                            <div class="col-6 text-end fw-bold text-primary">GHS {{ payment.amount|floatformat:2 }}</div>
+                        <div class="glass-summary-item">
+                            <div class="glass-summary-label">
+                                <i class="fas fa-money-bill-wave text-muted"></i>Amount:
+                            </div>
+                            <div class="glass-summary-value">
+                                <span class="glass-payment-amount">GHS {{ payment.amount|floatformat:2 }}</span>
+                            </div>
                         </div>
-                        <div class="row mb-2">
-                            <div class="col-6 text-muted">Due:</div>
-                            <div class="col-6 text-end">{{ payment.due.title }}</div>
+                        <div class="glass-summary-item">
+                            <div class="glass-summary-label">
+                                <i class="fas fa-tag text-muted"></i>Due:
+                            </div>
+                            <div class="glass-summary-value">{{ payment.due.title }}</div>
                         </div>
+                        <div class="glass-summary-item">
+                            <div class="glass-summary-label">
+                                <i class="fas fa-user text-muted"></i>Payer:
+                            </div>
+                            <div class="glass-summary-value">{{ request.user.get_full_name }}</div>
+                        </div>
+                        <div class="glass-summary-item">
+                            <div class="glass-summary-label">
+                                <i class="fas fa-envelope text-muted"></i>Email:
+                            </div>
+                            <div class="glass-summary-value">{{ request.user.email }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Supported Cards -->
+                    <div class="glass-credit-cards mt-4">
+                        <i class="fab fa-cc-visa text-primary"></i>
+                        <i class="fab fa-cc-mastercard text-danger"></i>
+                        <i class="fab fa-cc-amex text-info"></i>
+                        <i class="fab fa-cc-discover text-warning"></i>
                     </div>
 
                     <!-- Hidden form that auto-submits to Paystack -->
@@ -55,79 +328,97 @@
                     </form>
                 </div>
 
-                <div class="card-footer text-center py-3 bg-light">
-                    <div class="small">
-                        <i class="fas fa-lock text-success me-1"></i>
-                        Secured by <strong>Paystack</strong>
+                <div class="glass-footer">
+                    <div class="d-flex justify-content-center gap-3 small">
+                        <span><i class="fas fa-lock text-success me-1"></i> 256-bit SSL Secure</span>
+                        <span><i class="fas fa-shield-alt text-info me-1"></i> PCI DSS Compliant</span>
                     </div>
                     <div class="mt-2">
-                        <img src="{% static 'img/paystack-2.svg' %}" alt="Paystack" height="25">
+                        <img src="{% static 'img/paystack-2.svg' %}" alt="Paystack" height="25" class="opacity-75">
                     </div>
+                    <p class="small glass-text-muted mt-2 mb-0">
+                        <i class="fas fa-clock me-1"></i> Do not close this window while processing
+                    </p>
                 </div>
+            </div>
+            
+            <!-- Help Text -->
+            <div class="text-center mt-3">
+                <p class="small glass-text-muted">
+                    <i class="fas fa-question-circle me-1"></i>
+                    Having trouble? Contact <a href="mailto:finance@meltsa.edu" class="glass-link">finance@meltsa.edu</a>
+                </p>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Paystack inline payment
-    const handler = PaystackPop.setup({
-        key: '{{ paystack_public_key }}',
-        email: '{{ request.user.email }}',
-        amount: {{ payment.amount }} * 100, // Convert to pesewas
-        ref: '{{ payment.reference }}',
-        currency: 'GHS',
-        metadata: {
-            user_id: {{ request.user.id }},
-            payment_id: {{ payment.id }},
-            due_id: {{ payment.due.id }}
-        },
-        callback: function(response) {
-            // Payment successful - verify on server
-            window.location.href = "{% url 'payments:verify_payment' %}?reference=" + response.reference + "&due_id={{ payment.due.id }}";
-        },
-        onClose: function() {
-            // Payment window closed without completing
-            window.location.href = "{% url 'payments:cancel_payment' payment.reference %}";
-        }
-    });
-    
-    // Open the payment modal
-    handler.openIframe();
-});
-</script>
-<!-- templates/payments/process_payment.html - Update line 92 -->
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Paystack inline payment
-    const handler = PaystackPop.setup({
-        key: '{{ paystack_public_key }}',
-        email: '{{ request.user.email }}',
-        amount: {{ payment.amount }} * 100, // Convert to pesewas
-        ref: '{{ payment.reference }}',
-        currency: 'GHS',
-        metadata: {
-            user_id: {{ request.user.id }},
-            payment_id: {{ payment.id }},
-            due_id: {{ payment.due.id }}
-        },
-        callback: function(response) {
-            // Payment successful - verify on server
-            window.location.href = "{% url 'payments:verify_payment' %}?reference=" + response.reference + "&due_id={{ payment.due.id }}";
-        },
-        onClose: function() {
-            // Payment window closed without completing
-            window.location.href = "{% url 'payments:cancel_payment' payment.reference %}";
-        }
-    });
-    
-    // Open the payment modal
-    handler.openIframe();
-});
-</script>
+<style>
+.glass-text {
+    color: var(--bs-body-color);
+}
+.glass-text-muted {
+    color: rgba(0, 0, 0, 0.6);
+}
+[data-bs-theme="dark"] .glass-text-muted {
+    color: rgba(255, 255, 255, 0.6);
+}
+.glass-code {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-family: monospace;
+}
+[data-bs-theme="dark"] .glass-code {
+    background: rgba(255, 255, 255, 0.1);
+}
+.glass-link {
+    color: #4e73df;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+.glass-link:hover {
+    color: #224abe;
+    text-decoration: underline;
+}
+</style>
 
 <!-- Load Paystack inline.js -->
 <script src="https://js.paystack.co/v1/inline.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Paystack inline payment
+    const handler = PaystackPop.setup({
+        key: '{{ paystack_public_key }}',
+        email: '{{ request.user.email }}',
+        amount: {{ payment.amount }} * 100, // Convert to pesewas
+        ref: '{{ payment.reference }}',
+        currency: 'GHS',
+        metadata: {
+            user_id: {{ request.user.id }},
+            payment_id: {{ payment.id }},
+            due_id: {{ payment.due.id }}
+        },
+        callback: function(response) {
+            // Update progress step to completed
+            const steps = document.querySelectorAll('.glass-step');
+            steps[0].classList.add('completed');
+            steps[0].classList.remove('active');
+            steps[1].classList.add('active');
+            
+            // Payment successful - verify on server
+            window.location.href = "{% url 'payments:verify_payment' %}?reference=" + response.reference + "&due_id={{ payment.due.id }}";
+        },
+        onClose: function() {
+            // Payment window closed without completing
+            window.location.href = "{% url 'payments:cancel_payment' payment.reference %}";
+        }
+    });
+    
+    // Open the payment modal
+    handler.openIframe();
+});
+</script>
 {% endblock %}

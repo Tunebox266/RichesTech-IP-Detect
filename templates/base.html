@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- AOS Animation -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -22,13 +22,309 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     
     {% block extra_css %}{% endblock %}
+
+    <style>
+        /* Enhanced Global Styles */
+        :root {
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* Enhanced Navbar */
+        .navbar {
+            backdrop-filter: blur(10px);
+            transition: var(--transition-smooth);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar.scrolled {
+            padding: 0.5rem 0;
+            background: rgba(13, 110, 253, 0.95) !important;
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            transition: var(--transition-smooth);
+        }
+        
+        .navbar-brand:hover {
+            transform: scale(1.02);
+        }
+        
+        .navbar-brand img {
+            transition: var(--transition-smooth);
+        }
+        
+        .navbar-brand:hover img {
+            transform: rotate(5deg);
+        }
+        
+        .nav-link {
+            position: relative;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: white;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 80%;
+        }
+        
+        /* Enhanced Search */
+        .search-wrapper {
+            position: relative;
+        }
+        
+        .search-input-enhanced {
+            border-radius: 50px;
+            padding-left: 40px;
+            transition: var(--transition-smooth);
+            border: 2px solid transparent;
+        }
+        
+        .search-input-enhanced:focus {
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .search-icon-enhanced {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            z-index: 1;
+        }
+        
+        /* Enhanced Dropdown */
+        .dropdown-menu-enhanced {
+            border: none;
+            border-radius: 15px;
+            box-shadow: var(--shadow-hover);
+            animation: fadeInDown 0.3s ease;
+            overflow: hidden;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .dropdown-item-enhanced {
+            padding: 10px 20px;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+        
+        .dropdown-item-enhanced:hover {
+            background: linear-gradient(90deg, rgba(13, 110, 253, 0.1), transparent);
+            padding-left: 25px;
+        }
+        
+        /* Enhanced Alerts */
+        .alert-enhanced {
+            border: none;
+            border-radius: 15px;
+            box-shadow: var(--shadow-hover);
+            animation: slideInRight 0.5s ease;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Enhanced Footer */
+        .footer-enhanced {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .footer-enhanced::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+        }
+        
+        .footer-enhanced a {
+            transition: var(--transition-smooth);
+            text-decoration: none;
+        }
+        
+        .footer-enhanced a:hover {
+            transform: translateX(5px);
+            color: #fff !important;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            transition: var(--transition-smooth);
+        }
+        
+        .social-links a:hover {
+            transform: translateY(-3px) scale(1.1);
+        }
+        
+        /* Enhanced Cards */
+        .card-enhanced {
+            border: none;
+            border-radius: 20px;
+            transition: var(--transition-smooth);
+            overflow: hidden;
+        }
+        
+        .card-enhanced:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        /* Enhanced Buttons */
+        .btn-enhanced {
+            border-radius: 50px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-enhanced::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-enhanced:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        /* Enhanced Toast */
+        .toast-enhanced {
+            border: none;
+            border-radius: 15px;
+            box-shadow: var(--shadow-hover);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Loading Spinner */
+        .spinner-enhanced {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(13, 110, 253, 0.2);
+            border-top-color: #0d6efd;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Enhanced Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2, #667eea);
+        }
+        
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Responsive Enhancements */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1rem;
+            }
+            
+            .back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top" id="mainNavbar">
         <div class="container">
             <a class="navbar-brand" href="{% url 'core:home' %}">
-                <img src="{% static 'img/logo.png' %}" alt="MELTSA Logo" width="40" height="40">  
+                <img src="{% static 'img/logo.png' %}" alt="MELTSA Logo" width="40" height="40" class="me-2">  
                 MELTSA-TaTU
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -73,9 +369,12 @@
                 
                 <!-- Search Form -->
                 <form class="d-flex me-3 position-relative" action="{% url 'core:global_search' %}" method="GET">
-                    <input class="form-control" type="search" name="q" id="global-search" 
-                           placeholder="Search..." autocomplete="off">
-                    <button class="btn btn-outline-light ms-2" type="submit">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search search-icon-enhanced"></i>
+                        <input class="form-control search-input-enhanced" type="search" name="q" id="global-search" 
+                               placeholder="Search members, events, resources..." autocomplete="off">
+                    </div>
+                    <button class="btn btn-outline-light ms-2 btn-enhanced" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
                     <div id="search-results" class="position-absolute bg-white shadow-lg rounded mt-2 w-100 d-none" 
@@ -97,32 +396,32 @@
                                role="button" data-bs-toggle="dropdown">
                                 {% if user.profile_image %}
                                     <img src="{{ user.profile_image.url }}" alt="Profile" 
-                                         class="rounded-circle" width="30" height="30">
+                                         class="rounded-circle me-1" width="30" height="30">
                                 {% else %}
-                                    <i class="fas fa-user-circle fa-lg"></i>
+                                    <i class="fas fa-user-circle fa-lg me-1"></i>
                                 {% endif %}
                                 {{ user.get_short_name|default:user.username }}
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-enhanced">
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                                    <a class="dropdown-item dropdown-item-enhanced" href="{% url 'accounts:profile' %}">
                                         <i class="fas fa-user me-2"></i>Profile
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'accounts:dashboard_redirect' %}">
+                                    <a class="dropdown-item dropdown-item-enhanced" href="{% url 'accounts:dashboard_redirect' %}">
                                         <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'messaging:inbox' %}">
+                                    <a class="dropdown-item dropdown-item-enhanced" href="{% url 'messaging:inbox' %}">
                                         <i class="fas fa-envelope me-2"></i>Messages
                                         <span class="badge bg-primary rounded-pill ms-2" id="unread-messages-count">0</span>
                                     </a>
                                 </li>
                                 {% if user.user_type in 'admin,staff' %}
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'core:contact_messages' %}">
+                                    <a class="dropdown-item dropdown-item-enhanced" href="{% url 'core:contact_messages' %}">
                                         <i class="fas fa-inbox me-2"></i>Contact Messages
                                         <span class="badge bg-warning rounded-pill ms-2" id="new-messages-count">0</span>
                                     </a>
@@ -130,7 +429,7 @@
                                 {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
+                                    <a class="dropdown-item dropdown-item-enhanced text-danger" href="{% url 'accounts:logout' %}">
                                         <i class="fas fa-sign-out-alt me-2"></i>Logout
                                     </a>
                                 </li>
@@ -138,7 +437,7 @@
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <button class="nav-link btn btn-link" onclick="openPasscodeModal()" style="border: none; background: none;">
+                            <button class="nav-link btn btn-link btn-enhanced" onclick="openPasscodeModal()" style="border: none; background: none;">
                                 <i class="fas fa-sign-in-alt me-1"></i>Login
                             </button>
                         </li>
@@ -152,7 +451,7 @@
     {% if messages %}
         <div class="container mt-3">
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show animate-slide-up" role="alert">
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show alert-enhanced animate-slide-up" role="alert">
                     <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -169,60 +468,65 @@
     <!-- Toast Container -->
     <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;"></div>
 
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
     <!-- Footer -->
-    <footer class="mt-5">
-        <div class="container">
+    <footer class="footer-enhanced mt-5">
+        <div class="container py-5">
             <div class="row">
                 <div class="col-md-4 mb-4">
-                    <h5>
-                        <i class="fas fa-flask me-2"></i>MELTSA-TaTU
+                    <h5 class="text-white mb-3">
+                        <img src="{% static 'img/logo.png' %}" alt="MELTSA Logo" width="40" background="#ffff" height="40" class="me-2">  MELTSA-TaTU
                     </h5>
-                    <p class="text-light-emphasis">
+                    <p class="text-white-50">
                         Medical Laboratory Students' Association<br>
-                        Tamale Technical University
+                        <span>Tamale Technical University</span>
                     </p>
                     <div class="social-links">
-                        <a href="#" class="me-2"><i class="fab fa-facebook fa-lg"></i></a>
-                        <a href="#" class="me-2"><i class="fab fa-twitter fa-lg"></i></a>
-                        <a href="#" class="me-2"><i class="fab fa-instagram fa-lg"></i></a>
-                        <a href="#" class="me-2"><i class="fab fa-linkedin fa-lg"></i></a>
-                        <a href="#"><i class="fab fa-youtube fa-lg"></i></a>
+                        <a href="#" class="text-white-50 me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-white-50 me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-white-50 me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-white-50 me-3"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="#" class="text-white-50"><i class="fab fa-youtube fa-lg"></i></a>
                     </div>
                 </div>
                 <div class="col-md-2 mb-4">
-                    <h6>Quick Links</h6>
+                    <h6 class="text-white mb-3">Quick Links</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{% url 'core:home' %}" class="text-light-emphasis">Home</a></li>
-                        <li><a href="{% url 'core:announcements' %}" class="text-light-emphasis">Announcements</a></li>
-                        <li><a href="{% url 'events:my_events' %}" class="text-light-emphasis">Events</a></li>
-                        <li><a href="{% url 'directory:student_list' %}" class="text-light-emphasis">Directory</a></li>
+                        <li class="mb-2"><a href="{% url 'core:home' %}" class="text-white-50">Home</a></li>
+                        <li class="mb-2"><a href="{% url 'core:announcements' %}" class="text-white-50">Announcements</a></li>
+                        <li class="mb-2"><a href="{% url 'events:my_events' %}" class="text-white-50">Events</a></li>
+                        <li class="mb-2"><a href="{% url 'directory:student_list' %}" class="text-white-50">Directory</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3 mb-4">
-                    <h6>Information</h6>
+                    <h6 class="text-white mb-3">Information</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{% url 'core:about' %}" class="text-light-emphasis">About Us</a></li>
-                        <li><a href="{% url 'core:contact' %}" class="text-light-emphasis">Contact</a></li>
-                        <li><a href="{% url 'core:faq' %}" class="text-light-emphasis">FAQ</a></li>
-                        <li><a href="{% url 'core:privacy_policy' %}" class="text-light-emphasis">Privacy Policy</a></li>
+                        <li class="mb-2"><a href="{% url 'core:about' %}" class="text-white-50">About Us</a></li>
+                        <li class="mb-2"><a href="{% url 'core:contact' %}" class="text-white-50">Contact</a></li>
+                        <li class="mb-2"><a href="{% url 'core:faq' %}" class="text-white-50">FAQ</a></li>
+                        <li class="mb-2"><a href="{% url 'core:privacy_policy' %}" class="text-white-50">Privacy Policy</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3 mb-4">
-                    <h6>Resources</h6>
+                    <h6 class="text-white mb-3">Resources</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{% url 'courses:material_list' %}" class="text-light-emphasis">Course Materials</a></li>
-                        <li><a href="{% url 'directory:past_question_list' %}" class="text-light-emphasis">Past Questions</a></li>
-                        <li><a href="{% url 'directory:academic_calendar_list' %}" class="text-light-emphasis">Academic Calendar</a></li>
-                        <li><a href="{% url 'directory:student_handbook_list' %}" class="text-light-emphasis">Student Handbook</a></li>
+                        <li class="mb-2"><a href="{% url 'courses:material_list' %}" class="text-white-50">Course Materials</a></li>
+                        <li class="mb-2"><a href="{% url 'directory:past_question_list' %}" class="text-white-50">Past Questions</a></li>
+                        <li class="mb-2"><a href="{% url 'directory:academic_calendar_list' %}" class="text-white-50">Academic Calendar</a></li>
+                        <li class="mb-2"><a href="{% url 'directory:student_handbook_list' %}" class="text-white-50">Student Handbook</a></li>
                     </ul>
                 </div>
             </div>
             <hr class="bg-light opacity-25">
             <div class="text-center">
-                <p class="mb-0 small">
+                <p class="mb-0 small text-white-50">
                     &copy; {% now "Y" %} MELTSA-TaTU. All rights reserved. 
                     <span class="mx-2">|</span> 
-                    Developed with <i class="fas fa-heart text-danger"></i> by <a href="#" class="text-light">RICHES's TECH</a>
+                    Developed with <i class="fas fa-heart text-danger"></i> by <a href="#" class="text-white-50">RICHES's TECH</a>
                 </p>
             </div>
         </div>
@@ -299,7 +603,6 @@
                         <!-- Keypad Grid -->
                         <div class="keypad-grid px-4 pb-4">
                             <div class="row g-3">
-                                <!-- Row 1 -->
                                 <div class="col-4">
                                     <button class="keypad-btn" onclick="addDigit('1')">1</button>
                                 </div>
@@ -310,7 +613,6 @@
                                     <button class="keypad-btn" onclick="addDigit('3')">3</button>
                                 </div>
                                 
-                                <!-- Row 2 -->
                                 <div class="col-4">
                                     <button class="keypad-btn" onclick="addDigit('4')">4</button>
                                 </div>
@@ -321,7 +623,6 @@
                                     <button class="keypad-btn" onclick="addDigit('6')">6</button>
                                 </div>
                                 
-                                <!-- Row 3 -->
                                 <div class="col-4">
                                     <button class="keypad-btn" onclick="addDigit('7')">7</button>
                                 </div>
@@ -332,7 +633,6 @@
                                     <button class="keypad-btn" onclick="addDigit('9')">9</button>
                                 </div>
                                 
-                                <!-- Row 4 -->
                                 <div class="col-4">
                                     <button class="keypad-btn" onclick="deleteDigit()">
                                         <i class="fas fa-backspace"></i>
@@ -362,7 +662,7 @@
     </div>
 
     <style>
-        /* Passcode Lock Screen Styles */
+        /* Passcode Lock Screen Styles (Enhanced) */
         .keypad-btn {
             width: 70px;
             height: 70px;
@@ -433,7 +733,36 @@
         // Initialize AOS
         AOS.init({
             duration: 800,
-            once: true
+            once: true,
+            offset: 100
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('mainNavbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Back to Top Button
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 300) {
+                backToTop.style.display = 'flex';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+        
+        backToTop.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         });
 
         // Theme Toggle
@@ -461,7 +790,7 @@
         function updateNotificationCounts() {
             {% if user.is_authenticated %}
             // Get unread messages count
-            fetch('{% url "messaging:unread_count" %}')
+            fetch('{% url "messaging:api_unread_count" %}')
                 .then(response => response.json())
                 .then(data => {
                     const badge = document.getElementById('unread-messages-count');
@@ -543,14 +872,15 @@
                                 let html = '';
                                 data.results.forEach(result => {
                                     html += `
-                                        <a href="${result.url}" class="search-result-item d-flex align-items-center text-decoration-none">
-                                            <div class="search-result-icon me-2" style="background: ${result.icon_bg || '#4361ee'}">
-                                                <i class="${result.icon || 'fas fa-search'}" style="color: white; font-size: 0.9rem;"></i>
+                                        <a href="${result.url}" class="search-result-item d-flex align-items-center text-decoration-none p-3 border-bottom hover-bg-light">
+                                            <div class="search-result-icon me-3" style="background: ${result.icon_bg || '#4361ee'}; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="${result.icon || 'fas fa-search'}" style="color: white; font-size: 1rem;"></i>
                                             </div>
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-0" style="color: var(--text-primary); font-size: 0.9rem;">${result.title}</h6>
-                                                <small class="text-muted" style="font-size: 0.8rem;">${result.subtitle || result.type}</small>
+                                                <small class="text-muted" style="font-size: 0.75rem;">${result.subtitle || result.type}</small>
                                             </div>
+                                            <i class="fas fa-chevron-right text-muted"></i>
                                         </a>
                                     `;
                                 });
@@ -575,11 +905,14 @@
             const container = document.getElementById('toast-container');
             const toastId = 'toast-' + Date.now();
             const icon = type === 'success' ? 'check-circle' : (type === 'error' ? 'exclamation-circle' : 'info-circle');
+            const bgColor = type === 'success' ? 'bg-success' : (type === 'error' ? 'bg-danger' : 'bg-info');
             
             const toast = document.createElement('div');
             toast.id = toastId;
-            toast.className = `toast align-items-center text-white bg-${type} border-0 show`;
+            toast.className = `toast align-items-center text-white ${bgColor} border-0 show toast-enhanced`;
             toast.setAttribute('role', 'alert');
+            toast.setAttribute('data-bs-autohide', 'true');
+            toast.setAttribute('data-bs-delay', '5000');
             toast.innerHTML = `
                 <div class="d-flex">
                     <div class="toast-body">
@@ -592,7 +925,8 @@
             container.appendChild(toast);
             
             setTimeout(() => {
-                toast.remove();
+                toast.classList.add('fade');
+                setTimeout(() => toast.remove(), 300);
             }, 5000);
         };
 

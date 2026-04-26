@@ -4,325 +4,628 @@
 
 {% block title %}{{ action }} Executive Meeting - MELTSA-TaTU{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Meeting Form */
+    .glass-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+        padding-bottom: 2rem;
+    }
+    
+    .glass-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #224abe);
+        border-radius: 3px;
+    }
+    
+    /* Glass Card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-card-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-header-info {
+        background: linear-gradient(135deg, #36b9cc, #258391);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Glass Form Elements */
+    .glass-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--bs-body-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .glass-label i {
+        margin-right: 0.5rem;
+        color: #4e73df;
+    }
+    
+    .glass-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .glass-textarea:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    .glass-select {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-select:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    /* Glass Checkbox */
+    .glass-checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .glass-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #4e73df;
+    }
+    
+    .glass-checkbox-label {
+        font-size: 0.85rem;
+        color: var(--bs-body-color);
+        cursor: pointer;
+    }
+    
+    /* Glass Buttons */
+    .glass-btn-secondary {
+        background: rgba(108, 117, 125, 0.2);
+        border: 1px solid rgba(108, 117, 125, 0.5);
+        color: #6c757d;
+        border-radius: 12px;
+        padding: 0.6rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-secondary:hover {
+        background: rgba(108, 117, 125, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.6rem 1.25rem;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(78, 115, 223, 0.3);
+    }
+    
+    /* Glass List Group */
+    .glass-list-group {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .glass-list-item {
+        background: rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-list-item:hover {
+        background: rgba(78, 115, 223, 0.1);
+        transform: translateX(5px);
+    }
+    
+    /* Glass Alert */
+    .glass-alert-danger {
+        background: rgba(231, 74, 59, 0.15);
+        border: 1px solid rgba(231, 74, 59, 0.3);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: #e74a3b;
+        margin-bottom: 1rem;
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .glass-divider {
+        margin: 1rem 0;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Attachment Preview */
+    .glass-attachment-preview {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    /* Glass Modal */
+    .glass-modal {
+        background: rgba(30, 30, 47, 0.98);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        overflow: hidden;
+    }
+    
+    .glass-modal-header {
+        background: linear-gradient(135deg, #36b9cc, #258391);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-modal-footer {
+        padding: 1rem 1.25rem;
+        background: rgba(0, 0, 0, 0.05);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    @media (max-width: 768px) {
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-card-body {
+            padding: 1rem;
+        }
+        
+        .glass-btn-primary,
+        .glass-btn-secondary {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        
+        .d-flex.justify-content-end {
+            flex-direction: column;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    [data-bs-theme="dark"] .glass-list-group {
+        background: rgba(0, 0, 0, 0.3);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-users-cog me-2"></i>{{ action }} Executive Meeting
-        </h1>
-        <a href="{% url 'core:executive_dashboard' %}" class="btn btn-secondary btn-sm">
-            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
-        </a>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Meeting Form -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-edit me-1"></i>Meeting Details
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data" id="meetingForm">
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {% for error in form.non_field_errors %}
-                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        
-                        <!-- Title -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-heading me-1"></i>Meeting Title <span class="text-danger">*</span>
-                            </label>
-                            {{ form.title }}
-                            {% if form.title.errors %}
-                                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
-                            {% endif %}
-                            <div class="form-text text-muted">
-                                e.g., Weekly Executive Meeting, Emergency Planning Session
-                            </div>
-                        </div>
-
-                        <!-- Meeting Type -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-tag me-1"></i>Meeting Type <span class="text-danger">*</span>
-                            </label>
-                            {{ form.meeting_type }}
-                            {% if form.meeting_type.errors %}
-                                <div class="text-danger small mt-1">{{ form.meeting_type.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Description -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-align-left me-1"></i>Description
-                            </label>
-                            {{ form.description }}
-                            {% if form.description.errors %}
-                                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
-                            {% endif %}
-                            <div class="form-text text-muted">
-                                Provide details about the meeting agenda and purpose
-                            </div>
-                        </div>
-
-                        <!-- Date and Time -->
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-calendar me-1"></i>Date <span class="text-danger">*</span>
-                                </label>
-                                {{ form.date }}
-                                {% if form.date.errors %}
-                                    <div class="text-danger small mt-1">{{ form.date.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-clock me-1"></i>Start Time <span class="text-danger">*</span>
-                                </label>
-                                {{ form.start_time }}
-                                {% if form.start_time.errors %}
-                                    <div class="text-danger small mt-1">{{ form.start_time.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-clock me-1"></i>End Time <span class="text-danger">*</span>
-                                </label>
-                                {{ form.end_time }}
-                                {% if form.end_time.errors %}
-                                    <div class="text-danger small mt-1">{{ form.end_time.errors }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Venue -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-map-marker-alt me-1"></i>Venue <span class="text-danger">*</span>
-                            </label>
-                            {{ form.venue }}
-                            {% if form.venue.errors %}
-                                <div class="text-danger small mt-1">{{ form.venue.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Virtual Meeting Options -->
-                        <div class="mb-3">
-                            <div class="form-check">
-                                {{ form.is_virtual }}
-                                <label class="form-check-label" for="{{ form.is_virtual.id_for_label }}">
-                                    <i class="fas fa-video text-info me-1"></i>
-                                    This is a virtual meeting
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="mb-3" id="meetingLinkField" style="display: none;">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-link me-1"></i>Meeting Link
-                            </label>
-                            {{ form.meeting_link }}
-                            {% if form.meeting_link.errors %}
-                                <div class="text-danger small mt-1">{{ form.meeting_link.errors }}</div>
-                            {% endif %}
-                            <div class="form-text text-muted">
-                                Enter the Zoom, Google Meet, or other video conference link
-                            </div>
-                        </div>
-
-                        <!-- Participants -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-users me-1"></i>Participants
-                            </label>
-                            {{ form.participants }}
-                            {% if form.participants.errors %}
-                                <div class="text-danger small mt-1">{{ form.participants.errors }}</div>
-                            {% endif %}
-                            <div class="form-text text-muted">
-                                Select executives to invite to this meeting
-                            </div>
-                        </div>
-
-                        <!-- Agenda -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-list me-1"></i>Agenda <span class="text-danger">*</span>
-                            </label>
-                            {{ form.agenda }}
-                            {% if form.agenda.errors %}
-                                <div class="text-danger small mt-1">{{ form.agenda.errors }}</div>
-                            {% endif %}
-                            <div class="form-text text-muted">
-                                List the topics to be discussed (one per line)
-                            </div>
-                        </div>
-
-                        <!-- Attachments -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-paperclip me-1"></i>Attachments
-                            </label>
-                            <input type="file" name="attachments" class="form-control" multiple id="attachments">
-                            <div id="attachmentPreview" class="mt-2"></div>
-                            <div class="form-text text-muted">
-                                Upload meeting documents, minutes templates, or reference materials
-                            </div>
-                        </div>
-
-                        <!-- Options -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    {{ form.requires_attendance }}
-                                    <label class="form-check-label" for="{{ form.requires_attendance.id_for_label }}">
-                                        <i class="fas fa-clipboard-check text-success me-1"></i>
-                                        Track attendance
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    {{ form.send_reminders }}
-                                    <label class="form-check-label" for="{{ form.send_reminders.id_for_label }}">
-                                        <i class="fas fa-bell text-warning me-1"></i>
-                                        Send email reminders
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Reminder Settings -->
-                        <div class="mb-3" id="reminderSettings" style="display: none;">
-                            <label class="form-label fw-bold">Reminder Timing</label>
-                            <select name="reminder_time" class="form-select">
-                                <option value="15">15 minutes before</option>
-                                <option value="30" selected>30 minutes before</option>
-                                <option value="60">1 hour before</option>
-                                <option value="120">2 hours before</option>
-                                <option value="1440">1 day before</option>
-                            </select>
-                        </div>
-
-                        <!-- Submit Buttons -->
-                        <hr>
-                        <div class="d-flex justify-content-end">
-                            <a href="{% url 'core:executive_dashboard' %}" class="btn btn-secondary me-2">
-                                <i class="fas fa-times me-1"></i>Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-1"></i>Schedule Meeting
-                            </button>
-                        </div>
-                    </form>
-                </div>
+<div class="glass-container">
+    <div class="container-fluid">
+        <!-- Page Heading - Glass Style -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-users-cog me-2"></i>{{ action }} Executive Meeting
+                </h1>
+                <p class="glass-text-muted mt-2">Schedule and manage executive meetings</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <a href="{% url 'core:executive_dashboard' %}" class="btn glass-btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
             </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Quick Tips -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-lightbulb me-1"></i>Meeting Tips
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled mb-0">
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Set a clear agenda
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Invite relevant participants
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Share materials in advance
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Record minutes and action items
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Follow up with attendees
-                        </li>
-                    </ul>
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Meeting Form - Glass Card -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-edit me-1"></i>Meeting Details
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <form method="POST" enctype="multipart/form-data" id="meetingForm">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                                <div class="glass-alert-danger">
+                                    {% for error in form.non_field_errors %}
+                                        <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Title -->
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-heading"></i>Meeting Title <span class="text-danger">*</span>
+                                </label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                    <div class="glass-error mt-1">{{ form.title.errors }}</div>
+                                {% endif %}
+                                <div class="glass-text-muted small mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    e.g., Weekly Executive Meeting, Emergency Planning Session
+                                </div>
+                            </div>
+
+                            <!-- Meeting Type -->
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-tag"></i>Meeting Type <span class="text-danger">*</span>
+                                </label>
+                                {{ form.meeting_type }}
+                                {% if form.meeting_type.errors %}
+                                    <div class="glass-error mt-1">{{ form.meeting_type.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Description -->
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-align-left"></i>Description
+                                </label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <div class="glass-error mt-1">{{ form.description.errors }}</div>
+                                {% endif %}
+                                <div class="glass-text-muted small mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Provide details about the meeting agenda and purpose
+                                </div>
+                            </div>
+
+                            <!-- Date and Time -->
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="glass-label">
+                                        <i class="fas fa-calendar"></i>Date <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.date }}
+                                    {% if form.date.errors %}
+                                        <div class="glass-error mt-1">{{ form.date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="glass-label">
+                                        <i class="fas fa-clock"></i>Start Time <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.start_time }}
+                                    {% if form.start_time.errors %}
+                                        <div class="glass-error mt-1">{{ form.start_time.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="glass-label">
+                                        <i class="fas fa-clock"></i>End Time <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.end_time }}
+                                    {% if form.end_time.errors %}
+                                        <div class="glass-error mt-1">{{ form.end_time.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Venue -->
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-map-marker-alt"></i>Venue <span class="text-danger">*</span>
+                                </label>
+                                {{ form.venue }}
+                                {% if form.venue.errors %}
+                                    <div class="glass-error mt-1">{{ form.venue.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Virtual Meeting Options -->
+                            <div class="glass-form-group mb-3">
+                                <div class="glass-checkbox-wrapper">
+                                    {{ form.is_virtual }}
+                                    <label class="glass-checkbox-label" for="{{ form.is_virtual.id_for_label }}">
+                                        <i class="fas fa-video text-info me-1"></i>
+                                        This is a virtual meeting
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="glass-form-group mb-3" id="meetingLinkField" style="display: none;">
+                                <label class="glass-label">
+                                    <i class="fas fa-link"></i>Meeting Link
+                                </label>
+                                {{ form.meeting_link }}
+                                {% if form.meeting_link.errors %}
+                                    <div class="glass-error mt-1">{{ form.meeting_link.errors }}</div>
+                                {% endif %}
+                                <div class="glass-text-muted small mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Enter the Zoom, Google Meet, or other video conference link
+                                </div>
+                            </div>
+
+                            <!-- Participants -->
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-users"></i>Participants
+                                </label>
+                                {{ form.participants }}
+                                {% if form.participants.errors %}
+                                    <div class="glass-error mt-1">{{ form.participants.errors }}</div>
+                                {% endif %}
+                                <div class="glass-text-muted small mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Select executives to invite to this meeting
+                                </div>
+                            </div>
+
+                            <!-- Agenda -->
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-list"></i>Agenda <span class="text-danger">*</span>
+                                </label>
+                                {{ form.agenda }}
+                                {% if form.agenda.errors %}
+                                    <div class="glass-error mt-1">{{ form.agenda.errors }}</div>
+                                {% endif %}
+                                <div class="glass-text-muted small mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    List the topics to be discussed (one per line)
+                                </div>
+                            </div>
+
+                            <!-- Attachments -->
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-paperclip"></i>Attachments
+                                </label>
+                                <div class="glass-upload-area" id="dropArea">
+                                    <input type="file" name="attachments" class="d-none" multiple id="attachments">
+                                    <div class="text-center p-3">
+                                        <i class="fas fa-cloud-upload-alt fa-2x glass-text-muted mb-2"></i>
+                                        <p class="small glass-text-muted mb-0">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Upload meeting documents, minutes templates, or reference materials
+                                        </p>
+                                    </div>
+                                </div>
+                                <div id="attachmentPreview" class="mt-2"></div>
+                            </div>
+
+                            <!-- Options -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="glass-checkbox-wrapper">
+                                        {{ form.requires_attendance }}
+                                        <label class="glass-checkbox-label" for="{{ form.requires_attendance.id_for_label }}">
+                                            <i class="fas fa-clipboard-check text-success me-1"></i>
+                                            Track attendance
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="glass-checkbox-wrapper">
+                                        {{ form.send_reminders }}
+                                        <label class="glass-checkbox-label" for="{{ form.send_reminders.id_for_label }}">
+                                            <i class="fas fa-bell text-warning me-1"></i>
+                                            Send email reminders
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Reminder Settings -->
+                            <div class="glass-form-group mb-3" id="reminderSettings" style="display: none;">
+                                <label class="glass-label">
+                                    <i class="fas fa-clock"></i>Reminder Timing
+                                </label>
+                                <select name="reminder_time" class="glass-select">
+                                    <option value="15">15 minutes before</option>
+                                    <option value="30" selected>30 minutes before</option>
+                                    <option value="60">1 hour before</option>
+                                    <option value="120">2 hours before</option>
+                                    <option value="1440">1 day before</option>
+                                </select>
+                            </div>
+
+                            <!-- Submit Buttons -->
+                            <hr class="glass-divider">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'core:executive_dashboard' %}" class="btn glass-btn-secondary">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn glass-btn-primary">
+                                    <i class="fas fa-save me-1"></i>Schedule Meeting
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
 
-            <!-- Participants Preview -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-users me-1"></i>Executive Team
-                    </h6>
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Quick Tips - Glass Card -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header-info">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-lightbulb me-1"></i>Meeting Tips
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <div class="glass-tip-list">
+                            <div class="glass-tip-item">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="glass-text-muted">Set a clear agenda</span>
+                            </div>
+                            <div class="glass-tip-item">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="glass-text-muted">Invite relevant participants</span>
+                            </div>
+                            <div class="glass-tip-item">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="glass-text-muted">Share materials in advance</span>
+                            </div>
+                            <div class="glass-tip-item">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="glass-text-muted">Record minutes and action items</span>
+                            </div>
+                            <div class="glass-tip-item">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="glass-text-muted">Follow up with attendees</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
+
+                <!-- Executive Team - Glass Card -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-users me-1"></i>Executive Team
+                        </h6>
+                    </div>
+                    <div class="glass-list-group">
                         {% for executive in executives|slice:":5" %}
-                        <div class="list-group-item">
-                            <div class="d-flex align-items-center">
+                        <div class="glass-list-item">
+                            <div class="d-flex align-items-center gap-2">
                                 {% if executive.user.profile_image %}
-                                    <img src="{{ executive.user.profile_image.url }}" class="rounded-circle me-2" width="30" height="30">
+                                    <img src="{{ executive.user.profile_image.url }}" class="rounded-circle" width="30" height="30">
                                 {% else %}
-                                    <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
-                                        <i class="fas fa-user text-white"></i>
+                                    <div class="glass-avatar-placeholder-sm">
+                                        <i class="fas fa-user text-white fa-sm"></i>
                                     </div>
                                 {% endif %}
                                 <div>
-                                    <strong>{{ executive.user.get_full_name }}</strong>
-                                    <small class="text-muted d-block">{{ executive.get_position_display }}</small>
+                                    <div class="fw-bold glass-text">{{ executive.user.get_full_name }}</div>
+                                    <small class="glass-text-muted">{{ executive.get_position_display }}</small>
                                 </div>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
+                    {% if executives.count > 5 %}
+                    <div class="glass-card-footer text-center py-2">
+                        <small class="glass-text-muted">and {{ executives.count|add:"-5" }} more...</small>
+                    </div>
+                    {% endif %}
                 </div>
-                {% if executives.count > 5 %}
-                <div class="card-footer text-center">
-                    <small class="text-muted">and {{ executives.count|add:"-5" }} more...</small>
-                </div>
-                {% endif %}
-            </div>
 
-            <!-- Recent Meetings -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-history me-1"></i>Recent Meetings
-                    </h6>
-                </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
+                <!-- Recent Meetings - Glass Card -->
+                <div class="glass-card">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-history me-1"></i>Recent Meetings
+                        </h6>
+                    </div>
+                    <div class="glass-list-group">
                         {% for meeting in recent_meetings %}
-                        <a href="{% url 'core:executive_meeting_detail' meeting.id %}" class="list-group-item list-group-item-action">
+                        <a href="{% url 'core:executive_meeting_detail' meeting.id %}" class="glass-list-item text-decoration-none">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong>{{ meeting.title|truncatechars:30 }}</strong>
-                                    <small class="text-muted d-block">{{ meeting.date|date:"M d, Y" }}</small>
+                                    <div class="fw-bold glass-text">{{ meeting.title|truncatechars:30 }}</div>
+                                    <small class="glass-text-muted">{{ meeting.date|date:"M d, Y" }}</small>
                                 </div>
-                                <span class="badge bg-info">{{ meeting.participants.count }}</span>
+                                <span class="glass-badge-info-sm">{{ meeting.participants.count }}</span>
                             </div>
                         </a>
                         {% empty %}
-                        <div class="list-group-item text-muted text-center">
-                            No recent meetings
+                        <div class="glass-list-item text-center py-3">
+                            <span class="glass-text-muted">No recent meetings</span>
                         </div>
                         {% endfor %}
                     </div>
@@ -332,47 +635,84 @@
     </div>
 </div>
 
-<!-- Preview Modal -->
+<!-- Preview Modal - Glass Style -->
 <div class="modal fade" id="previewModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content glass-modal">
+            <div class="modal-header glass-modal-header">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-eye me-2"></i>Meeting Preview
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="modalPreview">
+            <div class="modal-body p-4" id="modalPreview">
                 <!-- Preview content will be inserted here -->
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer glass-modal-footer">
+                <button type="button" class="btn glass-btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-#id_date, #id_start_time, #id_end_time {
-    display: block;
-    width: 100%;
-    padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #2c3e50;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #d1d3e2;
-    border-radius: 0.35rem;
+/* Additional Styles */
+.glass-error {
+    font-size: 0.75rem;
+    color: #e74a3b;
+    margin-top: 0.25rem;
 }
 
-#id_agenda {
-    min-height: 120px;
+.glass-upload-area {
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-#id_participants {
-    min-height: 150px;
+.glass-upload-area:hover {
+    border-color: #4e73df;
+    background: rgba(78, 115, 223, 0.05);
+}
+
+.glass-tip-item {
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-tip-item:last-child {
+    border-bottom: none;
+}
+
+.glass-avatar-placeholder-sm {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.glass-badge-info-sm {
+    background: rgba(54, 185, 204, 0.2);
+    border: 1px solid rgba(54, 185, 204, 0.3);
+    color: #36b9cc;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.glass-card-footer {
+    background: rgba(0, 0, 0, 0.03);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-text {
+    color: var(--bs-body-color);
 }
 </style>
 
@@ -385,6 +725,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('id_date');
     const startTimeInput = document.getElementById('id_start_time');
     const endTimeInput = document.getElementById('id_end_time');
+    const attachmentsInput = document.getElementById('attachments');
+    const dropArea = document.getElementById('dropArea');
+    const preview = document.getElementById('attachmentPreview');
 
     // Toggle meeting link field
     if (isVirtualCheckbox) {
@@ -414,79 +757,146 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    startTimeInput.addEventListener('change', validateTimes);
-    endTimeInput.addEventListener('change', validateTimes);
+    if (startTimeInput) startTimeInput.addEventListener('change', validateTimes);
+    if (endTimeInput) endTimeInput.addEventListener('change', validateTimes);
 
-    // Attachment preview
-    const attachments = document.getElementById('attachments');
-    const preview = document.getElementById('attachmentPreview');
+    // Drag and drop file upload
+    if (dropArea) {
+        dropArea.addEventListener('click', function() {
+            attachmentsInput.click();
+        });
 
-    attachments.addEventListener('change', function(e) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => {
+                dropArea.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => {
+                dropArea.classList.remove('dragover');
+            });
+        });
+
+        dropArea.addEventListener('drop', function(e) {
+            const files = e.dataTransfer.files;
+            attachmentsInput.files = files;
+            handleFiles(files);
+        });
+    }
+
+    if (attachmentsInput) {
+        attachmentsInput.addEventListener('change', function(e) {
+            handleFiles(this.files);
+        });
+    }
+
+    function handleFiles(files) {
         preview.innerHTML = '';
-        Array.from(this.files).forEach((file, index) => {
+        Array.from(files).forEach((file, index) => {
             const div = document.createElement('div');
-            div.className = 'alert alert-info py-2 mb-1';
+            div.className = 'glass-attachment-preview';
             div.innerHTML = `
-                <i class="fas fa-file me-2"></i>
-                ${file.name} (${(file.size / 1024).toFixed(2)} KB)
-                <button type="button" class="btn-close float-end" onclick="removeAttachment(${index})"></button>
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-file-alt"></i>
+                    <div class="flex-grow-1">
+                        <small><strong>${file.name}</strong> (${(file.size / 1024).toFixed(2)} KB)</small>
+                    </div>
+                    <button type="button" class="btn-close" onclick="removeAttachment(${index})"></button>
+                </div>
             `;
             preview.appendChild(div);
         });
-    });
+        updateFileList();
+    }
+
+    window.removeAttachment = function(index) {
+        const dt = new DataTransfer();
+        Array.from(attachmentsInput.files).forEach((file, i) => {
+            if (i !== index) {
+                dt.items.add(file);
+            }
+        });
+        attachmentsInput.files = dt.files;
+        handleFiles(attachmentsInput.files);
+    };
+
+    function updateFileList() {
+        const dt = new DataTransfer();
+        const items = preview.querySelectorAll('.glass-attachment-preview');
+        // This is a visual update; actual files remain in input
+    }
 
     // Form validation
-    document.getElementById('meetingForm').addEventListener('submit', function(e) {
-        if (isVirtualCheckbox.checked) {
-            const meetingLink = document.getElementById('id_meeting_link').value;
-            if (!meetingLink) {
-                e.preventDefault();
-                alert('Please provide a meeting link for virtual meetings.');
+    const meetingForm = document.getElementById('meetingForm');
+    if (meetingForm) {
+        meetingForm.addEventListener('submit', function(e) {
+            if (isVirtualCheckbox && isVirtualCheckbox.checked) {
+                const meetingLink = document.getElementById('id_meeting_link');
+                if (meetingLink && !meetingLink.value.trim()) {
+                    e.preventDefault();
+                    alert('Please provide a meeting link for virtual meetings.');
+                }
             }
-        }
-    });
+        });
+    }
 });
 
-function removeAttachment(index) {
-    const input = document.getElementById('attachments');
-    const dt = new DataTransfer();
-    
-    Array.from(input.files).forEach((file, i) => {
-        if (i !== index) {
-            dt.items.add(file);
-        }
-    });
-    
-    input.files = dt.files;
-    
-    // Refresh preview
-    const event = new Event('change', { bubbles: true });
-    input.dispatchEvent(event);
-}
-
 function previewMeeting() {
-    const title = document.getElementById('id_title').value || 'Meeting Title';
-    const date = document.getElementById('id_date').value || '2024-01-01';
-    const startTime = document.getElementById('id_start_time').value || '09:00';
-    const endTime = document.getElementById('id_end_time').value || '10:00';
-    const venue = document.getElementById('id_venue').value || 'TBD';
-    const agenda = document.getElementById('id_agenda').value || 'No agenda set';
-    const meetingType = document.getElementById('id_meeting_type').options[
-        document.getElementById('id_meeting_type').selectedIndex
-    ].text;
+    const title = document.getElementById('id_title')?.value || 'Meeting Title';
+    const date = document.getElementById('id_date')?.value || '2024-01-01';
+    const startTime = document.getElementById('id_start_time')?.value || '09:00';
+    const endTime = document.getElementById('id_end_time')?.value || '10:00';
+    const venue = document.getElementById('id_venue')?.value || 'TBD';
+    const agenda = document.getElementById('id_agenda')?.value || 'No agenda set';
+    const meetingTypeSelect = document.getElementById('id_meeting_type');
+    const meetingType = meetingTypeSelect?.options[meetingTypeSelect.selectedIndex]?.text || 'Regular';
 
     const modalBody = document.getElementById('modalPreview');
-    modalBody.innerHTML = `
-        <h3>${title}</h3>
-        <p><strong>Type:</strong> ${meetingType}</p>
-        <p><strong>Date:</strong> ${date} | <strong>Time:</strong> ${startTime} - ${endTime}</p>
-        <p><strong>Venue:</strong> ${venue}</p>
-        <hr>
-        <h5>Agenda:</h5>
-        <p>${agenda.replace(/\n/g, '<br>')}</p>
-    `;
+    if (modalBody) {
+        modalBody.innerHTML = `
+            <div class="meeting-preview">
+                <h3 class="glass-text h4 mb-3">${escapeHtml(title)}</h3>
+                <div class="glass-info-grid mb-3">
+                    <div class="glass-info-item">
+                        <span class="glass-label-sm"><i class="fas fa-tag me-1"></i>Type:</span>
+                        <span class="glass-text">${escapeHtml(meetingType)}</span>
+                    </div>
+                    <div class="glass-info-item">
+                        <span class="glass-label-sm"><i class="fas fa-calendar me-1"></i>Date:</span>
+                        <span class="glass-text">${escapeHtml(date)}</span>
+                    </div>
+                    <div class="glass-info-item">
+                        <span class="glass-label-sm"><i class="fas fa-clock me-1"></i>Time:</span>
+                        <span class="glass-text">${escapeHtml(startTime)} - ${escapeHtml(endTime)}</span>
+                    </div>
+                    <div class="glass-info-item">
+                        <span class="glass-label-sm"><i class="fas fa-map-marker-alt me-1"></i>Venue:</span>
+                        <span class="glass-text">${escapeHtml(venue)}</span>
+                    </div>
+                </div>
+                <hr class="glass-divider">
+                <h5 class="glass-text-primary mb-2"><i class="fas fa-list me-1"></i>Agenda:</h5>
+                <div class="glass-text-muted">${escapeHtml(agenda).replace(/\n/g, '<br>')}</div>
+            </div>
+        `;
+    }
     
     new bootstrap.Modal(document.getElementById('previewModal')).show();
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 </script>
 {% endblock %}

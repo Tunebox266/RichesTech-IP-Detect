@@ -5,294 +5,805 @@
 
 {% block title %}{{ session.name }} - Session Details - MELTSA-TaTU{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Session Detail */
+    .glass-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+        padding-bottom: 2rem;
+    }
+    
+    .glass-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #224abe);
+        border-radius: 3px;
+    }
+    
+    /* Glass Card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-card-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-header-success {
+        background: linear-gradient(135deg, #1cc88a, #13855c);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-body {
+        padding: 1.25rem;
+    }
+    
+    /* Glass Stats Cards */
+    .glass-stat-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .glass-stat-card:hover {
+        transform: translateY(-3px);
+        background: rgba(78, 115, 223, 0.1);
+    }
+    
+    .glass-stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.5rem;
+    }
+    
+    .glass-stat-icon.primary { background: rgba(78, 115, 223, 0.2); color: #4e73df; }
+    .glass-stat-icon.success { background: rgba(28, 200, 138, 0.2); color: #1cc88a; }
+    .glass-stat-icon.danger { background: rgba(231, 74, 59, 0.2); color: #e74a3b; }
+    .glass-stat-icon.info { background: rgba(54, 185, 204, 0.2); color: #36b9cc; }
+    
+    /* Glass QR Card */
+    .glass-qr-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+    }
+    
+    .glass-qr-code {
+        background: white;
+        border-radius: 16px;
+        padding: 0.5rem;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-qr-code:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .glass-stats-box {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 16px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    /* Glass Table */
+    .glass-table-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+    }
+    
+    .glass-table-header {
+        background: rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-table-header th {
+        padding: 1rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--bs-body-color);
+    }
+    
+    .glass-table-row {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-table-row td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .glass-table-row:hover {
+        background: rgba(78, 115, 223, 0.05);
+        transform: translateX(3px);
+    }
+    
+    /* Glass List Group */
+    .glass-list-group {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .glass-list-item {
+        background: rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-list-item:hover {
+        background: rgba(78, 115, 223, 0.1);
+        transform: translateX(5px);
+    }
+    
+    /* Glass Buttons */
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.6rem 1rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-btn-secondary {
+        background: rgba(108, 117, 125, 0.2);
+        border: 1px solid rgba(108, 117, 125, 0.5);
+        color: #6c757d;
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-secondary:hover {
+        background: rgba(108, 117, 125, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-outline-primary {
+        background: rgba(78, 115, 223, 0.1);
+        border: 1px solid rgba(78, 115, 223, 0.3);
+        color: #4e73df;
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-primary:hover {
+        background: rgba(78, 115, 223, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-outline-info {
+        background: rgba(54, 185, 204, 0.1);
+        border: 1px solid rgba(54, 185, 204, 0.3);
+        color: #36b9cc;
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-info:hover {
+        background: rgba(54, 185, 204, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-outline-success {
+        background: rgba(28, 200, 138, 0.1);
+        border: 1px solid rgba(28, 200, 138, 0.3);
+        color: #1cc88a;
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-success:hover {
+        background: rgba(28, 200, 138, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    /* Glass Form */
+    .glass-input-group {
+        position: relative;
+    }
+    
+    .glass-input-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--bs-gray-500);
+        z-index: 1;
+    }
+    
+    .glass-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem 0.6rem 2.5rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    /* Glass Badges */
+    .glass-badge-active {
+        background: rgba(28, 200, 138, 0.2);
+        border: 1px solid rgba(28, 200, 138, 0.4);
+        color: #1cc88a;
+        padding: 0.35rem 1rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-upcoming {
+        background: rgba(54, 185, 204, 0.2);
+        border: 1px solid rgba(54, 185, 204, 0.4);
+        color: #36b9cc;
+        padding: 0.35rem 1rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-ended {
+        background: rgba(108, 117, 125, 0.2);
+        border: 1px solid rgba(108, 117, 125, 0.4);
+        color: #adb5bd;
+        padding: 0.35rem 1rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-qr {
+        background: rgba(54, 185, 204, 0.2);
+        border: 1px solid rgba(54, 185, 204, 0.4);
+        color: #36b9cc;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-manual {
+        background: rgba(78, 115, 223, 0.2);
+        border: 1px solid rgba(78, 115, 223, 0.4);
+        color: #4e73df;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-qr-check {
+        background: rgba(28, 200, 138, 0.15);
+        border: 1px solid rgba(28, 200, 138, 0.3);
+        color: #1cc88a;
+        padding: 0.25rem 0.65rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .glass-divider {
+        margin: 1rem 0;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-progress {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        height: 8px;
+        overflow: hidden;
+    }
+    
+    .glass-progress-bar {
+        background: linear-gradient(90deg, #1cc88a, #13855c);
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.3s ease;
+    }
+    
+    @media (max-width: 768px) {
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-stat-icon {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .glass-stat-icon i {
+            font-size: 1rem !important;
+        }
+        
+        .glass-table-header th {
+            font-size: 0.65rem;
+            padding: 0.75rem;
+        }
+        
+        .glass-table-row td {
+            padding: 0.75rem;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-card,
+    [data-bs-theme="dark"] .glass-qr-card,
+    [data-bs-theme="dark"] .glass-table-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    [data-bs-theme="dark"] .glass-stats-box {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .glass-card {
+        animation: fadeInUp 0.5s ease-out;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-clock me-2"></i>{{ session.name }}
-        </h1>
-        <div>
-            <a href="{% url 'events:event_detail' session.event.id %}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Back to Event
-            </a>
-            {% if request.user.user_type in 'admin,staff,executive' %}
-                <a href="{% url 'events:session_edit' session.id %}" class="btn btn-warning btn-sm">
-                    <i class="fas fa-edit me-1"></i>Edit Session
+<div class="glass-container">
+    <div class="container-fluid">
+        <!-- Page Heading - Glass Style -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-clock me-2"></i>{{ session.name }}
+                </h1>
+                <p class="glass-text-muted mt-2">Session details and attendance management</p>
+            </div>
+            <div class="mt-3 mt-sm-0 no-print">
+                <a href="{% url 'events:event_detail' session.event.id %}" class="btn glass-btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Event
                 </a>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Main Content -->
-        <div class="col-lg-8">
-            <!-- Session Info Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-info-circle me-1"></i>Session Information
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-4">
-                        <div class="col-md-3">
-                            <div class="text-center p-3 bg-light rounded">
-                                <i class="fas fa-calendar fa-2x text-primary mb-2"></i>
-                                <span class="d-block h6 mb-0">{{ session.start_time|date:"M d, Y" }}</span>
-                                <small class="text-muted">Date</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center p-3 bg-light rounded">
-                                <i class="fas fa-clock fa-2x text-success mb-2"></i>
-                                <span class="d-block h6 mb-0">{{ session.start_time|date:"h:i A" }}</span>
-                                <small class="text-muted">Start</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center p-3 bg-light rounded">
-                                <i class="fas fa-clock fa-2x text-danger mb-2"></i>
-                                <span class="d-block h6 mb-0">{{ session.end_time|date:"h:i A" }}</span>
-                                <small class="text-muted">End</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center p-3 bg-light rounded">
-                                <i class="fas fa-tag fa-2x text-info mb-2"></i>
-                                <span class="d-block h6 mb-0">{{ session.get_session_type_display }}</span>
-                                <small class="text-muted">Type</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <h6 class="fw-bold">Venue</h6>
-                        <p>{{ session.venue|default:session.event.venue }}</p>
-                    </div>
-
-                    <div class="mb-3">
-                        <h6 class="fw-bold">Status</h6>
-                        {% if session.is_active_now %}
-                            <span class="badge bg-success p-2">Active Now</span>
-                        {% elif session.start_time > now %}
-                            <span class="badge bg-info p-2">Upcoming</span>
-                        {% else %}
-                            <span class="badge bg-secondary p-2">Ended</span>
-                        {% endif %}
-                    </div>
-
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Part of event:</strong> 
-                        <a href="{% url 'events:event_detail' session.event.id %}" class="alert-link">{{ session.event.title }}</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- QR Code Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-qrcode me-1"></i>Check-in QR Code
-                    </h6>
-                </div>
-                <div class="card-body text-center">
-                    <div class="row">
-                        <div class="col-md-6">
-                            {% if session.qr_code %}
-                                <img src="{{ session.qr_code.url }}" alt="Session QR Code" class="img-fluid mb-3" style="max-width: 200px;">
-                            {% else %}
-                                <div class="bg-light p-4 rounded mb-3 d-inline-block">
-                                    <i class="fas fa-qrcode fa-5x text-muted"></i>
-                                </div>
-                            {% endif %}
-                            
-                            <h5 class="mb-2">Session Code: <strong>{{ session.session_code }}</strong></h5>
-                            <p class="text-muted small">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Share this code with attendees for manual check-in
-                            </p>
-                            
-                            <button class="btn btn-primary" onclick="downloadQR()">
-                                <i class="fas fa-download me-1"></i>Download QR Code
-                            </button>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="bg-light p-4 rounded">
-                                <h6 class="fw-bold mb-3">Quick Stats</h6>
-                                <div class="mb-2">
-                                    <span class="text-muted">Checked in:</span>
-                                    <span class="fw-bold float-end">{{ checked_in_count }}</span>
-                                </div>
-                                <div class="mb-2">
-                                    <span class="text-muted">Total registered:</span>
-                                    <span class="fw-bold float-end">{{ total_registered }}</span>
-                                </div>
-                                <div class="mb-2">
-                                    <span class="text-muted">Check-in rate:</span>
-                                    <span class="fw-bold float-end">{{ check_in_rate|floatformat:1 }}%</span>
-                                </div>
-                                <div class="progress mt-3" style="height: 10px;">
-                                    <div class="progress-bar bg-success" style="width: {{ check_in_rate }}%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Attendance List -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-clipboard-list me-1"></i>Attendance Records ({{ checked_in_count }})
-                    </h6>
-                    <button class="btn btn-sm btn-success" onclick="exportAttendance()">
-                        <i class="fas fa-download me-1"></i>Export
-                    </button>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th>Student</th>
-                                    <th>ID</th>
-                                    <th>Level</th>
-                                    <th>Check-in Time</th>
-                                    <th>Method</th>
-                                    <th>IP Address</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for record in attendance %}
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            {% if record.user.profile_image %}
-                                                <img src="{{ record.user.profile_image.url }}" class="rounded-circle me-2" width="30" height="30">
-                                            {% else %}
-                                                <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
-                                                    <i class="fas fa-user text-white"></i>
-                                                </div>
-                                            {% endif %}
-                                            {{ record.user.get_full_name }}
-                                        </div>
-                                    </td>
-                                    <td>{{ record.user.student_id }}</td>
-                                    <td>Level {{ record.user.level }}</td>
-                                    <td>{{ record.checked_in_at|date:"M d, Y H:i:s" }}</td>
-                                    <td>
-                                        <span class="badge bg-{{ record.check_in_method|method_color }}">
-                                            {{ record.get_check_in_method_display }}
-                                        </span>
-                                    </td>
-                                    <td><small class="text-muted">{{ record.ip_address|default:"-" }}</small></td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="6" class="text-center py-4">
-                                        <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted mb-0">No attendance records yet</p>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                {% if request.user.user_type in 'admin,staff,executive' %}
+                    <a href="{% url 'events:session_edit' session.id %}" class="btn glass-btn-primary btn-sm">
+                        <i class="fas fa-edit me-1"></i>Edit Session
+                    </a>
+                {% endif %}
             </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Manual Check-in Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-user-check me-1"></i>Manual Check-in
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{% url 'events:manual_check_in' session.id %}" id="manualCheckinForm">
-                        {% csrf_token %}
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Session Info Card - Glass -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-info-circle me-1"></i>Session Information
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3 col-6">
+                                <div class="glass-stat-card">
+                                    <div class="glass-stat-icon primary">
+                                        <i class="fas fa-calendar fa-2x"></i>
+                                    </div>
+                                    <span class="d-block h6 mb-0">{{ session.start_time|date:"M d, Y" }}</span>
+                                    <small class="glass-text-muted">Date</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="glass-stat-card">
+                                    <div class="glass-stat-icon success">
+                                        <i class="fas fa-play-circle fa-2x"></i>
+                                    </div>
+                                    <span class="d-block h6 mb-0">{{ session.start_time|date:"h:i A" }}</span>
+                                    <small class="glass-text-muted">Start</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="glass-stat-card">
+                                    <div class="glass-stat-icon danger">
+                                        <i class="fas fa-stop-circle fa-2x"></i>
+                                    </div>
+                                    <span class="d-block h6 mb-0">{{ session.end_time|date:"h:i A" }}</span>
+                                    <small class="glass-text-muted">End</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="glass-stat-card">
+                                    <div class="glass-stat-icon info">
+                                        <i class="fas fa-tag fa-2x"></i>
+                                    </div>
+                                    <span class="d-block h6 mb-0">{{ session.get_session_type_display }}</span>
+                                    <small class="glass-text-muted">Type</small>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Student ID</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                                <input type="text" name="student_id" class="form-control" 
-                                       placeholder="Enter student ID" required>
+                            <h6 class="fw-bold glass-text-primary">
+                                <i class="fas fa-map-marker-alt me-2"></i>Venue
+                            </h6>
+                            <p class="glass-text-muted">{{ session.venue|default:session.event.venue }}</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="fw-bold glass-text-primary">
+                                <i class="fas fa-chart-line me-2"></i>Status
+                            </h6>
+                            {% if session.is_active_now %}
+                                <span class="glass-badge-active">
+                                    <i class="fas fa-play-circle me-1"></i>Active Now
+                                </span>
+                            {% elif session.start_time > now %}
+                                <span class="glass-badge-upcoming">
+                                    <i class="fas fa-clock me-1"></i>Upcoming
+                                </span>
+                            {% else %}
+                                <span class="glass-badge-ended">
+                                    <i class="fas fa-check-circle me-1"></i>Ended
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="glass-alert-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Part of event:</strong> 
+                            <a href="{% url 'events:event_detail' session.event.id %}" class="glass-link">{{ session.event.title }}</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QR Code Card - Glass -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header-success">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-qrcode me-1"></i>Check-in QR Code
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-6 text-center">
+                                {% if session.qr_code %}
+                                    <div class="glass-qr-code">
+                                        <img src="{{ session.qr_code.url }}" alt="Session QR Code" style="width: 150px; height: 150px;">
+                                    </div>
+                                {% else %}
+                                    <div class="glass-qr-placeholder">
+                                        <i class="fas fa-qrcode fa-5x glass-text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                <h5 class="mt-3 mb-2 glass-text">
+                                    Session Code: <strong class="glass-text-primary">{{ session.session_code }}</strong>
+                                </h5>
+                                <p class="glass-text-muted small">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Share this code with attendees for manual check-in
+                                </p>
+                                
+                                <button class="btn glass-btn-primary" onclick="downloadQR()">
+                                    <i class="fas fa-download me-1"></i>Download QR Code
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="glass-stats-box">
+                                    <h6 class="fw-bold glass-text-primary mb-3">Quick Stats</h6>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="glass-text-muted">Checked in:</span>
+                                        <span class="fw-bold glass-text">{{ checked_in_count }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="glass-text-muted">Total registered:</span>
+                                        <span class="fw-bold glass-text">{{ total_registered }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="glass-text-muted">Check-in rate:</span>
+                                        <span class="fw-bold glass-text-success">{{ check_in_rate|floatformat:1 }}%</span>
+                                    </div>
+                                    <div class="glass-progress mt-3">
+                                        <div class="glass-progress-bar" style="width: {{ check_in_rate }}%"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-check-circle me-1"></i>Check In
+                    </div>
+                </div>
+
+                <!-- Attendance List - Glass Table -->
+                <div class="glass-table-card">
+                    <div class="glass-card-header d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-clipboard-list me-1"></i>Attendance Records ({{ checked_in_count }})
+                        </h6>
+                        <button class="btn glass-btn-secondary btn-sm" onclick="exportAttendance()">
+                            <i class="fas fa-download me-1"></i>Export
                         </button>
-                    </form>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead class="glass-table-header">
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>ID</th>
+                                        <th>Level</th>
+                                        <th>Check-in Time</th>
+                                        <th>Method</th>
+                                        <th>IP Address</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in attendance %}
+                                    <tr class="glass-table-row">
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                {% if record.user.profile_image %}
+                                                    <img src="{{ record.user.profile_image.url }}" class="rounded-circle" width="30" height="30" style="object-fit: cover;">
+                                                {% else %}
+                                                    <div class="glass-avatar-placeholder-sm">
+                                                        <i class="fas fa-user text-white fa-xs"></i>
+                                                    </div>
+                                                {% endif %}
+                                                {{ record.user.get_full_name }}
+                                            </div>
+                                        </td>
+                                        <td>{{ record.user.student_id }}</td>
+                                        <td>Level {{ record.user.level }}</td>
+                                        </table>
+                                            <small class="glass-text-muted">{{ record.checked_in_at|date:"M d, Y H:i:s" }}</small>
+                                        </div>
+                                        <td>
+                                            {% if record.check_in_method == 'qr' %}
+                                                <span class="glass-badge-qr">
+                                                    <i class="fas fa-qrcode me-1"></i>{{ record.get_check_in_method_display }}
+                                                </span>
+                                            {% else %}
+                                                <span class="glass-badge-manual">
+                                                    <i class="fas fa-user-check me-1"></i>{{ record.get_check_in_method_display }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                        <td><small class="glass-text-muted">{{ record.ip_address|default:"-" }}</small></td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr class="glass-table-row">
+                                        <td colspan="6" class="text-center py-4">
+                                            <i class="fas fa-user-slash fa-3x glass-text-muted mb-3"></i>
+                                            <p class="glass-text-muted mb-0">No attendance records yet</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Not Checked In Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-clock me-1"></i>Not Checked In ({{ not_checked_in|length }})
-                    </h6>
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Manual Check-in Card - Glass -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-user-check me-1"></i>Manual Check-in
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <form method="POST" action="{% url 'events:manual_check_in' session.id %}" id="manualCheckinForm">
+                            {% csrf_token %}
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">Student ID</label>
+                                <div class="glass-input-group">
+                                    <i class="fas fa-id-card glass-input-icon"></i>
+                                    <input type="text" name="student_id" class="glass-input" 
+                                           placeholder="Enter student ID" required>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn glass-btn-primary w-100">
+                                <i class="fas fa-check-circle me-1"></i>Check In
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+
+                <!-- Not Checked In Card - Glass -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-clock me-1"></i>Not Checked In ({{ not_checked_in|length }})
+                        </h6>
+                    </div>
+                    <div class="glass-list-group">
                         {% for attendee in not_checked_in %}
-                        <div class="list-group-item">
+                        <div class="glass-list-item">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong>{{ attendee.user.get_full_name }}</strong>
-                                    <small class="text-muted d-block">{{ attendee.user.student_id }}</small>
+                                    <strong class="glass-text">{{ attendee.user.get_full_name }}</strong>
+                                    <br>
+                                    <small class="glass-text-muted">{{ attendee.user.student_id }}</small>
                                 </div>
                                 <form method="POST" action="{% url 'events:mark_attendance' attendee.id %}" style="display: inline;">
                                     {% csrf_token %}
                                     <input type="hidden" name="session_id" value="{{ session.id }}">
-                                    <button type="submit" class="btn btn-sm btn-success">
+                                    <button type="submit" class="btn glass-btn-primary btn-sm">
                                         <i class="fas fa-check"></i>
                                     </button>
                                 </form>
                             </div>
                         </div>
                         {% empty %}
-                        <div class="list-group-item text-center py-3">
-                            <p class="text-muted mb-0">All attendees checked in!</p>
+                        <div class="glass-list-item text-center py-3">
+                            <i class="fas fa-check-circle fa-2x glass-text-success mb-2"></i>
+                            <p class="glass-text-muted mb-0">All attendees checked in!</p>
                         </div>
                         {% endfor %}
                     </div>
                 </div>
-            </div>
 
-            <!-- Session Actions -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-cog me-1"></i>Session Actions
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary" onclick="printAttendance()">
-                            <i class="fas fa-print me-1"></i>Print Attendance List
-                        </button>
-                        <button class="btn btn-outline-info" onclick="sendReminder()">
-                            <i class="fas fa-bell me-1"></i>Send Reminder to Pending
-                        </button>
-                        {% if session.is_active_now %}
-                            <button class="btn btn-outline-success" onclick="extendSession()">
-                                <i class="fas fa-clock me-1"></i>Extend Session
+                <!-- Session Actions - Glass Card -->
+                <div class="glass-card">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-cog me-1"></i>Session Actions
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn glass-btn-outline-primary" onclick="printAttendance()">
+                                <i class="fas fa-print me-1"></i>Print Attendance List
                             </button>
-                        {% endif %}
+                            <button class="btn glass-btn-outline-info" onclick="sendReminder()">
+                                <i class="fas fa-bell me-1"></i>Send Reminder to Pending
+                            </button>
+                            {% if session.is_active_now %}
+                                <button class="btn glass-btn-outline-success" onclick="extendSession()">
+                                    <i class="fas fa-clock me-1"></i>Extend Session
+                                </button>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+/* Additional Styles */
+.glass-alert-info {
+    background: rgba(54, 185, 204, 0.15);
+    border: 1px solid rgba(54, 185, 204, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem;
+    color: #36b9cc;
+}
+
+.glass-link {
+    color: #36b9cc;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.glass-link:hover {
+    color: #258391;
+    text-decoration: underline;
+}
+
+.glass-text-success {
+    color: #1cc88a;
+}
+
+.glass-avatar-placeholder-sm {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.glass-qr-placeholder {
+    display: inline-block;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+}
+
+.glass-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    color: var(--bs-body-color);
+}
+</style>
 
 <script>
 function downloadQR() {
@@ -320,33 +831,43 @@ function sendReminder() {
             if (data.success) {
                 alert('Reminders sent successfully!');
             }
+        })
+        .catch(error => {
+            alert('Error sending reminders');
         });
     }
 }
 
 function extendSession() {
     const minutes = prompt('Enter minutes to extend:', '15');
-    if (minutes) {
+    if (minutes && !isNaN(minutes) && minutes > 0) {
         fetch('{% url "events:extend_session" session.id %}', {
             method: 'POST',
             headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ minutes: minutes })
+            body: JSON.stringify({ minutes: parseInt(minutes) })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 location.reload();
+            } else {
+                alert('Error extending session');
             }
+        })
+        .catch(error => {
+            alert('Error extending session');
         });
+    } else if (minutes) {
+        alert('Please enter a valid number of minutes');
     }
 }
 
 // Auto-refresh attendance every 30 seconds
 setTimeout(function() {
     location.reload();
-}, 30000);
+}, 300000);
 </script>
 {% endblock %}

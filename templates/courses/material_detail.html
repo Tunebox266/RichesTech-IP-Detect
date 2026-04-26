@@ -7,25 +7,25 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Page Heading -->
+    <!-- Page Heading - Glass Style -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
+        <h1 class="glass-title-detail">
             <i class="fas fa-file-alt me-2"></i>{{ material.title }}
         </h1>
-        <div>
-            <a href="{% url 'courses:material_list' %}" class="btn btn-secondary btn-sm">
+        <div class="glass-button-group">
+            <a href="{% url 'courses:material_list' %}" class="btn glass-btn-secondary btn-sm">
                 <i class="fas fa-arrow-left me-1"></i>Back to Materials
             </a>
             {% if can_access %}
-                <a href="{% url 'courses:download_material' material.id %}" class="btn btn-success btn-sm">
+                <a href="{% url 'courses:download_material' material.id %}" class="btn glass-btn-success btn-sm">
                     <i class="fas fa-download me-1"></i>Download ({{ material.downloads }})
                 </a>
             {% endif %}
             {% if request.user.user_type in 'staff,admin' or request.user == material.uploaded_by %}
-                <a href="{% url 'courses:edit_material' material.id %}" class="btn btn-warning btn-sm">
+                <a href="{% url 'courses:edit_material' material.id %}" class="btn glass-btn-warning btn-sm">
                     <i class="fas fa-edit me-1"></i>Edit
                 </a>
-                <button class="btn btn-danger btn-sm" onclick="confirmDelete({{ material.id }})">
+                <button class="btn glass-btn-danger btn-sm" onclick="confirmDelete({{ material.id }})">
                     <i class="fas fa-trash me-1"></i>Delete
                 </button>
             {% endif %}
@@ -35,47 +35,53 @@
     <div class="row">
         <!-- Main Content -->
         <div class="col-lg-8">
-            <!-- Material Details Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-primary">
+            <!-- Material Details Card - Glass -->
+            <div class="glass-detail-card mb-4">
+                <div class="card-header glass-card-header-primary d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-info-circle me-1"></i>Material Information
                     </h6>
-                    <span class="badge bg-{{ material.material_type|material_color }} p-2">
+                    <span class="glass-material-type-badge badge-{{ material.material_type }}">
                         {{ material.get_material_type_display }}
                     </span>
                 </div>
-                <div class="card-body">
+                <div class="card-body glass-card-body">
                     <!-- Title -->
-                    <h5 class="fw-bold mb-3">{{ material.title }}</h5>
+                    <h5 class="glass-detail-title mb-3">{{ material.title }}</h5>
 
                     <!-- Description -->
                     {% if material.description %}
-                    <div class="mb-4">
-                        <h6 class="fw-bold">Description:</h6>
-                        <p class="text-muted">{{ material.description|linebreaks }}</p>
+                    <div class="glass-description-section mb-4">
+                        <h6 class="glass-section-title">
+                            <i class="fas fa-align-left me-2"></i>Description
+                        </h6>
+                        <p class="glass-text-muted">{{ material.description|linebreaks }}</p>
                     </div>
                     {% endif %}
 
                     <!-- File Preview -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold">File:</h6>
-                        <div class="border rounded p-3 bg-light">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-file-{% if material.file.name|slice:'-3:' == 'pdf' %}pdf text-danger
-                                    {% elif material.file.name|slice:'-3:' == 'doc' or material.file.name|slice:'-4:' == 'docx' %}word text-primary
-                                    {% elif material.file.name|slice:'-3:' == 'ppt' or material.file.name|slice:'-4:' == 'pptx' %}powerpoint text-warning
-                                    {% elif material.file.name|slice:'-3:' == 'xls' or material.file.name|slice:'-4:' == 'xlsx' %}excel text-success
-                                    {% else %}alt text-secondary{% endif %} fa-3x me-3"></i>
-                                <div>
-                                    <h6 class="mb-1">{{ material.filename }}</h6>
-                                    <small class="text-muted">
+                    <div class="glass-file-preview mb-4">
+                        <h6 class="glass-section-title">
+                            <i class="fas fa-file me-2"></i>File
+                        </h6>
+                        <div class="glass-file-card">
+                            <div class="d-flex align-items-center flex-wrap gap-3">
+                                <div class="glass-file-icon file-{{ material.file.name|slice:'-3:' }}">
+                                    <i class="fas fa-file-{% if material.file.name|slice:'-3:' == 'pdf' %}pdf
+                                        {% elif material.file.name|slice:'-3:' == 'doc' or material.file.name|slice:'-4:' == 'docx' %}word
+                                        {% elif material.file.name|slice:'-3:' == 'ppt' or material.file.name|slice:'-4:' == 'pptx' %}powerpoint
+                                        {% elif material.file.name|slice:'-3:' == 'xls' or material.file.name|slice:'-4:' == 'xlsx' %}excel
+                                        {% else %}alt{% endif %} fa-3x"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1 glass-text">{{ material.filename }}</h6>
+                                    <small class="glass-text-muted">
                                         Size: {{ material.file.size|filesizeformat }} | 
                                         Uploaded: {{ material.uploaded_at|date:"M d, Y H:i" }}
                                     </small>
                                 </div>
                                 {% if can_access %}
-                                <a href="{% url 'courses:download_material' material.id %}" class="btn btn-primary ms-auto">
+                                <a href="{% url 'courses:download_material' material.id %}" class="btn glass-btn-primary">
                                     <i class="fas fa-download me-1"></i>Download
                                 </a>
                                 {% endif %}
@@ -85,185 +91,190 @@
 
                     <!-- File Preview for PDFs -->
                     {% if can_access and material.file.name|slice:'-3:' == 'pdf' %}
-                    <div class="mb-4">
-                        <h6 class="fw-bold">Preview:</h6>
-                        <div class="border rounded p-2">
+                    <div class="glass-preview-section mb-4">
+                        <h6 class="glass-section-title">
+                            <i class="fas fa-eye me-2"></i>Preview
+                        </h6>
+                        <div class="glass-pdf-preview">
                             <embed src="{{ material.file.url }}" type="application/pdf" width="100%" height="500px">
                         </div>
                     </div>
                     {% endif %}
 
                     <!-- Course Information -->
-                    <div class="row mt-4 pt-3 border-top">
-                        <div class="col-md-6">
-                            <h6 class="fw-bold">Course:</h6>
-                            <p>
-                                <a href="{% url 'courses:course_detail' material.course.id %}" class="text-decoration-none">
+                    <div class="glass-info-grid">
+                        <div class="glass-info-item">
+                            <span class="glass-info-label">
+                                <i class="fas fa-book me-2"></i>Course
+                            </span>
+                            <span class="glass-info-value">
+                                <a href="{% url 'courses:course_detail' material.course.id %}" class="glass-link">
                                     {{ material.course.code }} - {{ material.course.title }}
                                 </a>
-                            </p>
+                            </span>
                         </div>
-                        <div class="col-md-6">
-                            <h6 class="fw-bold">Course Level:</h6>
-                            <p>Level {{ material.course.level }} - {{ material.course.get_semester_display }}</p>
+                        <div class="glass-info-item">
+                            <span class="glass-info-label">
+                                <i class="fas fa-layer-group me-2"></i>Course Level
+                            </span>
+                            <span class="glass-info-value">Level {{ material.course.level }} - {{ material.course.get_semester_display }}</span>
                         </div>
-                    </div>
-
-                    <!-- Upload Information -->
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <h6 class="fw-bold">Uploaded By:</h6>
-                            <p>
+                        <div class="glass-info-item">
+                            <span class="glass-info-label">
+                                <i class="fas fa-user me-2"></i>Uploaded By
+                            </span>
+                            <span class="glass-info-value">
                                 {% if material.uploaded_by.profile_image %}
-                                    <img src="{{ material.uploaded_by.profile_image.url }}" class="rounded-circle me-2" width="25" height="25">
+                                    <img src="{{ material.uploaded_by.profile_image.url }}" class="glass-avatar-sm rounded-circle me-2" width="25" height="25">
                                 {% endif %}
                                 {{ material.uploaded_by.get_full_name }}
-                                <small class="text-muted d-block">{{ material.uploaded_by.user_type|title }}</small>
-                            </p>
+                                <span class="glass-text-muted-light">({{ material.uploaded_by.user_type|title }})</span>
+                            </span>
                         </div>
-                        <div class="col-md-6">
-                            <h6 class="fw-bold">Upload Date:</h6>
-                            <p>{{ material.uploaded_at|date:"F d, Y H:i" }}</p>
+                        <div class="glass-info-item">
+                            <span class="glass-info-label">
+                                <i class="fas fa-calendar me-2"></i>Upload Date
+                            </span>
+                            <span class="glass-info-value">{{ material.uploaded_at|date:"F d, Y H:i" }}</span>
                         </div>
                     </div>
 
                     <!-- Statistics -->
-                    <div class="row mt-4">
-                        <div class="col-md-4">
-                            <div class="card bg-light">
-                                <div class="card-body text-center">
-                                    <h5 class="text-primary mb-0">{{ material.downloads }}</h5>
-                                    <small class="text-muted">Downloads</small>
-                                </div>
-                            </div>
+                    <div class="glass-stats-grid mt-4 pt-3">
+                        <div class="glass-stat-mini">
+                            <div class="glass-stat-mini-value">{{ material.downloads }}</div>
+                            <div class="glass-stat-mini-label">Downloads</div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="card bg-light">
-                                <div class="card-body text-center">
-                                    <h5 class="text-success mb-0">{{ material.views|default:"0" }}</h5>
-                                    <small class="text-muted">Views</small>
-                                </div>
-                            </div>
+                        <div class="glass-stat-mini">
+                            <div class="glass-stat-mini-value">{{ material.views|default:"0" }}</div>
+                            <div class="glass-stat-mini-label">Views</div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="card bg-light">
-                                <div class="card-body text-center">
-                                    <h5 class="text-info mb-0">{{ material.file.size|filesizeformat }}</h5>
-                                    <small class="text-muted">File Size</small>
-                                </div>
-                            </div>
+                        <div class="glass-stat-mini">
+                            <div class="glass-stat-mini-value">{{ material.file.size|filesizeformat }}</div>
+                            <div class="glass-stat-mini-label">File Size</div>
+                        </div>
+                        <div class="glass-stat-mini">
+                            <div class="glass-stat-mini-value">{{ material.comments.count }}</div>
+                            <div class="glass-stat-mini-label">Comments</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Comments/Feedback Section -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
+            <!-- Comments/Feedback Section - Glass -->
+            <div class="glass-comments-card">
+                <div class="card-header glass-card-header-primary">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-comments me-1"></i>Comments & Feedback
                     </h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body glass-card-body">
                     {% if request.user.is_authenticated %}
-                    <form method="POST" action="{% url 'courses:add_material_comment' material.id %}" class="mb-4">
+                    <form method="POST" action="{% url 'courses:add_material_comment' material.id %}" class="glass-comment-form mb-4">
                         {% csrf_token %}
-                        <div class="mb-3">
-                            <textarea name="content" class="form-control" rows="2" placeholder="Share your thoughts about this material..."></textarea>
+                        <div class="glass-form-group mb-3">
+                            <textarea name="content" class="glass-textarea" rows="2" placeholder="Share your thoughts about this material..."></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn glass-btn-primary">
                             <i class="fas fa-paper-plane me-1"></i>Post Comment
                         </button>
                     </form>
                     {% endif %}
 
-                    <div class="comments-section">
+                    <div class="glass-comments-list">
                         {% for comment in material.comments.all %}
-                        <div class="d-flex mb-3 pb-3 border-bottom">
-                            <div class="flex-shrink-0 me-3">
+                        <div class="glass-comment-item">
+                            <div class="glass-comment-avatar">
                                 {% if comment.user.profile_image %}
                                 <img src="{{ comment.user.profile_image.url }}" class="rounded-circle" width="40" height="40">
                                 {% else %}
-                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                                <div class="glass-avatar-placeholder">
                                     <i class="fas fa-user"></i>
                                 </div>
                                 {% endif %}
                             </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between">
-                                    <h6 class="mb-1">{{ comment.user.get_full_name }}</h6>
-                                    <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+                            <div class="glass-comment-content">
+                                <div class="glass-comment-header">
+                                    <h6 class="mb-0">{{ comment.user.get_full_name }}</h6>
+                                    <small class="glass-text-muted">{{ comment.created_at|timesince }} ago</small>
                                 </div>
-                                <p class="mb-1">{{ comment.content }}</p>
-                                <small>
-                                    <a href="#" onclick="replyToComment({{ comment.id }})">Reply</a>
+                                <p class="glass-comment-text mb-2">{{ comment.content }}</p>
+                                <div class="glass-comment-actions">
+                                    <a href="#" onclick="replyToComment({{ comment.id }})" class="glass-link-sm">
+                                        <i class="fas fa-reply me-1"></i>Reply
+                                    </a>
                                     {% if request.user == comment.user %}
-                                    <span class="mx-2">|</span>
-                                    <a href="#" class="text-danger" onclick="deleteComment({{ comment.id }})">Delete</a>
+                                    <span class="mx-2">•</span>
+                                    <a href="#" class="glass-link-danger" onclick="deleteComment({{ comment.id }})">
+                                        Delete
+                                    </a>
                                     {% endif %}
-                                </small>
+                                </div>
 
                                 <!-- Replies -->
                                 {% for reply in comment.replies.all %}
-                                <div class="d-flex mt-3 ms-4">
-                                    <div class="flex-shrink-0 me-2">
+                                <div class="glass-reply-item">
+                                    <div class="glass-reply-avatar">
                                         {% if reply.user.profile_image %}
                                         <img src="{{ reply.user.profile_image.url }}" class="rounded-circle" width="30" height="30">
                                         {% else %}
-                                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
-                                            <i class="fas fa-user"></i>
+                                        <div class="glass-avatar-placeholder-sm">
+                                            <i class="fas fa-user fa-sm"></i>
                                         </div>
                                         {% endif %}
                                     </div>
-                                    <div>
-                                        <div class="d-flex justify-content-between">
-                                            <h6 class="mb-1">{{ reply.user.get_full_name }}</h6>
-                                            <small class="text-muted ms-2">{{ reply.created_at|timesince }} ago</small>
+                                    <div class="glass-reply-content">
+                                        <div class="glass-comment-header">
+                                            <h6 class="mb-0">{{ reply.user.get_full_name }}</h6>
+                                            <small class="glass-text-muted">{{ reply.created_at|timesince }} ago</small>
                                         </div>
-                                        <p class="mb-1">{{ reply.content }}</p>
+                                        <p class="mb-0 glass-text-muted">{{ reply.content }}</p>
                                     </div>
                                 </div>
                                 {% endfor %}
                             </div>
                         </div>
                         {% empty %}
-                        <p class="text-muted text-center py-3">No comments yet.</p>
+                        <div class="glass-empty-comments">
+                            <i class="fas fa-comment-dots fa-3x glass-text-muted mb-3"></i>
+                            <p class="glass-text-muted mb-0">No comments yet. Be the first to share your thoughts!</p>
+                        </div>
                         {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Sidebar -->
+        <!-- Sidebar - Glass Cards -->
         <div class="col-lg-4">
             <!-- Access Status Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
+            <div class="glass-access-card mb-4">
+                <div class="card-header glass-card-header-primary">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-lock me-1"></i>Access Status
                     </h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body glass-card-body">
                     {% if can_access %}
-                        <div class="alert alert-success">
+                        <div class="glass-alert-success">
                             <i class="fas fa-check-circle me-2"></i>
                             You have access to this material
                         </div>
-                        <p class="small text-muted mb-0">
+                        <p class="glass-text-muted small mb-0 mt-3">
                             <i class="fas fa-info-circle me-1"></i>
                             You can download and view this material
                         </p>
                     {% else %}
-                        <div class="alert alert-warning">
+                        <div class="glass-alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
                             You don't have access to this material
                         </div>
-                        <p class="small text-muted mb-0">
+                        <p class="glass-text-muted small mb-3 mt-3">
                             <i class="fas fa-info-circle me-1"></i>
                             This material is only available to students registered for {{ material.course.code }}
                         </p>
                         {% if request.user.user_type == 'student' %}
-                            <a href="{% url 'courses:register_courses' %}" class="btn btn-primary btn-sm w-100 mt-3">
+                            <a href="{% url 'courses:register_courses' %}" class="btn glass-btn-primary w-100">
                                 <i class="fas fa-pen me-1"></i>Register for Course
                             </a>
                         {% endif %}
@@ -271,73 +282,82 @@
                 </div>
             </div>
 
-            <!-- Related Materials -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
+            <!-- Related Materials Card -->
+            <div class="glass-related-card mb-4">
+                <div class="card-header glass-card-header-primary">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-link me-1"></i>Other Materials in this Course
                     </h6>
                 </div>
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
+                    <div class="glass-related-list">
                         {% for related in related_materials|slice:":5" %}
-                        <a href="{% url 'courses:material_detail' related.id %}" class="list-group-item list-group-item-action {% if related.id == material.id %}active{% endif %}">
+                        <a href="{% url 'courses:material_detail' related.id %}" class="glass-related-item {% if related.id == material.id %}active{% endif %}">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <small class="d-block fw-bold">{{ related.title|truncatechars:30 }}</small>
-                                    <small class="text-muted">{{ related.get_material_type_display }}</small>
+                                    <span class="glass-related-title">{{ related.title|truncatechars:30 }}</span>
+                                    <br>
+                                    <small class="glass-text-muted-light">{{ related.get_material_type_display }}</small>
                                 </div>
-                                <span class="badge bg-info">{{ related.downloads }}</span>
+                                <span class="glass-badge-info-sm">{{ related.downloads }}</span>
                             </div>
                         </a>
                         {% empty %}
-                        <div class="list-group-item text-muted text-center">
-                            No other materials
+                        <div class="glass-empty-related">
+                            <p class="glass-text-muted text-center mb-0 py-4">No other materials</p>
                         </div>
                         {% endfor %}
                     </div>
                 </div>
-                <div class="card-footer bg-transparent">
-                    <a href="{% url 'courses:material_list' %}?course={{ material.course.id }}" class="btn btn-sm btn-outline-primary w-100">
+                <div class="card-footer glass-card-footer">
+                    <a href="{% url 'courses:material_list' %}?course={{ material.course.id }}" class="btn glass-btn-outline-primary w-100">
                         View All Materials for {{ material.course.code }}
                     </a>
                 </div>
             </div>
 
-            <!-- Material Stats -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
+            <!-- Material Stats Card -->
+            <div class="glass-stats-card">
+                <div class="card-header glass-card-header-primary">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-chart-bar me-1"></i>Material Stats
                     </h6>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Downloads:</span>
-                            <span class="fw-bold">{{ material.downloads }}</span>
+                <div class="card-body glass-card-body">
+                    <div class="glass-stats-list">
+                        <div class="glass-stat-row">
+                            <span class="glass-stat-label">
+                                <i class="fas fa-download me-2"></i>Downloads:
+                            </span>
+                            <span class="glass-stat-number">{{ material.downloads }}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Views:</span>
-                            <span class="fw-bold">{{ material.views|default:"0" }}</span>
+                        <div class="glass-stat-row">
+                            <span class="glass-stat-label">
+                                <i class="fas fa-eye me-2"></i>Views:
+                            </span>
+                            <span class="glass-stat-number">{{ material.views|default:"0" }}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Comments:</span>
-                            <span class="fw-bold">{{ material.comments.count }}</span>
+                        <div class="glass-stat-row">
+                            <span class="glass-stat-label">
+                                <i class="fas fa-comment me-2"></i>Comments:
+                            </span>
+                            <span class="glass-stat-number">{{ material.comments.count }}</span>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <span>Rating:</span>
-                            <span class="fw-bold">{{ material.avg_rating|default:"0" }}/5</span>
+                        <div class="glass-stat-row">
+                            <span class="glass-stat-label">
+                                <i class="fas fa-star me-2"></i>Rating:
+                            </span>
+                            <span class="glass-stat-number">{{ material.avg_rating|default:"0" }}/5</span>
                         </div>
                     </div>
 
-                    <hr>
+                    <hr class="glass-divider">
 
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary" onclick="reportMaterial({{ material.id }})">
+                    <div class="glass-action-buttons">
+                        <button class="btn glass-btn-outline-warning w-100 mb-2" onclick="reportMaterial({{ material.id }})">
                             <i class="fas fa-flag me-1"></i>Report Issue
                         </button>
-                        <button class="btn btn-outline-success" onclick="shareMaterial()">
+                        <button class="btn glass-btn-outline-success w-100" onclick="shareMaterial()">
                             <i class="fas fa-share me-1"></i>Share
                         </button>
                     </div>
@@ -347,44 +367,47 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+<!-- Delete Confirmation Modal - Glass Style -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-modal">
+            <div class="modal-header glass-modal-header-danger">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-exclamation-triangle me-2"></i>Delete Material
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete <strong>"{{ material.title }}"</strong>?</p>
-                <p class="small text-muted">This action cannot be undone.</p>
+            <div class="modal-body glass-modal-body text-center">
+                <div class="glass-icon-danger mx-auto mb-3">
+                    <i class="fas fa-file-alt fa-3x"></i>
+                </div>
+                <p class="mb-2">Are you sure you want to delete <strong>"{{ material.title }}"</strong>?</p>
+                <p class="small glass-text-muted">This action cannot be undone. All associated data will be permanently removed.</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Delete</a>
+            <div class="modal-footer glass-modal-footer">
+                <button type="button" class="btn glass-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmDeleteBtn" class="btn glass-btn-danger">Delete Material</a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Report Modal -->
+<!-- Report Modal - Glass Style -->
 <div class="modal fade" id="reportModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-modal">
+            <div class="modal-header glass-modal-header-warning">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-flag me-2"></i>Report Issue
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" action="{% url 'courses:report_material' material.id %}">
                 {% csrf_token %}
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Issue Type</label>
-                        <select name="issue_type" class="form-select" required>
+                <div class="modal-body glass-modal-body">
+                    <div class="glass-form-group mb-3">
+                        <label class="glass-label">Issue Type</label>
+                        <select name="issue_type" class="glass-select w-100" required>
                             <option value="">Select issue</option>
                             <option value="broken">Broken link</option>
                             <option value="wrong">Wrong file</option>
@@ -393,19 +416,667 @@
                             <option value="other">Other</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Description</label>
-                        <textarea name="description" class="form-control" rows="3" required></textarea>
+                    <div class="glass-form-group mb-3">
+                        <label class="glass-label">Description</label>
+                        <textarea name="description" class="glass-textarea" rows="3" required></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-warning">Submit Report</button>
+                <div class="modal-footer glass-modal-footer">
+                    <button type="button" class="btn glass-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn glass-btn-warning">Submit Report</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<style>
+/* Glass Morphism Styles for Material Detail */
+
+/* Glass Title */
+.glass-title-detail {
+    font-size: 1.75rem;
+    font-weight: 800;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glass-title-detail::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #4e73df, #224abe);
+    border-radius: 3px;
+}
+
+/* Glass Button Group */
+.glass-button-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.glass-btn-secondary,
+.glass-btn-success,
+.glass-btn-warning,
+.glass-btn-danger {
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-secondary {
+    background: rgba(108, 117, 125, 0.2);
+    border: 1px solid rgba(108, 117, 125, 0.5);
+    color: #6c757d;
+}
+
+.glass-btn-secondary:hover {
+    background: rgba(108, 117, 125, 0.3);
+    transform: translateY(-2px);
+}
+
+.glass-btn-success {
+    background: linear-gradient(135deg, #1cc88a, #13855c);
+    border: none;
+    color: white;
+}
+
+.glass-btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(28, 200, 138, 0.3);
+}
+
+.glass-btn-warning {
+    background: linear-gradient(135deg, #f6c23e, #dda20a);
+    border: none;
+    color: white;
+}
+
+.glass-btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(246, 194, 62, 0.3);
+}
+
+.glass-btn-danger {
+    background: linear-gradient(135deg, #e74a3b, #be2617);
+    border: none;
+    color: white;
+}
+
+.glass-btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 74, 59, 0.3);
+}
+
+.glass-btn-primary {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(78, 115, 223, 0.3);
+}
+
+/* Glass Cards */
+.glass-detail-card,
+.glass-comments-card,
+.glass-access-card,
+.glass-related-card,
+.glass-stats-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.glass-card-header-primary {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card-body {
+    padding: 1.25rem;
+}
+
+/* Glass Material Type Badge */
+.glass-material-type-badge {
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.badge-lecture_note { background: rgba(78, 115, 223, 0.2); color: #4e73df; }
+.badge-handout { background: rgba(28, 200, 138, 0.2); color: #1cc88a; }
+.badge-assignment { background: rgba(246, 194, 62, 0.2); color: #f6c23e; }
+.badge-other { background: rgba(108, 117, 125, 0.2); color: #adb5bd; }
+
+/* Glass Detail Title */
+.glass-detail-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--bs-body-color);
+}
+
+/* Glass Section Title */
+.glass-section-title {
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+    color: var(--bs-primary);
+    letter-spacing: 0.5px;
+}
+
+/* Glass File Preview */
+.glass-file-card {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    padding: 1rem;
+}
+
+.glass-file-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-pdf { background: rgba(220, 53, 69, 0.15); color: #dc3545; }
+.file-word { background: rgba(78, 115, 223, 0.15); color: #4e73df; }
+.file-powerpoint { background: rgba(246, 194, 62, 0.15); color: #f6c23e; }
+.file-excel { background: rgba(28, 200, 138, 0.15); color: #1cc88a; }
+
+/* Glass PDF Preview */
+.glass-pdf-preview {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-pdf-preview embed {
+    border: none;
+}
+
+/* Glass Info Grid */
+.glass-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 16px;
+    padding: 1rem;
+}
+
+.glass-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.glass-info-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--bs-gray-600);
+}
+
+.glass-info-value {
+    font-size: 0.9rem;
+    color: var(--bs-body-color);
+}
+
+/* Glass Stats Grid */
+.glass-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+}
+
+.glass-stat-mini {
+    text-align: center;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 12px;
+}
+
+.glass-stat-mini-value {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--bs-primary);
+}
+
+.glass-stat-mini-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--bs-gray-500);
+}
+
+/* Glass Comments */
+.glass-comment-form {
+    margin-bottom: 1.5rem;
+}
+
+.glass-textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 0.75rem;
+    color: var(--bs-body-color);
+    transition: all 0.3s ease;
+}
+
+.glass-textarea:focus {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #4e73df;
+    outline: none;
+}
+
+.glass-comments-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.glass-comment-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.glass-comment-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(3px);
+}
+
+.glass-comment-avatar {
+    flex-shrink: 0;
+}
+
+.glass-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.glass-comment-content {
+    flex: 1;
+}
+
+.glass-comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.glass-comment-text {
+    color: var(--bs-body-color);
+    font-size: 0.9rem;
+}
+
+.glass-comment-actions {
+    margin-top: 0.5rem;
+}
+
+.glass-link-sm {
+    font-size: 0.7rem;
+    text-decoration: none;
+    color: var(--bs-primary);
+}
+
+.glass-link-danger {
+    font-size: 0.7rem;
+    text-decoration: none;
+    color: #e74a3b;
+}
+
+/* Glass Reply Item */
+.glass-reply-item {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    margin-left: 2rem;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 12px;
+}
+
+.glass-avatar-placeholder-sm {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #1cc88a, #13855c);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.glass-reply-content {
+    flex: 1;
+}
+
+/* Glass Empty Comments */
+.glass-empty-comments {
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Glass Alerts */
+.glass-alert-success {
+    background: rgba(28, 200, 138, 0.15);
+    border: 1px solid rgba(28, 200, 138, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem;
+    color: #1cc88a;
+    margin-bottom: 1rem;
+}
+
+.glass-alert-warning {
+    background: rgba(246, 194, 62, 0.15);
+    border: 1px solid rgba(246, 194, 62, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem;
+    color: #f6c23e;
+    margin-bottom: 1rem;
+}
+
+/* Glass Related List */
+.glass-related-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.glass-related-item {
+    display: block;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.glass-related-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(5px);
+}
+
+.glass-related-item.active {
+    background: linear-gradient(135deg, rgba(78, 115, 223, 0.2), rgba(34, 66, 190, 0.2));
+    border-left: 3px solid #4e73df;
+}
+
+.glass-related-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--bs-body-color);
+}
+
+/* Glass Stats List */
+.glass-stats-list {
+    margin-bottom: 1rem;
+}
+
+.glass-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.glass-stat-label {
+    font-size: 0.85rem;
+    color: var(--bs-gray-600);
+}
+
+.glass-stat-number {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--bs-body-color);
+}
+
+/* Glass Badge Info Small */
+.glass-badge-info-sm {
+    background: rgba(54, 185, 204, 0.15);
+    padding: 0.2rem 0.6rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #36b9cc;
+}
+
+/* Glass Card Footer */
+.glass-card-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+}
+
+.glass-btn-outline-primary {
+    background: rgba(78, 115, 223, 0.1);
+    border: 1px solid rgba(78, 115, 223, 0.5);
+    color: #4e73df;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-outline-primary:hover {
+    background: rgba(78, 115, 223, 0.2);
+    transform: translateY(-2px);
+}
+
+.glass-btn-outline-warning {
+    background: rgba(246, 194, 62, 0.1);
+    border: 1px solid rgba(246, 194, 62, 0.5);
+    color: #f6c23e;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-outline-warning:hover {
+    background: rgba(246, 194, 62, 0.2);
+    transform: translateY(-2px);
+}
+
+.glass-btn-outline-success {
+    background: rgba(28, 200, 138, 0.1);
+    border: 1px solid rgba(28, 200, 138, 0.5);
+    color: #1cc88a;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-outline-success:hover {
+    background: rgba(28, 200, 138, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Glass Action Buttons */
+.glass-action-buttons {
+    margin-top: 0.5rem;
+}
+
+/* Glass Divider */
+.glass-divider {
+    margin: 1rem 0;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Glass Text */
+.glass-text {
+    color: var(--bs-body-color);
+}
+
+.glass-text-muted {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.glass-text-muted-light {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+[data-bs-theme="dark"] .glass-text-muted {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Glass Link */
+.glass-link {
+    color: var(--bs-primary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.glass-link:hover {
+    color: #224abe;
+    text-decoration: underline;
+}
+
+/* Glass Avatar Small */
+.glass-avatar-sm {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+/* Glass Empty Related */
+.glass-empty-related {
+    text-align: center;
+}
+
+/* Glass Form Group */
+.glass-form-group {
+    margin-bottom: 1rem;
+}
+
+.glass-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    color: var(--bs-body-color);
+}
+
+.glass-select {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem;
+    color: var(--bs-body-color);
+    transition: all 0.3s ease;
+}
+
+.glass-select:focus {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #4e73df;
+    outline: none;
+}
+
+/* Glass Modal */
+.glass-modal {
+    background: rgba(30, 30, 47, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+.glass-modal-header-danger,
+.glass-modal-header-warning {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-modal-header-danger { background: linear-gradient(135deg, #e74a3b, #be2617); }
+.glass-modal-header-warning { background: linear-gradient(135deg, #f6c23e, #dda20a); }
+
+.glass-modal-body {
+    padding: 1.5rem;
+}
+
+.glass-modal-footer {
+    padding: 1rem 1.25rem;
+    background: rgba(0, 0, 0, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-icon-danger {
+    width: 70px;
+    height: 70px;
+    background: rgba(231, 74, 59, 0.2);
+    border-radius: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e74a3b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .glass-title-detail {
+        font-size: 1.25rem;
+    }
+    
+    .glass-button-group {
+        flex-wrap: wrap;
+    }
+    
+    .glass-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .glass-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .glass-reply-item {
+        margin-left: 0.5rem;
+    }
+}
+
+/* Dark Theme Adjustments */
+[data-bs-theme="dark"] .glass-detail-card,
+[data-bs-theme="dark"] .glass-comments-card,
+[data-bs-theme="dark"] .glass-access-card,
+[data-bs-theme="dark"] .glass-related-card,
+[data-bs-theme="dark"] .glass-stats-card {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+[data-bs-theme="dark"] .glass-stat-row {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+</style>
 
 <script>
 function confirmDelete(materialId) {

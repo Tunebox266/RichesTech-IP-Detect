@@ -5,312 +5,829 @@
 
 {% block title %}Complaints & Suggestions - MELTSA-TaTU{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Complaints */
+    .glass-complaints-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+        padding-bottom: 2rem;
+    }
+    
+    .glass-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #224abe);
+        border-radius: 3px;
+    }
+    
+    .glass-badge-primary {
+        background: rgba(78, 115, 223, 0.2);
+        border: 1px solid rgba(78, 115, 223, 0.5);
+        color: #4e73df;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-success {
+        background: rgba(28, 200, 138, 0.2);
+        border: 1px solid rgba(28, 200, 138, 0.5);
+        color: #1cc88a;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    /* Glass Tabs Card */
+    .glass-tabs-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-tabs-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-tabs-header {
+        padding: 0.75rem 1.25rem 0 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.02);
+    }
+    
+    .glass-nav-tabs {
+        border-bottom: none;
+        gap: 0.25rem;
+    }
+    
+    .glass-nav-link {
+        padding: 0.6rem 1.25rem;
+        border-radius: 12px 12px 0 0;
+        color: var(--bs-body-color);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .glass-nav-link:hover {
+        background: rgba(78, 115, 223, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .glass-nav-link.active {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        color: white;
+    }
+    
+    /* Glass Table Card */
+    .glass-table-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+    }
+    
+    .glass-table-header {
+        background: rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-table-header th {
+        padding: 1rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--bs-body-color);
+    }
+    
+    .glass-table-row {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-table-row td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .glass-table-row:hover {
+        background: rgba(78, 115, 223, 0.05);
+        transform: translateX(3px);
+    }
+    
+    .glass-table-row.table-warning {
+        background: rgba(246, 194, 62, 0.1);
+    }
+    
+    .glass-table-row.table-success {
+        background: rgba(28, 200, 138, 0.08);
+    }
+    
+    /* Glass Badges */
+    .glass-badge-pending {
+        background: rgba(246, 194, 62, 0.2);
+        border: 1px solid rgba(246, 194, 62, 0.4);
+        color: #f6c23e;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-under-review {
+        background: rgba(54, 185, 204, 0.2);
+        border: 1px solid rgba(54, 185, 204, 0.4);
+        color: #36b9cc;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-resolved {
+        background: rgba(28, 200, 138, 0.2);
+        border: 1px solid rgba(28, 200, 138, 0.4);
+        color: #1cc88a;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    /* Glass Form Elements */
+    .glass-input-group {
+        position: relative;
+    }
+    
+    .glass-input-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--bs-gray-500);
+        z-index: 1;
+    }
+    
+    .glass-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem 0.6rem 2.5rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-select {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-select:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.6rem 1rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-btn-outline-primary {
+        background: rgba(78, 115, 223, 0.1);
+        border: 1px solid rgba(78, 115, 223, 0.5);
+        color: #4e73df;
+        border-radius: 10px;
+        padding: 0.35rem 0.8rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-primary:hover {
+        background: rgba(78, 115, 223, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-icon {
+        background: rgba(78, 115, 223, 0.1);
+        border: 1px solid rgba(78, 115, 223, 0.3);
+        border-radius: 8px;
+        padding: 0.35rem 0.6rem;
+        color: #4e73df;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-icon:hover {
+        background: rgba(78, 115, 223, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    /* Glass Pagination */
+    .glass-pagination {
+        gap: 0.25rem;
+    }
+    
+    .glass-page-link {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--bs-body-color);
+        border-radius: 10px;
+        margin: 0 2px;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-page-link:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .glass-page-active {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-color: transparent;
+        color: white;
+    }
+    
+    /* Glass Stat Cards */
+    .glass-stat-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .glass-stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-stat-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.8;
+    }
+    
+    .glass-stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+    }
+    
+    /* Glass Modal */
+    .glass-modal {
+        background: rgba(30, 30, 47, 0.98);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        overflow: hidden;
+    }
+    
+    .glass-modal-header {
+        background: linear-gradient(135deg, #f6c23e, #dda20a);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-modal-footer {
+        padding: 1rem 1.25rem;
+        background: rgba(0, 0, 0, 0.05);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Glass Avatar */
+    .glass-avatar-sm {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-avatar-placeholder-sm {
+        width: 30px;
+        height: 30px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    @media (max-width: 768px) {
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-table-header th {
+            font-size: 0.65rem;
+            padding: 0.75rem;
+        }
+        
+        .glass-table-row td {
+            padding: 0.75rem;
+        }
+        
+        .glass-stat-value {
+            font-size: 1.25rem;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-tabs-card,
+    [data-bs-theme="dark"] .glass-table-card,
+    [data-bs-theme="dark"] .glass-stat-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-exclamation-circle me-2"></i>Complaints & Suggestions
-        </h1>
-        <div>
-            <span class="badge bg-primary me-2">
-                <i class="fas fa-clock me-1"></i>Pending: {{ pending_count }}
-            </span>
-            <span class="badge bg-success me-2">
-                <i class="fas fa-check-circle me-1"></i>Resolved: {{ resolved_count }}
-            </span>
-            <a href="{% url 'complaints:submit_complaint' %}" class="btn btn-sm btn-primary">
-                <i class="fas fa-plus me-1"></i>New Complaint
-            </a>
-        </div>
-    </div>
-
-    <!-- Filter Tabs -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <ul class="nav nav-tabs card-header-tabs">
-                <li class="nav-item">
-                    <a class="nav-link {% if filter == 'all' %}active{% endif %}" 
-                       href="?filter=all">
-                        <i class="fas fa-list me-1"></i>All
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if filter == 'pending' %}active{% endif %}" 
-                       href="?filter=pending">
-                        <i class="fas fa-clock me-1"></i>Pending
-                        {% if pending_count > 0 %}
-                            <span class="badge bg-warning ms-1">{{ pending_count }}</span>
-                        {% endif %}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if filter == 'under_review' %}active{% endif %}" 
-                       href="?filter=under_review">
-                        <i class="fas fa-search me-1"></i>Under Review
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if filter == 'resolved' %}active{% endif %}" 
-                       href="?filter=resolved">
-                        <i class="fas fa-check-circle me-1"></i>Resolved
-                    </a>
-                </li>
-            </ul>
+<div class="glass-complaints-container">
+    <div class="container-fluid">
+        <!-- Page Heading - Glass Style -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-exclamation-circle me-2"></i>Complaints & Suggestions
+                </h1>
+                <p class="glass-text-muted mt-2">Submit and track complaints, suggestions, and feedback</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <span class="glass-badge-primary me-2">
+                    <i class="fas fa-clock me-1"></i>Pending: {{ pending_count }}
+                </span>
+                <span class="glass-badge-success me-2">
+                    <i class="fas fa-check-circle me-1"></i>Resolved: {{ resolved_count }}
+                </span>
+                <a href="{% url 'complaints:submit_complaint' %}" class="btn glass-btn-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i>New Complaint
+                </a>
+            </div>
         </div>
 
-        <!-- Search and Filter -->
-        <div class="card-body border-bottom">
-            <form method="GET" action="{% url 'complaints:complaint_list' %}" id="filterForm">
-                <input type="hidden" name="filter" value="{{ filter }}">
-                <div class="row">
-                    <div class="col-md-4 mb-2">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            <input type="text" name="q" class="form-control" 
-                                   placeholder="Search complaints..." value="{{ request.GET.q|default:'' }}">
+        <!-- Filter Tabs - Glass Card -->
+        <div class="glass-tabs-card mb-4">
+            <div class="glass-tabs-header">
+                <ul class="nav nav-tabs glass-nav-tabs">
+                    <li class="nav-item">
+                        <a class="glass-nav-link {% if filter == 'all' %}active{% endif %}" 
+                           href="?filter=all">
+                            <i class="fas fa-list me-1"></i>All
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="glass-nav-link {% if filter == 'pending' %}active{% endif %}" 
+                           href="?filter=pending">
+                            <i class="fas fa-clock me-1"></i>Pending
+                            {% if pending_count > 0 %}
+                                <span class="glass-badge-warning-sp ms-1">{{ pending_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="glass-nav-link {% if filter == 'under_review' %}active{% endif %}" 
+                           href="?filter=under_review">
+                            <i class="fas fa-search me-1"></i>Under Review
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="glass-nav-link {% if filter == 'resolved' %}active{% endif %}" 
+                           href="?filter=resolved">
+                            <i class="fas fa-check-circle me-1"></i>Resolved
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Search and Filter - Glass Form -->
+            <div class="card-body border-bottom" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                <form method="GET" action="{% url 'complaints:complaint_list' %}" id="filterForm">
+                    <input type="hidden" name="filter" value="{{ filter }}">
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <div class="glass-input-group">
+                                <i class="fas fa-search glass-input-icon"></i>
+                                <input type="text" name="q" class="glass-input" 
+                                       placeholder="Search complaints..." value="{{ request.GET.q|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="type" class="glass-select">
+                                <option value="">All Types</option>
+                                {% for type_code, type_name in complaint_types %}
+                                    <option value="{{ type_code }}" {% if request.GET.type == type_code %}selected{% endif %}>
+                                        {{ type_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="date" class="glass-select">
+                                <option value="">Any Date</option>
+                                <option value="today" {% if request.GET.date == 'today' %}selected{% endif %}>Today</option>
+                                <option value="week" {% if request.GET.date == 'week' %}selected{% endif %}>This Week</option>
+                                <option value="month" {% if request.GET.date == 'month' %}selected{% endif %}>This Month</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="assigned" class="glass-select">
+                                <option value="">All</option>
+                                <option value="me" {% if request.GET.assigned == 'me' %}selected{% endif %}>Assigned to Me</option>
+                                <option value="unassigned" {% if request.GET.assigned == 'unassigned' %}selected{% endif %}>Unassigned</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="submit" class="btn glass-btn-primary w-100">
+                                <i class="fas fa-filter"></i>
+                            </button>
                         </div>
                     </div>
-                    <div class="col-md-3 mb-2">
-                        <select name="type" class="form-select">
-                            <option value="">All Types</option>
-                            {% for type_code, type_name in complaint_types %}
-                                <option value="{{ type_code }}" {% if request.GET.type == type_code %}selected{% endif %}>
-                                    {{ type_name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-2 mb-2">
-                        <select name="date" class="form-select">
-                            <option value="">Any Date</option>
-                            <option value="today" {% if request.GET.date == 'today' %}selected{% endif %}>Today</option>
-                            <option value="week" {% if request.GET.date == 'week' %}selected{% endif %}>This Week</option>
-                            <option value="month" {% if request.GET.date == 'month' %}selected{% endif %}>This Month</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2 mb-2">
-                        <select name="assigned" class="form-select">
-                            <option value="">All</option>
-                            <option value="me" {% if request.GET.assigned == 'me' %}selected{% endif %}>Assigned to Me</option>
-                            <option value="unassigned" {% if request.GET.assigned == 'unassigned' %}selected{% endif %}>Unassigned</option>
-                        </select>
-                    </div>
-                    <div class="col-md-1 mb-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-filter"></i>
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!-- Complaints List -->
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="bg-light">
-                        <tr>
-                            <th>ID</th>
-                            <th>Student</th>
-                            <th>Type</th>
-                            <th>Subject</th>
-                            <th>Submitted</th>
-                            <th>Status</th>
-                            <th>Assigned To</th>
-                            <th>Responses</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for complaint in complaints %}
-                        <tr class="{% if complaint.status == 'pending' %}table-warning{% elif complaint.status == 'resolved' %}table-success{% endif %}">
-                            <td>#{{ complaint.id }}</td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    {% if complaint.is_anonymous %}
-                                        <i class="fas fa-user-secret text-secondary me-2"></i>
-                                        <span class="text-muted">Anonymous</span>
-                                    {% else %}
-                                        {% if complaint.user.profile_image %}
-                                            <img src="{{ complaint.user.profile_image.url }}" 
-                                                 class="rounded-circle me-2" width="30" height="30">
-                                        {% else %}
-                                            <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" 
-                                                 style="width:30px;height:30px;">
-                                                <i class="fas fa-user text-white"></i>
-                                            </div>
-                                        {% endif %}
-                                        {{ complaint.user.get_full_name }}
-                                    {% endif %}
-                                </div>
-                            </td>
-                            <td>
-                                <span class="badge bg-{{ complaint.complaint_type|complaint_color }}">
-                                    {{ complaint.get_complaint_type_display }}
-                                </span>
-                            </td>
-                            <td>
-                                <a href="{% url 'complaints:complaint_detail' complaint.id %}" class="text-decoration-none">
-                                    {{ complaint.subject|truncatechars:40 }}
-                                </a>
-                            </td>
-                            <td>
-                                <small class="text-muted" title="{{ complaint.created_at|date:'M d, Y H:i' }}">
-                                    {{ complaint.created_at|timesince }} ago
-                                </small>
-                            </td>
-                            <td>
-                                <span class="badge bg-{{ complaint.status|status_color }}">
-                                    {{ complaint.get_status_display }}
-                                </span>
-                            </td>
-                            <td>
-                                {% if complaint.assigned_to %}
-                                    {{ complaint.assigned_to.get_full_name }}
-                                {% else %}
-                                    <span class="text-muted">Unassigned</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <span class="badge bg-info">{{ complaint.response_count }}</span>
-                            </td>
-                            <td>
-                                <div class="btn-group">
-                                    <a href="{% url 'complaints:complaint_detail' complaint.id %}" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    {% if request.user.user_type in 'admin,staff,executive' %}
-                                        {% if not complaint.assigned_to %}
-                                            <button class="btn btn-sm btn-warning" onclick="assignToMe({{ complaint.id }})">
-                                                <i class="fas fa-user-plus"></i>
-                                            </button>
-                                        {% endif %}
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="9" class="text-center py-5">
-                                <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
-                                <h5 class="text-muted">No Complaints Found</h5>
-                                <p class="text-muted mb-3">There are no complaints matching your criteria.</p>
-                                <a href="{% url 'complaints:submit_complaint' %}" class="btn btn-primary">
-                                    <i class="fas fa-plus me-2"></i>Submit a Complaint
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                </form>
             </div>
-        </div>
 
-        <!-- Pagination -->
-        {% if complaints.has_other_pages %}
-        <div class="card-footer">
-            <nav aria-label="Complaints pagination">
-                <ul class="pagination justify-content-center mb-0">
-                    {% if complaints.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ complaints.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                <i class="fas fa-chevron-left"></i>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
-                        </li>
-                    {% endif %}
+            <!-- Complaints Table - Glass Card -->
+            <div class="glass-table-card">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead class="glass-table-header">
+                            <tr>
+                                <th>ID</th>
+                                <th>Student</th>
+                                <th>Type</th>
+                                <th>Subject</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>Assigned To</th>
+                                <th>Responses</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for complaint in complaints %}
+                            <tr class="glass-table-row {% if complaint.status == 'pending' %}table-warning{% elif complaint.status == 'resolved' %}table-success{% endif %}">
+                                <td class="fw-bold">#{{ complaint.id }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        {% if complaint.is_anonymous %}
+                                            <i class="fas fa-user-secret glass-text-muted"></i>
+                                            <span class="glass-text-muted">Anonymous</span>
+                                        {% else %}
+                                            {% if complaint.user.profile_image %}
+                                                <img src="{{ complaint.user.profile_image.url }}" 
+                                                     class="glass-avatar-sm">
+                                            {% else %}
+                                                <div class="glass-avatar-placeholder-sm">
+                                                    <i class="fas fa-user text-white fa-xs"></i>
+                                                </div>
+                                            {% endif %}
+                                            {{ complaint.user.get_full_name }}
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="glass-badge-{{ complaint.complaint_type|complaint_color }}">
+                                        {{ complaint.get_complaint_type_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'complaints:complaint_detail' complaint.id %}" class="glass-link">
+                                        {{ complaint.subject|truncatechars:40 }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <small class="glass-text-muted" title="{{ complaint.created_at|date:'M d, Y H:i' }}">
+                                        <i class="fas fa-clock me-1"></i>{{ complaint.created_at|timesince }} ago
+                                    </small>
+                                </td>
+                                <td>
+                                    {% if complaint.status == 'pending' %}
+                                        <span class="glass-badge-pending">
+                                            <i class="fas fa-clock me-1"></i>{{ complaint.get_status_display }}
+                                        </span>
+                                    {% elif complaint.status == 'under_review' %}
+                                        <span class="glass-badge-under-review">
+                                            <i class="fas fa-search me-1"></i>{{ complaint.get_status_display }}
+                                        </span>
+                                    {% else %}
+                                        <span class="glass-badge-resolved">
+                                            <i class="fas fa-check-circle me-1"></i>{{ complaint.get_status_display }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if complaint.assigned_to %}
+                                        <span class="glass-text">{{ complaint.assigned_to.get_full_name }}</span>
+                                    {% else %}
+                                        <span class="glass-text-muted">Unassigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="glass-badge-info-sm">
+                                        <i class="fas fa-comment me-1"></i>{{ complaint.response_count }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'complaints:complaint_detail' complaint.id %}" class="btn glass-btn-icon" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if request.user.user_type in 'admin,staff,executive' %}
+                                            {% if not complaint.assigned_to %}
+                                                <button class="btn glass-btn-icon" onclick="assignToMe({{ complaint.id }})" title="Assign to Me">
+                                                    <i class="fas fa-user-plus"></i>
+                                                </button>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center py-5">
+                                    <div class="glass-empty-state">
+                                        <i class="fas fa-inbox fa-4x glass-text-muted mb-3"></i>
+                                        <h5 class="glass-text-muted">No Complaints Found</h5>
+                                        <p class="glass-text-muted mb-3">There are no complaints matching your criteria.</p>
+                                        <a href="{% url 'complaints:submit_complaint' %}" class="btn glass-btn-primary">
+                                            <i class="fas fa-plus me-2"></i>Submit a Complaint
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                    {% for i in complaints.paginator.page_range %}
-                        {% if complaints.number == i %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ i }}</span>
-                            </li>
-                        {% elif i > complaints.number|add:'-3' and i < complaints.number|add:'3' %}
+            <!-- Pagination - Glass -->
+            {% if complaints.has_other_pages %}
+            <div class="card-footer glass-card-footer bg-transparent">
+                <nav aria-label="Complaints pagination">
+                    <ul class="pagination glass-pagination justify-content-center mb-0">
+                        {% if complaints.has_previous %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                                <a class="page-link glass-page-link" href="?page={{ complaints.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link glass-page-link"><i class="fas fa-chevron-left"></i></span>
                             </li>
                         {% endif %}
-                    {% endfor %}
 
-                    {% if complaints.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ complaints.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                <i class="fas fa-chevron-right"></i>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-        {% endif %}
-    </div>
+                        {% for i in complaints.paginator.page_range %}
+                            {% if complaints.number == i %}
+                                <li class="page-item active">
+                                    <span class="page-link glass-page-link glass-page-active">{{ i }}</span>
+                                </li>
+                            {% elif i > complaints.number|add:'-3' and i < complaints.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link glass-page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
 
-    <!-- Statistics Cards -->
-    <div class="row">
-        <div class="col-md-3 mb-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Average Response Time</h5>
-                    <h3 class="mb-0">{{ avg_response_time|default:"24" }}h</h3>
+                        {% if complaints.has_next %}
+                            <li class="page-item">
+                                <a class="page-link glass-page-link" href="?page={{ complaints.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link glass-page-link"><i class="fas fa-chevron-right"></i></span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Statistics Cards - Glass -->
+        <div class="row g-3 mt-2">
+            <div class="col-md-3">
+                <div class="glass-stat-card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="glass-stat-title">Average Response Time</div>
+                        <div class="glass-stat-value">{{ avg_response_time|default:"24" }}h</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Resolution Rate</h5>
-                    <h3 class="mb-0">{{ resolution_rate|default:"85" }}%</h3>
+            <div class="col-md-3">
+                <div class="glass-stat-card bg-success text-white">
+                    <div class="card-body">
+                        <div class="glass-stat-title">Resolution Rate</div>
+                        <div class="glass-stat-value">{{ resolution_rate|default:"85" }}%</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Most Common Type</h5>
-                    <h6 class="mb-0">{{ most_common_type|default:"Academic" }}</h6>
+            <div class="col-md-3">
+                <div class="glass-stat-card bg-info text-white">
+                    <div class="card-body">
+                        <div class="glass-stat-title">Most Common Type</div>
+                        <div class="glass-stat-value h5 mb-0">{{ most_common_type|default:"Academic" }}</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <h5 class="card-title">This Month</h5>
-                    <h3 class="mb-0">{{ monthly_count|default:"0" }}</h3>
+            <div class="col-md-3">
+                <div class="glass-stat-card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="glass-stat-title">This Month</div>
+                        <div class="glass-stat-value">{{ monthly_count|default:"0" }}</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Assign Confirmation Modal -->
+<!-- Assign Confirmation Modal - Glass Style -->
 <div class="modal fade" id="assignModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-modal">
+            <div class="modal-header glass-modal-header">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-user-plus me-2"></i>Assign Complaint
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>Assign this complaint to yourself?</p>
-                <p class="small text-muted">You will be responsible for responding to this complaint.</p>
+            <div class="modal-body glass-modal-body text-center">
+                <div class="glass-icon-warning mx-auto mb-3">
+                    <i class="fas fa-user-check fa-3x"></i>
+                </div>
+                <p class="mb-2">Assign this complaint to yourself?</p>
+                <p class="small glass-text-muted">You will be responsible for responding to this complaint.</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <a href="#" id="confirmAssignBtn" class="btn btn-warning">Assign to Me</a>
+            <div class="modal-footer glass-modal-footer">
+                <button type="button" class="btn glass-btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmAssignBtn" class="btn glass-btn-primary">Assign to Me</a>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+/* Additional Glass Styles */
+.glass-badge-warning-sp {
+    background: rgba(246, 194, 62, 0.2);
+    border-radius: 20px;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #f6c23e;
+}
+
+.glass-badge-info-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.65rem;
+    background: rgba(54, 185, 204, 0.15);
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #36b9cc;
+}
+
+.glass-link {
+    color: #4e73df;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.glass-link:hover {
+    color: #224abe;
+    text-decoration: underline;
+}
+
+.glass-empty-state {
+    text-align: center;
+    padding: 2rem;
+}
+
+.glass-card-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+}
+
+.glass-icon-warning {
+    width: 70px;
+    height: 70px;
+    background: rgba(246, 194, 62, 0.2);
+    border-radius: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: #f6c23e;
+}
+
+/* Badge colors for complaint types */
+.glass-badge-academic {
+    background: rgba(78, 115, 223, 0.15);
+    border: 1px solid rgba(78, 115, 223, 0.3);
+    color: #4e73df;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.glass-badge-facility {
+    background: rgba(40, 167, 69, 0.15);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+    color: #28a745;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.glass-badge-staff {
+    background: rgba(255, 193, 7, 0.15);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    color: #ffc107;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.glass-badge-suggestion {
+    background: rgba(108, 117, 125, 0.15);
+    border: 1px solid rgba(108, 117, 125, 0.3);
+    color: #6c757d;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.glass-text {
+    color: var(--bs-body-color);
+}
+</style>
 
 <script>
 function assignToMe(complaintId) {

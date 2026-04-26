@@ -4,277 +4,629 @@
 
 {% block title %}Edit Profile - MELTSA-TaTU{% endblock %}
 
-{% block content %}
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-user-edit me-2"></i>Edit Profile
-        </h1>
-        <a href="{% url 'accounts:profile' %}" class="btn btn-secondary btn-sm">
-            <i class="fas fa-arrow-left me-1"></i>Back to Profile
-        </a>
-    </div>
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Profile Edit */
+    .glass-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+        padding-bottom: 2rem;
+    }
+    
+    .glass-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #224abe);
+        border-radius: 3px;
+    }
+    
+    /* Glass Card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-card-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-header-warning {
+        background: linear-gradient(135deg, #f6c23e, #dda20a);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-header-info {
+        background: linear-gradient(135deg, #36b9cc, #258391);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Glass Form Elements */
+    .glass-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--bs-body-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .glass-label i {
+        margin-right: 0.5rem;
+        color: #4e73df;
+    }
+    
+    .glass-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-input[readonly] {
+        background: rgba(0, 0, 0, 0.05);
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+    .glass-textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .glass-textarea:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    .glass-select {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-select:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    /* Glass File Input */
+    .glass-file-label {
+        display: inline-block;
+        background: rgba(78, 115, 223, 0.1);
+        border: 1px solid rgba(78, 115, 223, 0.3);
+        color: #4e73df;
+        border-radius: 10px;
+        padding: 0.35rem 0.8rem;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .glass-file-label:hover {
+        background: rgba(78, 115, 223, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    /* Glass Buttons */
+    .glass-btn-secondary {
+        background: rgba(108, 117, 125, 0.2);
+        border: 1px solid rgba(108, 117, 125, 0.5);
+        color: #6c757d;
+        border-radius: 12px;
+        padding: 0.6rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-secondary:hover {
+        background: rgba(108, 117, 125, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.6rem 1.25rem;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-btn-warning {
+        background: linear-gradient(135deg, #f6c23e, #dda20a);
+        border: none;
+        border-radius: 12px;
+        padding: 0.6rem 1.25rem;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(246, 194, 62, 0.3);
+    }
+    
+    /* Glass Avatar Frame */
+    .glass-avatar-frame {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .glass-avatar-large {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(78, 115, 223, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-avatar-large:hover {
+        transform: scale(1.02);
+        border-color: #4e73df;
+        box-shadow: 0 8px 20px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-avatar-placeholder {
+        width: 150px;
+        height: 150px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        font-size: 3rem;
+        font-weight: 800;
+        color: white;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-avatar-placeholder:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 20px rgba(78, 115, 223, 0.2);
+    }
+    
+    /* Glass Divider */
+    .glass-divider {
+        margin: 1rem 0;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Tips List */
+    .glass-tip-list {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .glass-tip-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-tip-item:last-child {
+        border-bottom: none;
+    }
+    
+    @media (max-width: 768px) {
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-card-body {
+            padding: 1rem;
+        }
+        
+        .glass-avatar-large {
+            width: 120px;
+            height: 120px;
+        }
+        
+        .glass-avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            font-size: 2.5rem;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    [data-bs-theme="dark"] .glass-input[readonly] {
+        background: rgba(255, 255, 255, 0.05);
+    }
+</style>
+{% endblock %}
 
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Profile Edit Form -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-user me-1"></i>Personal Information
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data" id="profileEditForm">
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {% for error in form.non_field_errors %}
-                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        
-                        <div class="row">
-                            <!-- Profile Image -->
-                            <div class="col-md-4 text-center mb-4">
-                                <div class="profile-image-container">
-                                    {% if user.profile_image %}
-                                        <img src="{{ user.profile_image.url }}" id="profilePreview" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-                                    {% else %}
-                                        <div id="profilePreview" class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
-                                             style="width: 150px; height: 150px; font-size: 3rem;">
-                                            {{ user.first_name|first|default:user.username|first|upper }}
-                                        </div>
-                                    {% endif %}
+{% block content %}
+<div class="glass-container">
+    <div class="container-fluid">
+        <!-- Page Heading - Glass Style -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-user-edit me-2"></i>Edit Profile
+                </h1>
+                <p class="glass-text-muted mt-2">Update your personal information and preferences</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <a href="{% url 'accounts:profile' %}" class="btn glass-btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Profile
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Profile Edit Form - Glass Card -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-user me-1"></i>Personal Information
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <form method="POST" enctype="multipart/form-data" id="profileEditForm">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                                <div class="glass-alert-danger mb-4">
+                                    {% for error in form.non_field_errors %}
+                                        <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="row">
+                                <!-- Profile Image -->
+                                <div class="col-md-4 text-center mb-4">
+                                    <div class="glass-avatar-frame">
+                                        {% if user.profile_image %}
+                                            <img src="{{ user.profile_image.url }}" id="profilePreview" class="glass-avatar-large">
+                                        {% else %}
+                                            <div id="profilePreview" class="glass-avatar-placeholder">
+                                                {{ user.first_name|first|default:user.username|first|upper }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
                                     
-                                    <div class="mb-3">
-                                        <label for="{{ form.profile_image.id_for_label }}" class="btn btn-outline-primary btn-sm">
+                                    <div class="mt-3">
+                                        <label for="{{ form.profile_image.id_for_label }}" class="glass-file-label">
                                             <i class="fas fa-camera me-1"></i>Change Photo
                                         </label>
                                         {{ form.profile_image }}
                                     </div>
-                                    <small class="text-muted">Max size: 2MB (JPG, PNG)</small>
+                                    <small class="glass-text-muted">Max size: 2MB (JPG, PNG)</small>
+                                </div>
+                                
+                                <!-- Personal Details -->
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="glass-label">
+                                                <i class="fas fa-user me-1"></i>First Name
+                                            </label>
+                                            {{ form.first_name }}
+                                            {% if form.first_name.errors %}
+                                                <div class="glass-error mt-1">{{ form.first_name.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label class="glass-label">
+                                                <i class="fas fa-user me-1"></i>Last Name
+                                            </label>
+                                            {{ form.last_name }}
+                                            {% if form.last_name.errors %}
+                                                <div class="glass-error mt-1">{{ form.last_name.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label class="glass-label">
+                                                <i class="fas fa-envelope me-1"></i>Email
+                                            </label>
+                                            {{ form.email }}
+                                            {% if form.email.errors %}
+                                                <div class="glass-error mt-1">{{ form.email.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label class="glass-label">
+                                                <i class="fas fa-phone me-1"></i>Phone Number
+                                            </label>
+                                            {{ form.phone_number }}
+                                            {% if form.phone_number.errors %}
+                                                <div class="glass-error mt-1">{{ form.phone_number.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label class="glass-label">
+                                                <i class="fas fa-birthday-cake me-1"></i>Date of Birth
+                                            </label>
+                                            {{ form.date_of_birth }}
+                                            {% if form.date_of_birth.errors %}
+                                                <div class="glass-error mt-1">{{ form.date_of_birth.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-12 mb-3">
+                                            <label class="glass-label">
+                                                <i class="fas fa-map-marker-alt me-1"></i>Address
+                                            </label>
+                                            {{ form.address }}
+                                            {% if form.address.errors %}
+                                                <div class="glass-error mt-1">{{ form.address.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <!-- Personal Details -->
-                            <div class="col-md-8">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">First Name</label>
-                                        {{ form.first_name }}
-                                        {% if form.first_name.errors %}
-                                            <div class="text-danger small">{{ form.first_name.errors }}</div>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Last Name</label>
-                                        {{ form.last_name }}
-                                        {% if form.last_name.errors %}
-                                            <div class="text-danger small">{{ form.last_name.errors }}</div>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Email</label>
-                                        {{ form.email }}
-                                        {% if form.email.errors %}
-                                            <div class="text-danger small">{{ form.email.errors }}</div>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Phone Number</label>
-                                        {{ form.phone_number }}
-                                        {% if form.phone_number.errors %}
-                                            <div class="text-danger small">{{ form.phone_number.errors }}</div>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Date of Birth</label>
-                                        {{ form.date_of_birth }}
-                                        {% if form.date_of_birth.errors %}
-                                            <div class="text-danger small">{{ form.date_of_birth.errors }}</div>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="col-12 mb-3">
-                                        <label class="form-label fw-bold">Address</label>
-                                        {{ form.address }}
-                                        {% if form.address.errors %}
-                                            <div class="text-danger small">{{ form.address.errors }}</div>
-                                        {% endif %}
-                                    </div>
+                            <hr class="glass-divider">
+                            
+                            <!-- Academic Information (Read-only) -->
+                            <h6 class="fw-bold glass-text-primary mb-3">
+                                <i class="fas fa-graduation-cap me-2"></i>Academic Information
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="glass-text-muted small fw-bold">Student/Staff ID</label>
+                                    <input type="text" class="glass-input" value="{% if user.student_id %}{{ user.student_id }}{% else %}{{ user.staff_id }}{% endif %}" readonly>
                                 </div>
-                            </div>
-                        </div>
-                        
-                        <hr>
-                        
-                        <!-- Academic Information (Read-only) -->
-                        <h6 class="fw-bold mb-3">Academic Information</h6>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label text-muted">Student/Staff ID</label>
-                                <input type="text" class="form-control" value="{% if user.student_id %}{{ user.student_id }}{% else %}{{ user.staff_id }}{% endif %}" readonly>
-                            </div>
-                            
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label text-muted">User Type</label>
-                                <input type="text" class="form-control" value="{{ user.get_user_type_display }}" readonly>
-                            </div>
-                            
-                            {% if user.user_type in 'student,executive' %}
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label text-muted">Program Type</label>
-                                <input type="text" class="form-control" value="{{ user.get_program_type_display }}" readonly>
-                            </div>
-                            
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label text-muted">Level</label>
-                                <input type="text" class="form-control" value="Level {{ user.level }}" readonly>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label class="glass-text-muted small fw-bold">User Type</label>
+                                    <input type="text" class="glass-input" value="{{ user.get_user_type_display }}" readonly>
+                                </div>
+                                
+                                {% if user.user_type in 'student,executive' %}
+                                <div class="col-md-4 mb-3">
+                                    <label class="glass-text-muted small fw-bold">Program Type</label>
+                                    <input type="text" class="glass-input" value="{{ user.get_program_type_display }}" readonly>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label class="glass-text-muted small fw-bold">Level</label>
+                                    <input type="text" class="glass-input" value="Level {{ user.level }}" readonly>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label class="glass-text-muted small fw-bold">Year of Admission</label>
+                                    <input type="text" class="glass-input" value="{{ user.year_of_admission }}" readonly>
+                                </div>
+                                {% endif %}
                             </div>
                             
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label text-muted">Year of Admission</label>
-                                <input type="text" class="form-control" value="{{ user.year_of_admission }}" readonly>
+                            <hr class="glass-divider">
+                            
+                            <!-- Submit Buttons -->
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'accounts:profile' %}" class="btn glass-btn-secondary">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn glass-btn-primary">
+                                    <i class="fas fa-save me-1"></i>Save Changes
+                                </button>
                             </div>
-                            {% endif %}
-                        </div>
-                        
-                        <hr>
-                        
-                        <!-- Submit Buttons -->
-                        <div class="d-flex justify-content-end">
-                            <a href="{% url 'accounts:profile' %}" class="btn btn-secondary me-2">
-                                <i class="fas fa-times me-1"></i>Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-1"></i>Save Changes
-                            </button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Executive Profile (if applicable) -->
-            {% if executive_form %}
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-warning">
-                        <i class="fas fa-user-tie me-1"></i>Executive Information
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data" id="executiveForm">
-                        {% csrf_token %}
-                        
-                        {% if executive_form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {% for error in executive_form.non_field_errors %}
-                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Position</label>
-                            {{ executive_form.position }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Executive Level</label>
-                            {{ executive_form.executive_level }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Executive Image</label>
-                            {{ executive_form.executive_image }}
-                            <small class="text-muted">Official executive portrait</small>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Manifesto</label>
-                            {{ executive_form.manifesto }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Achievements</label>
-                            {{ executive_form.achievements }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Official Email</label>
-                            {{ executive_form.official_email }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Office Location</label>
-                            {{ executive_form.office_location }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Office Hours</label>
-                            {{ executive_form.office_hours }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Signature</label>
-                            {{ executive_form.signature }}
-                            <small class="text-muted">Upload signature for official documents</small>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <div class="form-check">
-                                {{ executive_form.prefers_meeting_reminders }}
-                                <label class="form-check-label" for="{{ executive_form.prefers_meeting_reminders.id_for_label }}">
-                                    Receive meeting reminders
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <button type="submit" name="update_executive" class="btn btn-warning w-100">
-                            <i class="fas fa-save me-1"></i>Update Executive Profile
-                        </button>
-                    </form>
-                </div>
-            </div>
-            {% endif %}
             
-            <!-- Profile Tips -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-info">
-                        <i class="fas fa-info-circle me-1"></i>Profile Tips
-                    </h6>
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Executive Profile (if applicable) - Glass Card -->
+                {% if executive_form %}
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header-warning">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-user-tie me-1"></i>Executive Information
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <form method="POST" enctype="multipart/form-data" id="executiveForm">
+                            {% csrf_token %}
+                            
+                            {% if executive_form.non_field_errors %}
+                                <div class="glass-alert-danger mb-3">
+                                    {% for error in executive_form.non_field_errors %}
+                                        <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-briefcase me-1"></i>Position
+                                </label>
+                                {{ executive_form.position }}
+                            </div>
+                            
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-chart-line me-1"></i>Executive Level
+                                </label>
+                                {{ executive_form.executive_level }}
+                            </div>
+                            
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-image me-1"></i>Executive Image
+                                </label>
+                                <div class="glass-file-input-wrapper">
+                                    {{ executive_form.executive_image }}
+                                </div>
+                                <small class="glass-text-muted">Official executive portrait</small>
+                            </div>
+                            
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-file-alt me-1"></i>Manifesto
+                                </label>
+                                {{ executive_form.manifesto }}
+                            </div>
+                            
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-trophy me-1"></i>Achievements
+                                </label>
+                                {{ executive_form.achievements }}
+                            </div>
+                            
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-envelope me-1"></i>Official Email
+                                </label>
+                                {{ executive_form.official_email }}
+                            </div>
+                            
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-building me-1"></i>Office Location
+                                </label>
+                                {{ executive_form.office_location }}
+                            </div>
+                            
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-clock me-1"></i>Office Hours
+                                </label>
+                                {{ executive_form.office_hours }}
+                            </div>
+                            
+                            <div class="glass-form-group mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-pen me-1"></i>Signature
+                                </label>
+                                {{ executive_form.signature }}
+                                <small class="glass-text-muted">Upload signature for official documents</small>
+                            </div>
+                            
+                            <div class="glass-form-group mb-3">
+                                <div class="glass-checkbox-wrapper">
+                                    {{ executive_form.prefers_meeting_reminders }}
+                                    <label class="glass-checkbox-label" for="{{ executive_form.prefers_meeting_reminders.id_for_label }}">
+                                        <i class="fas fa-bell me-1"></i>Receive meeting reminders
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" name="update_executive" class="btn glass-btn-warning w-100">
+                                <i class="fas fa-save me-1"></i>Update Executive Profile
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <ul class="list-unstyled mb-0">
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Keep your contact information up to date
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Upload a professional profile photo
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Your student/staff ID cannot be changed
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Changes will be reflected immediately
-                        </li>
-                    </ul>
+                {% endif %}
+                
+                <!-- Profile Tips - Glass Card -->
+                <div class="glass-card">
+                    <div class="glass-card-header-info">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-info-circle me-1"></i>Profile Tips
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <div class="glass-tip-list">
+                            <div class="glass-tip-item">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <span class="glass-text-muted">Keep your contact information up to date</span>
+                            </div>
+                            <div class="glass-tip-item">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <span class="glass-text-muted">Upload a professional profile photo</span>
+                            </div>
+                            <div class="glass-tip-item">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <span class="glass-text-muted">Your student/staff ID cannot be changed</span>
+                            </div>
+                            <div class="glass-tip-item">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <span class="glass-text-muted">Changes will be reflected immediately</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -282,12 +634,54 @@
 </div>
 
 <style>
-.profile-image-container {
-    position: relative;
+/* Additional Styles */
+.glass-alert-danger {
+    background: rgba(231, 74, 59, 0.15);
+    border: 1px solid rgba(231, 74, 59, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    color: #e74a3b;
 }
-#profilePreview {
-    transition: opacity 0.3s ease;
+
+.glass-error {
+    font-size: 0.75rem;
+    color: #e74a3b;
+    margin-top: 0.25rem;
 }
+
+.glass-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.glass-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #4e73df;
+}
+
+.glass-checkbox-label {
+    font-size: 0.85rem;
+    color: var(--bs-body-color);
+    cursor: pointer;
+}
+
+.glass-file-input-wrapper input[type="file"] {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 0.35rem 0.6rem;
+    color: var(--bs-body-color);
+    font-size: 0.8rem;
+}
+</style>
+
+<!-- Hidden file input styling -->
+<style>
 #{{ form.profile_image.id_for_label }} {
     display: none;
 }
@@ -303,6 +697,21 @@ document.addEventListener('DOMContentLoaded', function() {
         imageInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
+                // Validate file size (2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('File size must be less than 2MB');
+                    this.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Please upload a valid image file (JPG, JPEG, PNG)');
+                    this.value = '';
+                    return;
+                }
+                
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     if (preview.tagName === 'IMG') {
@@ -312,10 +721,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         const img = document.createElement('img');
                         img.id = 'profilePreview';
                         img.src = e.target.result;
-                        img.className = 'img-fluid rounded-circle mb-3';
+                        img.className = 'glass-avatar-large';
                         img.style.width = '150px';
                         img.style.height = '150px';
                         img.style.objectFit = 'cover';
+                        img.style.borderRadius = '50%';
+                        img.style.border = '4px solid rgba(78, 115, 223, 0.3)';
                         preview.parentNode.replaceChild(img, preview);
                     }
                 }
@@ -326,15 +737,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Form validation
     const form = document.getElementById('profileEditForm');
-    form.addEventListener('submit', function(e) {
-        const phone = document.getElementById('{{ form.phone_number.id_for_label }}').value;
-        const phoneRegex = /^[0-9+\-\s()]{8,15}$/;
-        
-        if (phone && !phoneRegex.test(phone)) {
-            e.preventDefault();
-            alert('Please enter a valid phone number');
-        }
-    });
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const phoneInput = document.getElementById('{{ form.phone_number.id_for_label }}');
+            if (phoneInput) {
+                const phone = phoneInput.value;
+                const phoneRegex = /^[0-9+\-\s()]{8,15}$/;
+                
+                if (phone && !phoneRegex.test(phone)) {
+                    e.preventDefault();
+                    alert('Please enter a valid phone number');
+                }
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

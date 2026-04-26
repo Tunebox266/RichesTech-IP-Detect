@@ -5,202 +5,643 @@
 
 {% block title %}My Events - MELTSA-TaTU{% endblock %}
 
-{% block content %}
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-calendar-check me-2"></i>My Events
-        </h1>
-        <div>
-            <span class="badge bg-success me-2">
-                <i class="fas fa-clock me-1"></i>Upcoming: {{ upcoming_events.count }}
-            </span>
-            <span class="badge bg-secondary">
-                <i class="fas fa-history me-1"></i>Past: {{ past_events.count }}
-            </span>
-        </div>
-    </div>
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for My Events */
+    .glass-events-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+        padding-bottom: 2rem;
+    }
+    
+    .glass-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #224abe);
+        border-radius: 3px;
+    }
+    
+    .glass-badge-success {
+        background: rgba(28, 200, 138, 0.2);
+        border: 1px solid rgba(28, 200, 138, 0.5);
+        color: #1cc88a;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-secondary {
+        background: rgba(108, 117, 125, 0.2);
+        border: 1px solid rgba(108, 117, 125, 0.5);
+        color: #adb5bd;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    /* Glass Card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-card-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-header-secondary {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-header-info {
+        background: linear-gradient(135deg, #36b9cc, #258391);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-body {
+        padding: 1.25rem;
+    }
+    
+    /* Glass Event Card */
+    .glass-event-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+    }
+    
+    .glass-event-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .glass-event-image {
+        height: 160px;
+        object-fit: cover;
+        width: 100%;
+        transition: transform 0.5s ease;
+    }
+    
+    .glass-event-card:hover .glass-event-image {
+        transform: scale(1.05);
+    }
+    
+    .glass-event-placeholder {
+        height: 160px;
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.2), rgba(34, 66, 190, 0.1));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .glass-event-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: var(--bs-body-color);
+        line-height: 1.4;
+    }
+    
+    .glass-event-details {
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 12px;
+        padding: 0.75rem;
+        margin: 0.75rem 0;
+    }
+    
+    .glass-event-detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        padding: 0.25rem 0;
+        color: var(--bs-body-color);
+    }
+    
+    .glass-event-detail-item i {
+        width: 20px;
+        color: #4e73df;
+    }
+    
+    /* Glass Table */
+    .glass-table-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+    }
+    
+    .glass-table-header {
+        background: rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-table-header th {
+        padding: 1rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--bs-body-color);
+    }
+    
+    .glass-table-row {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-table-row td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .glass-table-row:hover {
+        background: rgba(78, 115, 223, 0.05);
+        transform: translateX(3px);
+    }
+    
+    /* Glass Session Card */
+    .glass-session-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .glass-session-card:hover {
+        transform: translateY(-3px);
+        background: rgba(78, 115, 223, 0.08);
+    }
+    
+    /* Glass Badges */
+    .glass-badge-primary {
+        background: rgba(78, 115, 223, 0.15);
+        border: 1px solid rgba(78, 115, 223, 0.3);
+        color: #4e73df;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-success-event {
+        background: rgba(28, 200, 138, 0.15);
+        border: 1px solid rgba(28, 200, 138, 0.3);
+        color: #1cc88a;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-info-event {
+        background: rgba(54, 185, 204, 0.15);
+        border: 1px solid rgba(54, 185, 204, 0.3);
+        color: #36b9cc;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-warning-event {
+        background: rgba(246, 194, 62, 0.15);
+        border: 1px solid rgba(246, 194, 62, 0.3);
+        color: #f6c23e;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-attended {
+        background: rgba(28, 200, 138, 0.15);
+        border: 1px solid rgba(28, 200, 138, 0.3);
+        color: #1cc88a;
+        padding: 0.25rem 0.65rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-absent {
+        background: rgba(108, 117, 125, 0.15);
+        border: 1px solid rgba(108, 117, 125, 0.3);
+        color: #adb5bd;
+        padding: 0.25rem 0.65rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-feedback {
+        background: rgba(54, 185, 204, 0.15);
+        border: 1px solid rgba(54, 185, 204, 0.3);
+        color: #36b9cc;
+        padding: 0.25rem 0.65rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    /* Glass Button */
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 10px;
+        padding: 0.35rem 0.75rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-btn-outline-primary {
+        background: rgba(78, 115, 223, 0.1);
+        border: 1px solid rgba(78, 115, 223, 0.3);
+        color: #4e73df;
+        border-radius: 8px;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.7rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .glass-btn-outline-primary:hover {
+        background: rgba(78, 115, 223, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-outline-secondary {
+        background: rgba(108, 117, 125, 0.1);
+        border: 1px solid rgba(108, 117, 125, 0.3);
+        color: #6c757d;
+        border-radius: 8px;
+        padding: 0.25rem 0.6rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-secondary:hover {
+        background: rgba(108, 117, 125, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    /* Glass Empty State */
+    .glass-empty-state {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-align: center;
+        padding: 3rem;
+    }
+    
+    .glass-empty-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        color: var(--bs-gray-500);
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    @media (max-width: 768px) {
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-event-detail-item {
+            font-size: 0.7rem;
+        }
+        
+        .glass-table-header th {
+            font-size: 0.65rem;
+            padding: 0.75rem;
+        }
+        
+        .glass-table-row td {
+            padding: 0.75rem;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-card,
+    [data-bs-theme="dark"] .glass-event-card,
+    [data-bs-theme="dark"] .glass-table-card,
+    [data-bs-theme="dark"] .glass-empty-state,
+    [data-bs-theme="dark"] .glass-session-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    [data-bs-theme="dark"] .glass-event-details {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .glass-event-card {
+        animation: fadeInUp 0.5s ease-out;
+        animation-fill-mode: backwards;
+    }
+    
+    .glass-event-card:nth-child(1) { animation-delay: 0s; }
+    .glass-event-card:nth-child(2) { animation-delay: 0.05s; }
+    .glass-event-card:nth-child(3) { animation-delay: 0.1s; }
+    .glass-event-card:nth-child(4) { animation-delay: 0.15s; }
+    .glass-event-card:nth-child(5) { animation-delay: 0.2s; }
+    .glass-event-card:nth-child(6) { animation-delay: 0.25s; }
+</style>
+{% endblock %}
 
-    <!-- Upcoming Events -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-clock me-1"></i>Upcoming Events
-            </h6>
+{% block content %}
+<div class="glass-events-container">
+    <div class="container-fluid">
+        <!-- Page Heading - Glass Style -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-calendar-check me-2"></i>My Events
+                </h1>
+                <p class="glass-text-muted mt-2">Track your registered events and attendance</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <span class="glass-badge-success me-2">
+                    <i class="fas fa-clock me-1"></i>Upcoming: {{ upcoming_events.count }}
+                </span>
+                <span class="glass-badge-secondary">
+                    <i class="fas fa-history me-1"></i>Past: {{ past_events.count }}
+                </span>
+            </div>
         </div>
-        <div class="card-body">
-            {% if upcoming_events %}
-                <div class="row">
-                    {% for registration in upcoming_events %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100 event-card">
-                            {% if registration.event.poster %}
-                                <img src="{{ registration.event.poster.url }}" class="card-img-top" alt="{{ registration.event.title }}" style="height: 150px; object-fit: cover;">
-                            {% else %}
-                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                                    <i class="fas fa-calendar-alt fa-3x text-muted"></i>
-                                </div>
-                            {% endif %}
-                            
-                            <div class="card-body">
-                                <h5 class="card-title">{{ registration.event.title }}</h5>
+
+        <!-- Upcoming Events - Glass Cards -->
+        <div class="glass-card mb-4">
+            <div class="glass-card-header">
+                <h6 class="m-0 fw-bold text-white">
+                    <i class="fas fa-clock me-1"></i>Upcoming Events
+                </h6>
+            </div>
+            <div class="glass-card-body">
+                {% if upcoming_events %}
+                    <div class="row">
+                        {% for registration in upcoming_events %}
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="glass-event-card">
+                                {% if registration.event.poster %}
+                                    <img src="{{ registration.event.poster.url }}" class="glass-event-image" alt="{{ registration.event.title }}">
+                                {% else %}
+                                    <div class="glass-event-placeholder">
+                                        <i class="fas fa-calendar-alt fa-4x glass-text-muted"></i>
+                                    </div>
+                                {% endif %}
                                 
-                                <div class="event-details small">
-                                    <p class="mb-2">
-                                        <i class="fas fa-calendar me-2 text-primary"></i>
-                                        {{ registration.event.start_date|date:"l, M d, Y" }}
-                                    </p>
-                                    <p class="mb-2">
-                                        <i class="fas fa-clock me-2 text-success"></i>
-                                        {{ registration.event.start_date|date:"h:i A" }}
-                                    </p>
-                                    <p class="mb-2">
-                                        <i class="fas fa-map-marker-alt me-2 text-danger"></i>
-                                        {{ registration.event.venue }}
-                                    </p>
+                                <div class="card-body p-3">
+                                    <h5 class="glass-event-title">{{ registration.event.title }}</h5>
+                                    
+                                    <div class="glass-event-details">
+                                        <div class="glass-event-detail-item">
+                                            <i class="fas fa-calendar"></i>
+                                            <span>{{ registration.event.start_date|date:"l, M d, Y" }}</span>
+                                        </div>
+                                        <div class="glass-event-detail-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>{{ registration.event.start_date|date:"h:i A" }}</span>
+                                        </div>
+                                        <div class="glass-event-detail-item">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span>{{ registration.event.venue }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                        {% if registration.event.event_type == 'academic' %}
+                                            <span class="glass-badge-primary">
+                                                <i class="fas fa-graduation-cap me-1"></i>{{ registration.event.get_event_type_display }}
+                                            </span>
+                                        {% elif registration.event.event_type == 'social' %}
+                                            <span class="glass-badge-warning-event">
+                                                <i class="fas fa-users me-1"></i>{{ registration.event.get_event_type_display }}
+                                            </span>
+                                        {% elif registration.event.event_type == 'workshop' %}
+                                            <span class="glass-badge-info-event">
+                                                <i class="fas fa-chalkboard-user me-1"></i>{{ registration.event.get_event_type_display }}
+                                            </span>
+                                        {% else %}
+                                            <span class="glass-badge-success-event">
+                                                <i class="fas fa-trophy me-1"></i>{{ registration.event.get_event_type_display }}
+                                            </span>
+                                        {% endif %}
+                                        
+                                        {% if registration.attended %}
+                                            <span class="glass-badge-attended">
+                                                <i class="fas fa-check-circle me-1"></i>Attended
+                                            </span>
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 
-                                <div class="mt-3">
-                                    <span class="badge bg-{{ registration.event.event_type|event_color }}">
-                                        {{ registration.event.get_event_type_display }}
-                                    </span>
-                                    {% if registration.attended %}
-                                        <span class="badge bg-success">
-                                            <i class="fas fa-check me-1"></i>Attended
-                                        </span>
-                                    {% endif %}
+                                <div class="card-footer bg-transparent p-3 pt-0">
+                                    <a href="{% url 'events:event_detail' registration.event.id %}" class="btn glass-btn-primary w-100">
+                                        View Details <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
                                 </div>
                             </div>
-                            
-                            <div class="card-footer bg-transparent">
-                                <a href="{% url 'events:event_detail' registration.event.id %}" class="btn btn-primary btn-sm w-100">
-                                    View Details <i class="fas fa-arrow-right ms-1"></i>
-                                </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="glass-empty-state">
+                        <div class="glass-empty-icon">
+                            <i class="fas fa-calendar-times fa-4x"></i>
+                        </div>
+                        <h5 class="glass-text-muted mt-3">No Upcoming Events</h5>
+                        <p class="glass-text-muted">You haven't registered for any upcoming events.</p>
+                        <a href="{% url 'events:event_list' %}" class="btn glass-btn-primary">
+                            <i class="fas fa-calendar-alt me-2"></i>Browse Events
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Past Events - Glass Table -->
+        {% if past_events %}
+        <div class="glass-table-card mb-4">
+            <div class="glass-card-header-secondary">
+                <h6 class="m-0 fw-bold text-white">
+                    <i class="fas fa-history me-1"></i>Past Events
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead class="glass-table-header">
+                            <tr>
+                                <th>Event</th>
+                                <th>Date</th>
+                                <th>Venue</th>
+                                <th>Attendance</th>
+                                <th>Feedback</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for registration in past_events %}
+                            <tr class="glass-table-row">
+                                <td>
+                                    <strong class="glass-text">{{ registration.event.title }}</strong><br>
+                                    <small class="glass-text-muted">{{ registration.event.get_event_type_display }}</small>
+                                </td>
+                                <td class="glass-text-muted">{{ registration.event.start_date|date:"M d, Y" }}</td>
+                                <td class="glass-text-muted">{{ registration.event.venue }}</td>
+                                <td>
+                                    {% if registration.attended %}
+                                        <span class="glass-badge-attended">
+                                            <i class="fas fa-check-circle me-1"></i>Attended
+                                        </span>
+                                    {% else %}
+                                        <span class="glass-badge-absent">
+                                            <i class="fas fa-times-circle me-1"></i>Absent
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if registration.event.id in feedback_given %}
+                                        <span class="glass-badge-feedback">
+                                            <i class="fas fa-star me-1"></i>Feedback Given
+                                        </span>
+                                    {% else %}
+                                        <a href="{% url 'events:feedback' registration.event.id %}" class="btn glass-btn-outline-primary">
+                                            Give Feedback
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'events:event_detail' registration.event.id %}" class="btn glass-btn-outline-secondary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Session Attendance Summary - Glass Cards -->
+        {% if attended_sessions %}
+        <div class="glass-card">
+            <div class="glass-card-header-info">
+                <h6 class="m-0 fw-bold text-white">
+                    <i class="fas fa-clipboard-list me-1"></i>Sessions Attended
+                </h6>
+            </div>
+            <div class="glass-card-body">
+                <div class="row">
+                    {% for session_id, record in attended_sessions.items %}
+                    <div class="col-md-4 mb-3">
+                        <div class="glass-session-card">
+                            <div class="card-body p-3">
+                                <h6 class="glass-text mb-2">{{ record.session.name }}</h6>
+                                <div class="glass-event-detail-item mb-1">
+                                    <i class="fas fa-calendar"></i>
+                                    <span class="glass-text-muted">{{ record.session.start_date|date:"M d, Y" }}</span>
+                                </div>
+                                <div class="glass-event-detail-item mb-2">
+                                    <i class="fas fa-clock"></i>
+                                    <span class="glass-text-muted">{{ record.checked_in_at|date:"h:i A" }}</span>
+                                </div>
+                                <span class="glass-badge-attended">
+                                    <i class="fas fa-check-circle me-1"></i>Checked In
+                                </span>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
-            {% else %}
-                <div class="text-center py-5">
-                    <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
-                    <h5 class="text-muted">No Upcoming Events</h5>
-                    <p class="text-muted">You haven't registered for any upcoming events.</p>
-                    <a href="{% url 'events:event_list' %}" class="btn btn-primary">
-                        <i class="fas fa-calendar-alt me-2"></i>Browse Events
-                    </a>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Past Events -->
-    {% if past_events %}
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-secondary">
-                <i class="fas fa-history me-1"></i>Past Events
-            </h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="bg-light">
-                        <tr>
-                            <th>Event</th>
-                            <th>Date</th>
-                            <th>Venue</th>
-                            <th>Attendance</th>
-                            <th>Feedback</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for registration in past_events %}
-                        <tr>
-                            <td>
-                                <strong>{{ registration.event.title }}</strong><br>
-                                <small class="text-muted">{{ registration.event.get_event_type_display }}</small>
-                            </td>
-                            <td>{{ registration.event.start_date|date:"M d, Y" }}</td>
-                            <td>{{ registration.event.venue }}</td>
-                            <td>
-                                {% if registration.attended %}
-                                    <span class="badge bg-success">Attended</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">Absent</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if registration.event.id in feedback_given %}
-                                    <span class="badge bg-info">Feedback Given</span>
-                                {% else %}
-                                    <a href="{% url 'events:feedback' registration.event.id %}" class="btn btn-sm btn-outline-primary">
-                                        Give Feedback
-                                    </a>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <a href="{% url 'events:event_detail' registration.event.id %}" class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
             </div>
         </div>
+        {% endif %}
     </div>
-    {% endif %}
-
-    <!-- Session Attendance Summary -->
-    {% if attended_sessions %}
-    <div class="card shadow">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-info">
-                <i class="fas fa-clipboard-list me-1"></i>Sessions Attended
-            </h6>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                {% for session_id, record in attended_sessions.items %}
-                <div class="col-md-4 mb-3">
-                    <div class="card bg-light">
-                        <div class="card-body">
-                            <h6 class="card-title">{{ record.session.name }}</h6>
-                            <p class="small mb-1">
-                                <i class="fas fa-calendar me-1"></i>{{ record.session.start_date|date:"M d, Y" }}
-                            </p>
-                            <p class="small mb-1">
-                                <i class="fas fa-clock me-1"></i>{{ record.checked_in_at|date:"h:i A" }}
-                            </p>
-                            <p class="small mb-0">
-                                <span class="badge bg-success">
-                                    <i class="fas fa-check me-1"></i>Checked In
-                                </span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
 </div>
 
 <style>
-.event-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* Additional Styles */
+.glass-text {
+    color: var(--bs-body-color);
 }
-.event-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-}
-.event-details p {
-    margin-bottom: 0.3rem;
+
+@media (max-width: 768px) {
+    .glass-event-card {
+        margin-bottom: 1rem;
+    }
 }
 </style>
 {% endblock %}

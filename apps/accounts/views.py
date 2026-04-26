@@ -1186,7 +1186,7 @@ def user_detail(request, pk):
     
     # Get user-specific data
     if user.user_type in ['student', 'executive']:
-        from apps.academics.models import CourseRegistration
+        from apps.courses.models import CourseRegistration
         from apps.payments.models import Payment
         from apps.core.models import AcademicSetting
         

@@ -4,406 +4,808 @@
 
 {% block title %}{{ action }} Announcement - MELTSA-TaTU{% endblock %}
 
-{% block content %}
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-bullhorn me-2"></i>{{ action }} Announcement
-        </h1>
-        <div>
-            <button type="button" class="btn btn-info btn-sm me-2" onclick="showFullPreview()">
-                <i class="fas fa-eye me-1"></i>Preview
-            </button>
-            <a href="{% url 'core:announcements' %}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Back to Announcements
-            </a>
-        </div>
-    </div>
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Announcement Form */
+    .glass-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+        padding-bottom: 2rem;
+    }
+    
+    .glass-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #224abe);
+        border-radius: 3px;
+    }
+    
+    /* Glass Card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-card-header-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-header-info {
+        background: linear-gradient(135deg, #36b9cc, #258391);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-header-success {
+        background: linear-gradient(135deg, #1cc88a, #13855c);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Glass Form Elements */
+    .glass-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--bs-body-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .glass-label i {
+        margin-right: 0.5rem;
+        color: #4e73df;
+    }
+    
+    .glass-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-input-lg {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    .glass-textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+        min-height: 200px;
+        resize: vertical;
+        font-family: monospace;
+        line-height: 1.6;
+    }
+    
+    .glass-textarea:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    .glass-select {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-select:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    /* Glass Checkbox */
+    .glass-checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .glass-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #4e73df;
+    }
+    
+    .glass-checkbox-label {
+        font-size: 0.85rem;
+        color: var(--bs-body-color);
+        cursor: pointer;
+    }
+    
+    /* Glass Switch */
+    .glass-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+    
+    .glass-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .glass-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(108, 117, 125, 0.5);
+        transition: 0.3s;
+        border-radius: 24px;
+    }
+    
+    .glass-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .glass-slider {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+    }
+    
+    input:checked + .glass-slider:before {
+        transform: translateX(26px);
+    }
+    
+    /* Glass Upload Area */
+    .glass-upload-area {
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-upload-area:hover {
+        border-color: #4e73df;
+        background: rgba(78, 115, 223, 0.1);
+    }
+    
+    .glass-upload-area.dragover {
+        border-color: #1cc88a;
+        background: rgba(28, 200, 138, 0.1);
+    }
+    
+    /* Glass Badges */
+    .glass-badge-level {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-level.level-100 { background: rgba(78, 115, 223, 0.2); color: #4e73df; }
+    .glass-badge-level.level-200 { background: rgba(28, 200, 138, 0.2); color: #1cc88a; }
+    .glass-badge-level.level-300 { background: rgba(54, 185, 204, 0.2); color: #36b9cc; }
+    .glass-badge-level.level-400 { background: rgba(246, 194, 62, 0.2); color: #f6c23e; }
+    
+    /* Glass Buttons */
+    .glass-btn-secondary {
+        background: rgba(108, 117, 125, 0.2);
+        border: 1px solid rgba(108, 117, 125, 0.5);
+        color: #6c757d;
+        border-radius: 12px;
+        padding: 0.6rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-secondary:hover {
+        background: rgba(108, 117, 125, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.6rem 1.25rem;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-btn-outline-secondary {
+        background: rgba(108, 117, 125, 0.1);
+        border: 1px solid rgba(108, 117, 125, 0.4);
+        color: #6c757d;
+        border-radius: 12px;
+        padding: 0.6rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-secondary:hover {
+        background: rgba(108, 117, 125, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-outline-info {
+        background: rgba(54, 185, 204, 0.1);
+        border: 1px solid rgba(54, 185, 204, 0.4);
+        color: #36b9cc;
+        border-radius: 12px;
+        padding: 0.6rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-info:hover {
+        background: rgba(54, 185, 204, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    /* Attachment Preview */
+    .glass-attachment-preview {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        margin-bottom: 0.5rem;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Live Preview */
+    .glass-live-preview {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 16px;
+        padding: 1rem;
+        min-height: 200px;
+    }
+    
+    /* Glass Modal */
+    .glass-modal {
+        background: rgba(30, 30, 47, 0.98);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        overflow: hidden;
+    }
+    
+    .glass-modal-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-modal-footer {
+        padding: 1rem 1.25rem;
+        background: rgba(0, 0, 0, 0.05);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .glass-divider {
+        margin: 1rem 0;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    @media (max-width: 768px) {
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-card-body {
+            padding: 1rem;
+        }
+        
+        .glass-btn-primary,
+        .glass-btn-secondary,
+        .glass-btn-outline-secondary,
+        .glass-btn-outline-info {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    [data-bs-theme="dark"] .glass-live-preview {
+        background: rgba(255, 255, 255, 0.05);
+    }
+</style>
+{% endblock %}
 
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Announcement Form with Glass Effect -->
-            <div class="card glass-card mb-4">
-                <div class="card-header bg-gradient-primary text-white py-3">
-                    <h6 class="m-0 font-weight-bold">
-                        <i class="fas fa-edit me-1"></i>Announcement Details
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data" id="announcementForm">
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                {% for error in form.non_field_errors %}
-                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
-                                {% endfor %}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endif %}
-                        
-                        <!-- Title Field with Placeholder -->
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-heading me-1 text-primary"></i>Announcement Title <span class="text-danger">*</span>
-                            </label>
-                            <input type="text" name="title" class="form-control form-control-lg" 
-                                   placeholder="e.g., Upcoming General Meeting, Academic Calendar Changes, Exam Schedule..."
-                                   value="{{ form.title.value|default:'' }}" id="id_title" required>
-                            {% if form.title.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.title.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
+{% block content %}
+<div class="glass-container">
+    <div class="container-fluid">
+        <!-- Page Heading - Glass Style -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-bullhorn me-2"></i>{{ action }} Announcement
+                </h1>
+                <p class="glass-text-muted mt-2">{{ action }} announcement to reach your audience</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <button type="button" class="btn glass-btn-outline-info btn-sm me-2" onclick="showFullPreview()">
+                    <i class="fas fa-eye me-1"></i>Preview
+                </button>
+                <a href="{% url 'core:announcements' %}" class="btn glass-btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Announcements
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Announcement Form - Glass Card -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header-primary">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-edit me-1"></i>Announcement Details
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <form method="POST" enctype="multipart/form-data" id="announcementForm">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                                <div class="glass-alert-danger mb-4">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
                                 </div>
                             {% endif %}
-                            <div class="form-text text-muted">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Choose a clear, attention-grabbing title (max 200 characters)
+                            
+                            <!-- Title Field -->
+                            <div class="glass-form-group mb-4">
+                                <label class="glass-label">
+                                    <i class="fas fa-heading"></i>Announcement Title <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="title" class="glass-input glass-input-lg" 
+                                       placeholder="e.g., Upcoming General Meeting, Academic Calendar Changes..."
+                                       value="{{ form.title.value|default:'' }}" id="id_title" required>
+                                {% if form.title.errors %}
+                                    <div class="glass-error mt-1">{{ form.title.errors }}</div>
+                                {% endif %}
+                                <div class="glass-text-muted small mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Choose a clear, attention-grabbing title (max 200 characters)
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Content Field with Rich Text Placeholder -->
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-align-left me-1 text-primary"></i>Content <span class="text-danger">*</span>
-                            </label>
-                            <textarea name="content" class="form-control" id="id_content" 
-                                      placeholder="Write your announcement here... 
+                            <!-- Content Field -->
+                            <div class="glass-form-group mb-4">
+                                <label class="glass-label">
+                                    <i class="fas fa-align-left"></i>Content <span class="text-danger">*</span>
+                                </label>
+                                <textarea name="content" class="glass-textarea" id="id_content" 
+                                          placeholder="Write your announcement here...
 
 You can use:
-- **Bold text** for emphasis
-- * Bullet points for lists
-- ## Headers for sections
-- [Links](https://example.com) for references
-
-Example:
-## Important Notice
-All students are required to attend the **upcoming general meeting** scheduled for:
-- Date: Friday, 25th March 2024
-- Time: 10:00 AM
-- Venue: Main Auditorium
-
-For more information, contact the executives." 
-                                      rows="8" required>{{ form.content.value|default:'' }}</textarea>
-                            {% if form.content.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.content.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            <div class="d-flex justify-content-between align-items-center mt-2">
-                                <div class="form-text text-muted">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    You can use Markdown formatting for rich text
-                                </div>
-                                <div class="small text-muted">
-                                    <span id="charCount">0</span> characters | 
-                                    <span id="wordCount">0</span> words
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Priority Selection with Icons -->
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-flag me-1 text-primary"></i>Priority Level
-                                </label>
-                                <select name="priority" class="form-select">
-    <option value="">All Priorities</option>
-    <option value="3" {% if request.GET.priority == '3' %}selected{% endif %}>High</option>
-    <option value="2" {% if request.GET.priority == '2' %}selected{% endif %}>Medium</option>
-    <option value="1" {% if request.GET.priority == '1' %}selected{% endif %}>Low</option>
-</select>
-                                {% if form.priority.errors %}
-                                    <div class="text-danger small mt-1">{{ form.priority.errors }}</div>
+• **Bold text** for emphasis
+• - Bullet points for lists
+• ## Headers for sections
+• [Links](https://example.com) for references" 
+                                          rows="8" required>{{ form.content.value|default:'' }}</textarea>
+                                {% if form.content.errors %}
+                                    <div class="glass-error mt-1">{{ form.content.errors }}</div>
                                 {% endif %}
-                            </div>
-                            
-                            <!-- Expiry Date with Placeholder -->
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-calendar-times me-1 text-primary"></i>Expiry Date (Optional)
-                                </label>
-                                <input type="date" name="expiry_date" class="form-control" id="id_expiry_date"
-                                       value="{{ form.expiry_date.value|default:'' }}" min="{{ now|date:'Y-m-d' }}">
-                                {% if form.expiry_date.errors %}
-                                    <div class="text-danger small mt-1">{{ form.expiry_date.errors }}</div>
-                                {% endif %}
-                                <div class="form-text text-muted">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Announcement will auto-hide after this date
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <div class="glass-text-muted small">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        You can use Markdown formatting for rich text
+                                    </div>
+                                    <div class="glass-text-muted small">
+                                        <span id="charCount">0</span> characters | 
+                                        <span id="wordCount">0</span> words
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Target Audience Section -->
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-users me-1 text-primary"></i>Target Audience
-                            </label>
-                            <div class="card bg-light border-0">
-                                <div class="card-body">
+                            <!-- Priority and Expiry Date -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label class="glass-label">
+                                        <i class="fas fa-flag"></i>Priority Level
+                                    </label>
+                                    <select name="priority" class="glass-select" id="id_priority">
+                                        <option value="low" data-color="info" {% if form.priority.value == 'low' %}selected{% endif %}>
+                                            Low Priority - General Information
+                                        </option>
+                                        <option value="medium" data-color="warning" {% if form.priority.value == 'medium' %}selected{% endif %}>
+                                            Medium Priority - Important
+                                        </option>
+                                        <option value="high" data-color="danger" {% if form.priority.value == 'high' %}selected{% endif %}>
+                                            High Priority - Urgent Action Required
+                                        </option>
+                                    </select>
+                                    {% if form.priority.errors %}
+                                        <div class="glass-error mt-1">{{ form.priority.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="glass-label">
+                                        <i class="fas fa-calendar-times"></i>Expiry Date (Optional)
+                                    </label>
+                                    <input type="date" name="expiry_date" class="glass-input" id="id_expiry_date"
+                                           value="{{ form.expiry_date.value|default:'' }}">
+                                    {% if form.expiry_date.errors %}
+                                        <div class="glass-error mt-1">{{ form.expiry_date.errors }}</div>
+                                    {% endif %}
+                                    <div class="glass-text-muted small mt-1">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Announcement will auto-hide after this date
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Target Audience Section -->
+                            <div class="glass-form-group mb-4">
+                                <label class="glass-label">
+                                    <i class="fas fa-users"></i>Target Audience
+                                </label>
+                                <div class="glass-audience-box p-3" style="background: rgba(0,0,0,0.05); border-radius: 16px;">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" name="target_students" id="targetStudents" checked>
-                                                <label class="form-check-label" for="targetStudents">
-                                                    <i class="fas fa-user-graduate me-1 text-primary"></i> Students
+                                            <div class="glass-checkbox-wrapper">
+                                                <input class="glass-checkbox" type="checkbox" name="target_students" id="targetStudents" checked>
+                                                <label class="glass-checkbox-label" for="targetStudents">
+                                                    <i class="fas fa-user-graduate"></i> Students
                                                 </label>
                                             </div>
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" name="target_executives" id="targetExecutives">
-                                                <label class="form-check-label" for="targetExecutives">
-                                                    <i class="fas fa-user-tie me-1 text-warning"></i> Executives
+                                            <div class="glass-checkbox-wrapper">
+                                                <input class="glass-checkbox" type="checkbox" name="target_executives" id="targetExecutives">
+                                                <label class="glass-checkbox-label" for="targetExecutives">
+                                                    <i class="fas fa-user-tie"></i> Executives
                                                 </label>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" name="target_staff" id="targetStaff">
-                                                <label class="form-check-label" for="targetStaff">
-                                                    <i class="fas fa-chalkboard-teacher me-1 text-success"></i> Staff
+                                            <div class="glass-checkbox-wrapper">
+                                                <input class="glass-checkbox" type="checkbox" name="target_staff" id="targetStaff">
+                                                <label class="glass-checkbox-label" for="targetStaff">
+                                                    <i class="fas fa-chalkboard-user"></i> Staff
                                                 </label>
                                             </div>
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" name="target_all" id="targetAll">
-                                                <label class="form-check-label" for="targetAll">
-                                                    <i class="fas fa-globe me-1 text-info"></i> Everyone
+                                            <div class="glass-checkbox-wrapper">
+                                                <input class="glass-checkbox" type="checkbox" name="target_all" id="targetAll">
+                                                <label class="glass-checkbox-label" for="targetAll">
+                                                    <i class="fas fa-globe"></i> Everyone
                                                 </label>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Level Specific Section (shown when Students selected) -->
-                        <div class="mb-4" id="levelSpecific" style="display: none;">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-layer-group me-1 text-primary"></i>Specific Levels (Optional)
-                            </label>
-                            <div class="card bg-light border-0">
-                                <div class="card-body">
+                            <!-- Level Specific Section -->
+                            <div class="glass-form-group mb-4" id="levelSpecific" style="display: none;">
+                                <label class="glass-label">
+                                    <i class="fas fa-layer-group"></i>Specific Levels (Optional)
+                                </label>
+                                <div class="glass-audience-box p-3" style="background: rgba(0,0,0,0.05); border-radius: 16px;">
                                     <div class="row">
                                         <div class="col-md-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="level_100" id="level100">
-                                                <label class="form-check-label" for="level100">
-                                                    <span class="badge bg-primary">Level 100</span>
+                                            <div class="glass-checkbox-wrapper">
+                                                <input class="glass-checkbox" type="checkbox" name="level_100" id="level100">
+                                                <label class="glass-checkbox-label" for="level100">
+                                                    <span class="glass-badge-level level-100">Level 100</span>
                                                 </label>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="level_200" id="level200">
-                                                <label class="form-check-label" for="level200">
-                                                    <span class="badge bg-success">Level 200</span>
+                                            <div class="glass-checkbox-wrapper">
+                                                <input class="glass-checkbox" type="checkbox" name="level_200" id="level200">
+                                                <label class="glass-checkbox-label" for="level200">
+                                                    <span class="glass-badge-level level-200">Level 200</span>
                                                 </label>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="level_300" id="level300">
-                                                <label class="form-check-label" for="level300">
-                                                    <span class="badge bg-info">Level 300</span>
+                                            <div class="glass-checkbox-wrapper">
+                                                <input class="glass-checkbox" type="checkbox" name="level_300" id="level300">
+                                                <label class="glass-checkbox-label" for="level300">
+                                                    <span class="glass-badge-level level-300">Level 300</span>
                                                 </label>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="level_400" id="level400">
-                                                <label class="form-check-label" for="level400">
-                                                    <span class="badge bg-warning">Level 400</span>
+                                            <div class="glass-checkbox-wrapper">
+                                                <input class="glass-checkbox" type="checkbox" name="level_400" id="level400">
+                                                <label class="glass-checkbox-label" for="level400">
+                                                    <span class="glass-badge-level level-400">Level 400</span>
                                                 </label>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-text text-muted mt-2">
+                                    <div class="glass-text-muted small mt-2">
                                         <i class="fas fa-info-circle me-1"></i>
                                         Leave empty to target all levels
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Options Row -->
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="is_pinned" id="id_is_pinned" {% if form.is_pinned.value %}checked{% endif %}>
-                                    <label class="form-check-label" for="id_is_pinned">
-                                        <i class="fas fa-thumbtack text-danger me-1"></i>
-                                        <strong>Pin this announcement</strong>
-                                        <span class="d-block small text-muted">Pinned announcements appear at the top</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="send_email" id="id_send_email" {% if form.send_email.value %}checked{% endif %}>
-                                    <label class="form-check-label" for="id_send_email">
-                                        <i class="fas fa-envelope text-primary me-1"></i>
-                                        <strong>Send email notification</strong>
-                                        <span class="d-block small text-muted">Notify all targeted users via email</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ===== IMPROVED ATTACHMENTS SECTION ===== -->
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-paperclip me-1 text-primary"></i>Attachments
-                            </label>
-                            
-                            <!-- Current attachments (for edit mode) -->
-                            {% if action == 'Edit' and announcement.attachments.exists %}
-                            <div class="current-attachments mb-3">
-                                <label class="text-muted small fw-bold">Current Attachments:</label>
-                                {% for attachment in announcement.attachments.all %}
-                                <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded mb-2">
-                                    <div>
-                                        <i class="fas fa-file-{{ attachment.file.name|slice:'-3:'|lower }} me-2"></i>
-                                        <a href="{{ attachment.file.url }}" target="_blank">{{ attachment.filename }}</a>
-                                        <small class="text-muted ms-2">({{ attachment.file.size|filesizeformat }})</small>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="delete_attachments" value="{{ attachment.id }}" id="del_att_{{ attachment.id }}">
-                                        <label class="form-check-label text-danger small" for="del_att_{{ attachment.id }}">Remove</label>
+                            <!-- Options Row with Glass Switches -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <label class="glass-checkbox-label" for="id_is_pinned">
+                                            <i class="fas fa-thumbtack text-danger me-1"></i>
+                                            <strong>Pin this announcement</strong>
+                                            <span class="d-block small glass-text-muted">Pinned announcements appear at the top</span>
+                                        </label>
+                                        <label class="glass-switch">
+                                            <input type="checkbox" name="is_pinned" id="id_is_pinned" {% if form.is_pinned.value %}checked{% endif %}>
+                                            <span class="glass-slider"></span>
+                                        </label>
                                     </div>
                                 </div>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-
-                            <!-- Upload Area -->
-                            <div class="upload-area" id="dropArea">
-                                <input type="file" name="attachments" class="d-none" multiple id="attachments" 
-                                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt,.xls,.xlsx,.ppt,.pptx">
-                                <div class="text-center p-4">
-                                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-                                    <h6>Drag and drop files here or <a href="#" id="browseLink">browse</a></h6>
-                                    <p class="small text-muted mb-0">
-                                        <i class="fas fa-file-pdf text-danger me-1"></i>
-                                        <i class="fas fa-file-word text-primary me-1"></i>
-                                        <i class="fas fa-file-image text-success me-1"></i>
-                                        <i class="fas fa-file-alt text-secondary me-1"></i>
-                                        <br>Supported formats: PDF, DOC, DOCX, JPG, PNG, TXT, XLS, PPT (Max 10MB each)
-                                    </p>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <label class="glass-checkbox-label" for="id_send_email">
+                                            <i class="fas fa-envelope text-primary me-1"></i>
+                                            <strong>Send email notification</strong>
+                                            <span class="d-block small glass-text-muted">Notify all targeted users via email</span>
+                                        </label>
+                                        <label class="glass-switch">
+                                            <input type="checkbox" name="send_email" id="id_send_email" {% if form.send_email.value %}checked{% endif %}>
+                                            <span class="glass-slider"></span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <!-- Preview of new attachments -->
-                            <div id="attachmentPreview" class="mt-3"></div>
-                            
-                            {% if form.attachments.errors %}
-                                <div class="text-danger small mt-2">
-                                    {% for error in form.attachments.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+
+                            <!-- Attachments Section -->
+                            <div class="glass-form-group mb-4">
+                                <label class="glass-label">
+                                    <i class="fas fa-paperclip"></i>Attachments
+                                </label>
+                                
+                                {% if action == 'Edit' and announcement.attachments.exists %}
+                                <div class="current-attachments mb-3">
+                                    <label class="glass-text-muted small fw-bold">Current Attachments:</label>
+                                    {% for attachment in announcement.attachments.all %}
+                                    <div class="glass-attachment-preview">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <i class="fas fa-file-{{ attachment.file.name|slice:'-3:'|lower }} me-2"></i>
+                                                <a href="{{ attachment.file.url }}" target="_blank" class="glass-link">{{ attachment.filename }}</a>
+                                                <small class="glass-text-muted ms-2">({{ attachment.file.size|filesizeformat }})</small>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="delete_attachments" value="{{ attachment.id }}" id="del_att_{{ attachment.id }}">
+                                                <label class="form-check-label text-danger small" for="del_att_{{ attachment.id }}">Remove</label>
+                                            </div>
+                                        </div>
+                                    </div>
                                     {% endfor %}
                                 </div>
-                            {% endif %}
-                        </div>
+                                {% endif %}
 
-                        <!-- Form Actions -->
-                        <hr class="my-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <button type="button" class="btn btn-outline-secondary" onclick="clearForm()">
-                                    <i class="fas fa-undo me-1"></i>Clear
-                                </button>
-                                <button type="button" class="btn btn-outline-info ms-2" onclick="showFullPreview()">
-                                    <i class="fas fa-eye me-1"></i>Preview
-                                </button>
+                                <!-- Upload Area -->
+                                <div class="glass-upload-area" id="dropArea">
+                                    <input type="file" name="attachments" class="d-none" multiple id="attachments" 
+                                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt,.xls,.xlsx,.ppt,.pptx">
+                                    <div class="text-center">
+                                        <i class="fas fa-cloud-upload-alt fa-3x glass-text-muted mb-3"></i>
+                                        <h6 class="glass-text">Drag and drop files here or <a href="#" id="browseLink" class="glass-link">browse</a></h6>
+                                        <p class="small glass-text-muted mb-0">
+                                            <i class="fas fa-file-pdf text-danger me-1"></i>
+                                            <i class="fas fa-file-word text-primary me-1"></i>
+                                            <i class="fas fa-file-image text-success me-1"></i>
+                                            <i class="fas fa-file-alt text-secondary me-1"></i>
+                                            <br>Supported formats: PDF, DOC, DOCX, JPG, PNG, TXT, XLS, PPT (Max 10MB each)
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div id="attachmentPreview" class="mt-3"></div>
+                                
+                                {% if form.attachments.errors %}
+                                    <div class="glass-error mt-2">{{ form.attachments.errors }}</div>
+                                {% endif %}
                             </div>
-                            <div>
-                                <a href="{% url 'core:announcements' %}" class="btn btn-secondary me-2">
-                                    <i class="fas fa-times me-1"></i>Cancel
-                                </a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-paper-plane me-1"></i>Publish Announcement
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Quick Tips Card with Glass Effect -->
-            <div class="card glass-card mb-4">
-                <div class="card-header bg-gradient-info text-white py-3">
-                    <h6 class="m-0 font-weight-bold">
-                        <i class="fas fa-lightbulb me-1"></i>Writing Tips
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <h6 class="fw-bold"><i class="fas fa-check-circle text-success me-2"></i>Do's:</h6>
-                        <ul class="small">
-                            <li class="mb-2">✓ Use clear, concise titles</li>
-                            <li class="mb-2">✓ Include important dates and times</li>
-                            <li class="mb-2">✓ Specify the target audience</li>
-                            <li class="mb-2">✓ Add relevant attachments</li>
-                        </ul>
-                    </div>
-                    <div class="mb-3">
-                        <h6 class="fw-bold"><i class="fas fa-times-circle text-danger me-2"></i>Don'ts:</h6>
-                        <ul class="small">
-                            <li class="mb-2">✗ Use ALL CAPS unnecessarily</li>
-                            <li class="mb-2">✗ Include sensitive information</li>
-                            <li class="mb-2">✗ Forget to proofread</li>
-                        </ul>
-                    </div>
-                    <hr>
-                    <div class="priority-guide">
-                        <h6 class="fw-bold mb-2">Priority Guide:</h6>
-                        <div class="mb-2">
-                            <span class="badge bg-danger me-1">High</span> - Urgent, immediate action required
-                        </div>
-                        <div class="mb-2">
-                            <span class="badge bg-warning me-1">Medium</span> - Important, plan ahead
-                        </div>
-                        <div class="mb-2">
-                            <span class="badge bg-info me-1">Low</span> - General information
-                        </div>
+                            <!-- Form Actions -->
+                            <hr class="glass-divider">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn glass-btn-outline-secondary" onclick="clearForm()">
+                                        <i class="fas fa-undo me-1"></i>Clear
+                                    </button>
+                                    <button type="button" class="btn glass-btn-outline-info" onclick="showFullPreview()">
+                                        <i class="fas fa-eye me-1"></i>Preview
+                                    </button>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'core:announcements' %}" class="btn glass-btn-secondary">
+                                        <i class="fas fa-times me-1"></i>Cancel
+                                    </a>
+                                    <button type="submit" class="btn glass-btn-primary">
+                                        <i class="fas fa-paper-plane me-1"></i>Publish Announcement
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
 
-            <!-- Live Preview Card with Glass Effect -->
-            <div class="card glass-card">
-                <div class="card-header bg-gradient-success text-white py-3">
-                    <h6 class="m-0 font-weight-bold">
-                        <i class="fas fa-eye me-1"></i>Live Preview
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div id="previewArea" class="border rounded p-3 bg-white" style="min-height: 200px;">
-                        <div class="text-center text-muted py-4" id="emptyPreview">
-                            <i class="fas fa-arrow-left me-2"></i>
-                            Start typing to see preview
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Quick Tips Card - Glass -->
+                <div class="glass-card mb-4">
+                    <div class="glass-card-header-info">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-lightbulb me-1"></i>Writing Tips
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <div class="mb-3">
+                            <h6 class="fw-bold glass-text-primary">
+                                <i class="fas fa-check-circle text-success me-2"></i>Do's:
+                            </h6>
+                            <ul class="small glass-text-muted">
+                                <li class="mb-2"><i class="fas fa-check me-2"></i>Use clear, concise titles</li>
+                                <li class="mb-2"><i class="fas fa-check me-2"></i>Include important dates and times</li>
+                                <li class="mb-2"><i class="fas fa-check me-2"></i>Specify the target audience</li>
+                                <li class="mb-2"><i class="fas fa-check me-2"></i>Add relevant attachments</li>
+                            </ul>
                         </div>
-                        <div id="previewContent" style="display: none;">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h5 id="previewTitle" class="mb-0"></h5>
-                                <span id="previewBadge" class="badge"></span>
+                        <div class="mb-3">
+                            <h6 class="fw-bold glass-text-primary">
+                                <i class="fas fa-times-circle text-danger me-2"></i>Don'ts:
+                            </h6>
+                            <ul class="small glass-text-muted">
+                                <li class="mb-2"><i class="fas fa-times me-2"></i>Use ALL CAPS unnecessarily</li>
+                                <li class="mb-2"><i class="fas fa-times me-2"></i>Include sensitive information</li>
+                                <li class="mb-2"><i class="fas fa-times me-2"></i>Forget to proofread</li>
+                            </ul>
+                        </div>
+                        <hr class="glass-divider">
+                        <div>
+                            <h6 class="fw-bold glass-text-primary mb-2">Priority Guide:</h6>
+                            <div class="mb-2">
+                                <span class="glass-badge-high me-1">High</span>
+                                <span class="glass-text-muted small">- Urgent, immediate action required</span>
                             </div>
-                            <div id="previewBody" class="mt-3"></div>
-                            <div id="previewAttachments" class="mt-3 small text-muted"></div>
+                            <div class="mb-2">
+                                <span class="glass-badge-medium me-1">Medium</span>
+                                <span class="glass-text-muted small">- Important, plan ahead</span>
+                            </div>
+                            <div class="mb-2">
+                                <span class="glass-badge-low me-1">Low</span>
+                                <span class="glass-text-muted small">- General information</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="mt-3">
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle me-1"></i>
-                            This is how your announcement will appear
-                        </small>
+                </div>
+
+                <!-- Live Preview Card - Glass -->
+                <div class="glass-card">
+                    <div class="glass-card-header-success">
+                        <h6 class="m-0 fw-bold text-white">
+                            <i class="fas fa-eye me-1"></i>Live Preview
+                        </h6>
+                    </div>
+                    <div class="glass-card-body">
+                        <div class="glass-live-preview">
+                            <div id="previewArea">
+                                <div class="text-center text-muted py-4" id="emptyPreview">
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                    Start typing to see preview
+                                </div>
+                                <div id="previewContent" style="display: none;">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 id="previewTitle" class="mb-0 glass-text"></h5>
+                                        <span id="previewBadge" class="badge"></span>
+                                    </div>
+                                    <div id="previewBody" class="mt-3 glass-text-muted"></div>
+                                    <div id="previewAttachments" class="mt-3 small text-muted"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <small class="glass-text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                This is how your announcement will appear
+                            </small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -411,12 +813,12 @@ For more information, contact the executives."
     </div>
 </div>
 
-<!-- Preview Modal with Glass Effect -->
+<!-- Preview Modal - Glass Style -->
 <div class="modal fade" id="previewModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content glass-modal">
-            <div class="modal-header bg-gradient-primary text-white">
-                <h5 class="modal-title">
+            <div class="modal-header glass-modal-header">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-eye me-2"></i>Announcement Preview
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -424,9 +826,9 @@ For more information, contact the executives."
             <div class="modal-body">
                 <div class="announcement-preview p-4" id="modalPreview"></div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="document.getElementById('announcementForm').submit();">
+            <div class="modal-footer glass-modal-footer">
+                <button type="button" class="btn glass-btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn glass-btn-primary" onclick="document.getElementById('announcementForm').submit();">
                     <i class="fas fa-paper-plane me-1"></i>Publish Now
                 </button>
             </div>
@@ -435,63 +837,59 @@ For more information, contact the executives."
 </div>
 
 <style>
-.upload-area {
-    border: 2px dashed #dee2e6;
-    border-radius: 10px;
-    background-color: #f8f9fa;
-    cursor: pointer;
+/* Additional Styles */
+.glass-alert-danger {
+    background: rgba(231, 74, 59, 0.15);
+    border: 1px solid rgba(231, 74, 59, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    color: #e74a3b;
+}
+
+.glass-error {
+    font-size: 0.75rem;
+    color: #e74a3b;
+}
+
+.glass-link {
+    color: #4e73df;
+    text-decoration: none;
     transition: all 0.3s ease;
 }
 
-.upload-area:hover {
-    border-color: #4361ee;
-    background-color: #e8f0fe;
+.glass-link:hover {
+    color: #224abe;
+    text-decoration: underline;
 }
 
-.upload-area.dragover {
-    border-color: #28a745;
-    background-color: #d4edda;
+.glass-badge-high {
+    background: rgba(231, 74, 59, 0.2);
+    border: 1px solid rgba(231, 74, 59, 0.4);
+    color: #e74a3b;
+    padding: 0.25rem 0.65rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
 }
 
-#id_content {
-    font-family: 'Inter', monospace;
-    line-height: 1.6;
+.glass-badge-medium {
+    background: rgba(246, 194, 62, 0.2);
+    border: 1px solid rgba(246, 194, 62, 0.4);
+    color: #f6c23e;
+    padding: 0.25rem 0.65rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
 }
 
-.glass-card {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-[data-bs-theme="dark"] .glass-card {
-    background: rgba(30, 30, 47, 0.7);
-}
-
-[data-bs-theme="dark"] .bg-white {
-    background-color: var(--card-bg) !important;
-}
-
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #4361ee, #3a0ca3);
-}
-
-.bg-gradient-success {
-    background: linear-gradient(135deg, #4cc9f0, #4895ef);
-}
-
-.bg-gradient-info {
-    background: linear-gradient(135deg, #4895ef, #4361ee);
-}
-
-.attachment-preview {
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+.glass-badge-low {
+    background: rgba(54, 185, 204, 0.2);
+    border: 1px solid rgba(54, 185, 204, 0.4);
+    color: #36b9cc;
+    padding: 0.25rem 0.65rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
 }
 </style>
 
@@ -502,12 +900,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const charCount = document.getElementById('charCount');
     const wordCount = document.getElementById('wordCount');
 
-    contentInput.addEventListener('input', function() {
-        const text = this.value;
-        charCount.textContent = text.length;
-        wordCount.textContent = text.trim() ? text.trim().split(/\s+/).length : 0;
-        updateLivePreview();
-    });
+    if (contentInput) {
+        contentInput.addEventListener('input', function() {
+            const text = this.value;
+            charCount.textContent = text.length;
+            wordCount.textContent = text.trim() ? text.trim().split(/\s+/).length : 0;
+            updateLivePreview();
+        });
+        // Initial update
+        contentInput.dispatchEvent(new Event('input'));
+    }
 
     // Live preview updates
     const titleInput = document.getElementById('id_title');
@@ -520,8 +922,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const previewAttachments = document.getElementById('previewAttachments');
 
     function updateLivePreview() {
-        const title = titleInput.value.trim();
-        const content = contentInput.value.trim();
+        const title = titleInput ? titleInput.value.trim() : '';
+        const content = contentInput ? contentInput.value.trim() : '';
         
         if (title || content) {
             emptyPreview.style.display = 'none';
@@ -533,20 +935,33 @@ document.addEventListener('DOMContentLoaded', function() {
             let formattedContent = content
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/## (.*)/g, '<h6 class="mt-2 mb-1">$1</h6>')
+                .replace(/## (.*)/g, '<h6 class="mt-2 mb-1 glass-text-primary">$1</h6>')
                 .replace(/\n/g, '<br>');
             
-            previewBody.innerHTML = formattedContent || '<em class="text-muted">No content yet...</em>';
+            previewBody.innerHTML = formattedContent || '<em class="glass-text-muted">No content yet...</em>';
             
             // Update badge
-            const selectedOption = prioritySelect.options[prioritySelect.selectedIndex];
-            const priorityColor = selectedOption.dataset.color;
-            const priorityText = selectedOption.text.split(' - ')[1] || selectedOption.text;
-            previewBadge.className = `badge bg-${priorityColor}`;
-            previewBadge.textContent = priorityText;
+            const selectedOption = prioritySelect?.options[prioritySelect.selectedIndex];
+            if (selectedOption) {
+                const priorityValue = selectedOption.value;
+                let badgeClass = '';
+                let badgeText = '';
+                if (priorityValue === 'high') {
+                    badgeClass = 'glass-badge-high';
+                    badgeText = 'High Priority';
+                } else if (priorityValue === 'medium') {
+                    badgeClass = 'glass-badge-medium';
+                    badgeText = 'Medium Priority';
+                } else {
+                    badgeClass = 'glass-badge-low';
+                    badgeText = 'Low Priority';
+                }
+                previewBadge.className = badgeClass;
+                previewBadge.textContent = badgeText;
+            }
 
             // Show attachment count in preview
-            const attachmentCount = document.querySelectorAll('#attachmentPreview .alert').length;
+            const attachmentCount = document.querySelectorAll('#attachmentPreview .glass-attachment-preview').length;
             if (attachmentCount > 0) {
                 previewAttachments.innerHTML = `<i class="fas fa-paperclip me-1"></i>${attachmentCount} attachment(s)`;
             } else {
@@ -558,8 +973,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    titleInput.addEventListener('input', updateLivePreview);
-    prioritySelect.addEventListener('change', updateLivePreview);
+    if (titleInput) titleInput.addEventListener('input', updateLivePreview);
+    if (prioritySelect) prioritySelect.addEventListener('change', updateLivePreview);
 
     // Target audience logic
     const targetAll = document.getElementById('targetAll');
@@ -573,14 +988,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 cb.checked = this.checked;
                 cb.disabled = this.checked;
             });
-            levelSpecific.style.display = this.checked ? 'none' : (targetStudents.checked ? 'block' : 'none');
+            if (levelSpecific) {
+                levelSpecific.style.display = this.checked ? 'none' : (targetStudents?.checked ? 'block' : 'none');
+            }
         });
     }
 
     if (targetStudents) {
         targetStudents.addEventListener('change', function() {
-            levelSpecific.style.display = this.checked && !targetAll.checked ? 'block' : 'none';
+            if (levelSpecific) {
+                levelSpecific.style.display = this.checked && !targetAll?.checked ? 'block' : 'none';
+            }
         });
+    }
+
+    // Initialize level specific display
+    if (targetStudents && targetAll && levelSpecific) {
+        levelSpecific.style.display = targetStudents.checked && !targetAll.checked ? 'block' : 'none';
     }
 
     // Drag and drop file upload
@@ -597,11 +1021,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (dropArea) {
-        dropArea.addEventListener('click', function() {
-            fileInput.click();
+        dropArea.addEventListener('click', function(e) {
+            if (e.target.id !== 'browseLink' && !browseLink?.contains(e.target)) {
+                fileInput.click();
+            }
         });
 
-        // Drag and drop events
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropArea.addEventListener(eventName, preventDefaults, false);
         });
@@ -637,16 +1062,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function handleFiles(files) {
         Array.from(files).forEach((file, index) => {
-            // Validate file size (10MB)
             if (file.size > 10 * 1024 * 1024) {
                 alert(`File ${file.name} exceeds 10MB limit`);
                 return;
             }
             
-            // Check if already added
-            const existingFiles = Array.from(preview.querySelectorAll('.attachment-preview'));
+            const existingFiles = Array.from(preview.querySelectorAll('.glass-attachment-preview'));
             const alreadyExists = existingFiles.some(el => 
-                el.querySelector('small strong')?.textContent === file.name
+                el.querySelector('strong')?.textContent === file.name
             );
             
             if (alreadyExists) {
@@ -655,9 +1078,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             const div = document.createElement('div');
-            div.className = 'alert alert-info alert-dismissible fade show attachment-preview py-2 mb-2';
+            div.className = 'glass-attachment-preview';
             
-            // Get file icon based on extension
             const ext = file.name.split('.').pop().toLowerCase();
             let iconClass = 'fa-file-alt';
             let iconColor = 'text-secondary';
@@ -680,10 +1102,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             div.innerHTML = `
-                <div class="d-flex align-items-center">
-                    <i class="fas ${iconClass} ${iconColor} me-2 fa-lg"></i>
-                    <div class="flex-grow-1">
-                        <small><strong>${file.name}</strong> (${(file.size / 1024).toFixed(2)} KB)</small>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <i class="fas ${iconClass} ${iconColor} me-2"></i>
+                        <strong class="glass-text">${escapeHtml(file.name)}</strong>
+                        <small class="glass-text-muted ms-2">(${(file.size / 1024).toFixed(2)} KB)</small>
                     </div>
                     <button type="button" class="btn-close" onclick="removeAttachment(this)"></button>
                 </div>
@@ -691,22 +1114,7 @@ document.addEventListener('DOMContentLoaded', function() {
             preview.appendChild(div);
         });
         
-        // Update DataTransfer to ensure files are included in form submission
-        updateFileInput();
         updateLivePreview();
-    }
-
-    function updateFileInput() {
-        // This is needed to properly handle multiple file uploads
-        const dt = new DataTransfer();
-        const files = preview.querySelectorAll('.attachment-preview');
-        const fileArray = [];
-        
-        files.forEach((item, index) => {
-            const fileName = item.querySelector('small strong')?.textContent;
-            // Since we can't recreate the actual File objects, this is a limitation
-            // The files are already in the input from the change event
-        });
     }
 
     // Expiry date min value
@@ -717,48 +1125,57 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function getFileIcon(filename) {
-    const ext = filename.split('.').pop().toLowerCase();
-    const icons = {
-        'pdf': 'pdf text-danger',
-        'doc': 'word text-primary',
-        'docx': 'word text-primary',
-        'jpg': 'image text-success',
-        'jpeg': 'image text-success',
-        'png': 'image text-success',
-        'txt': 'alt text-secondary',
-        'xls': 'excel text-success',
-        'xlsx': 'excel text-success',
-        'ppt': 'powerpoint text-warning',
-        'pptx': 'powerpoint text-warning'
-    };
-    return icons[ext] || 'alt';
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function removeAttachment(btn) {
-    btn.closest('.alert').remove();
-    updateLivePreview();
+    const attachment = btn.closest('.glass-attachment-preview');
+    if (attachment) {
+        attachment.style.transition = 'opacity 0.3s';
+        attachment.style.opacity = '0';
+        setTimeout(() => attachment.remove(), 300);
+    }
+    if (typeof updateLivePreview === 'function') updateLivePreview();
 }
 
 function showFullPreview() {
-    const title = document.getElementById('id_title').value || 'Untitled Announcement';
-    const content = document.getElementById('id_content').value || '<em class="text-muted">No content provided</em>';
-    const priority = document.getElementById('id_priority').options[document.getElementById('id_priority').selectedIndex];
+    const title = document.getElementById('id_title')?.value || 'Untitled Announcement';
+    const content = document.getElementById('id_content')?.value || '<em class="glass-text-muted">No content provided</em>';
+    const prioritySelect = document.getElementById('id_priority');
+    let priorityText = '';
+    let priorityClass = '';
+    
+    if (prioritySelect) {
+        const value = prioritySelect.value;
+        if (value === 'high') {
+            priorityText = 'High Priority';
+            priorityClass = 'glass-badge-high';
+        } else if (value === 'medium') {
+            priorityText = 'Medium Priority';
+            priorityClass = 'glass-badge-medium';
+        } else {
+            priorityText = 'Low Priority';
+            priorityClass = 'glass-badge-low';
+        }
+    }
     
     let formattedContent = content
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/## (.*)/g, '<h5 class="mt-3 mb-2">$1</h5>')
+        .replace(/## (.*)/g, '<h5 class="mt-3 mb-2 glass-text-primary">$1</h5>')
         .replace(/\n/g, '<br>');
     
-    // Get attachments
-    const attachments = document.querySelectorAll('#attachmentPreview .alert');
+    const attachments = document.querySelectorAll('#attachmentPreview .glass-attachment-preview');
     let attachmentsHtml = '';
     if (attachments.length > 0) {
-        attachmentsHtml = '<hr><h6>Attachments:</h6><ul class="list-unstyled">';
+        attachmentsHtml = '<hr class="glass-divider"><h6 class="glass-text-primary"><i class="fas fa-paperclip me-2"></i>Attachments:</h6><ul class="list-unstyled">';
         attachments.forEach(att => {
-            const fileName = att.querySelector('small strong')?.textContent;
-            attachmentsHtml += `<li><i class="fas fa-paperclip me-2"></i>${fileName}</li>`;
+            const fileName = att.querySelector('strong')?.textContent;
+            if (fileName) {
+                attachmentsHtml += `<li class="glass-text-muted small mb-1"><i class="fas fa-paperclip me-2"></i>${escapeHtml(fileName)}</li>`;
+            }
         });
         attachmentsHtml += '</ul>';
     }
@@ -766,13 +1183,15 @@ function showFullPreview() {
     const modalBody = document.getElementById('modalPreview');
     modalBody.innerHTML = `
         <div class="announcement-header mb-4">
-            <h2 class="h3">${title}</h2>
-            <div class="d-flex align-items-center">
-                <span class="badge bg-${priority.dataset.color} me-2">${priority.text.split(' - ')[1]}</span>
-                <small class="text-muted">Posted by: {{ request.user.get_full_name }}</small>
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h2 class="h3 glass-text">${escapeHtml(title)}</h2>
+                <span class="${priorityClass}">${priorityText}</span>
+            </div>
+            <div class="glass-text-muted small">
+                <i class="fas fa-user me-1"></i>Posted by: {{ request.user.get_full_name }}
             </div>
         </div>
-        <div class="announcement-body">
+        <div class="announcement-body glass-text-muted">
             ${formattedContent}
         </div>
         ${attachmentsHtml}
@@ -783,17 +1202,11 @@ function showFullPreview() {
 
 function clearForm() {
     if (confirm('Clear all form fields?')) {
-        document.getElementById('announcementForm').reset();
-        document.getElementById('attachmentPreview').innerHTML = '';
-        updateLivePreview();
-    }
-}
-
-function showToast(message, type = 'info') {
-    if (window.showToast) {
-        window.showToast(message, type);
-    } else {
-        alert(message);
+        const form = document.getElementById('announcementForm');
+        if (form) form.reset();
+        const preview = document.getElementById('attachmentPreview');
+        if (preview) preview.innerHTML = '';
+        if (typeof updateLivePreview === 'function') updateLivePreview();
     }
 }
 </script>

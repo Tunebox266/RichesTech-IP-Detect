@@ -4,190 +4,668 @@
 
 {% block title %}Student Directory - MELTSA-TaTU{% endblock %}
 
-{% block content %}
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-address-book me-2"></i>Student Directory
-        </h1>
-        <div>
-            <span class="badge bg-primary me-2">
-                <i class="fas fa-users me-1"></i>Total: {{ students.paginator.count }}
-            </span>
-            <button class="btn btn-sm btn-success" onclick="exportDirectory()">
-                <i class="fas fa-download me-1"></i>Export
-            </button>
-        </div>
-    </div>
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Student Directory */
+    .glass-directory-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+    }
+    
+    .glass-header {
+        animation: fadeInDown 0.5s ease-out;
+    }
+    
+    .glass-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #224abe);
+        border-radius: 3px;
+    }
+    
+    .glass-badge-primary {
+        background: rgba(78, 115, 223, 0.2);
+        border: 1px solid rgba(78, 115, 223, 0.5);
+        color: #4e73df;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .glass-filter-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-filter-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-card-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-body {
+        padding: 1.25rem;
+    }
+    
+    .glass-label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--bs-body-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .glass-input-group {
+        position: relative;
+    }
+    
+    .glass-input-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--bs-gray-500);
+        z-index: 1;
+    }
+    
+    .glass-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem 0.6rem 2.5rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-select {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-select:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.6rem 1rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(78, 115, 223, 0.3);
+    }
+    
+    .glass-btn-success {
+        background: linear-gradient(135deg, #1cc88a, #13855c);
+        border: none;
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(28, 200, 138, 0.3);
+    }
+    
+    /* Student Card - Glass Design */
+    .glass-student-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        position: relative;
+    }
+    
+    .glass-student-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #1cc88a);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .glass-student-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .glass-student-card:hover::before {
+        opacity: 1;
+    }
+    
+    .glass-avatar-frame {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .glass-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid rgba(78, 115, 223, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-student-card:hover .glass-avatar {
+        transform: scale(1.02);
+        border-color: #4e73df;
+        box-shadow: 0 8px 20px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-avatar-placeholder {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-student-card:hover .glass-avatar-placeholder {
+        transform: scale(1.02);
+        box-shadow: 0 8px 20px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-student-name {
+        font-size: 1rem;
+        font-weight: 800;
+        margin-bottom: 0.25rem;
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .glass-student-id {
+        font-size: 0.7rem;
+        color: #4e73df;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        background: rgba(78, 115, 223, 0.1);
+        border-radius: 20px;
+    }
+    
+    .glass-student-details {
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 16px;
+        padding: 0.75rem;
+        margin: 0.75rem 0;
+    }
+    
+    .glass-detail-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        padding: 0.25rem 0;
+        color: var(--bs-body-color);
+    }
+    
+    .glass-detail-item i {
+        width: 20px;
+        color: #4e73df;
+    }
+    
+    .glass-action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 0.75rem;
+    }
+    
+    .glass-btn-outline-primary {
+        background: rgba(78, 115, 223, 0.1);
+        border: 1px solid rgba(78, 115, 223, 0.3);
+        color: #4e73df;
+        border-radius: 10px;
+        padding: 0.35rem 0.8rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .glass-btn-outline-primary:hover {
+        background: rgba(78, 115, 223, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-icon {
+        background: rgba(78, 115, 223, 0.1);
+        border: 1px solid rgba(78, 115, 223, 0.3);
+        color: #4e73df;
+        border-radius: 10px;
+        padding: 0.35rem 0.7rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-icon:hover {
+        background: rgba(78, 115, 223, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .glass-card-footer {
+        background: rgba(0, 0, 0, 0.03);
+        padding: 0.75rem;
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 0.7rem;
+        color: var(--bs-gray-500);
+    }
+    
+    /* Glass Pagination */
+    .glass-pagination {
+        gap: 0.25rem;
+    }
+    
+    .glass-page-link {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--bs-body-color);
+        border-radius: 10px;
+        margin: 0 2px;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-page-link:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .glass-page-active {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-color: transparent;
+        color: white;
+    }
+    
+    /* Glass Modal */
+    .glass-modal {
+        background: rgba(30, 30, 47, 0.98);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        overflow: hidden;
+    }
+    
+    .glass-modal-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-modal-footer {
+        padding: 1rem 1.25rem;
+        background: rgba(0, 0, 0, 0.05);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-textarea:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    /* Empty State */
+    .glass-empty-state {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-align: center;
+        padding: 3rem;
+    }
+    
+    .glass-empty-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        color: var(--bs-gray-500);
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Animations */
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .glass-student-card {
+        animation: fadeInUp 0.5s ease-out;
+        animation-fill-mode: backwards;
+    }
+    
+    /* Grid responsive delays */
+    .glass-student-card:nth-child(1) { animation-delay: 0s; }
+    .glass-student-card:nth-child(2) { animation-delay: 0.05s; }
+    .glass-student-card:nth-child(3) { animation-delay: 0.1s; }
+    .glass-student-card:nth-child(4) { animation-delay: 0.15s; }
+    .glass-student-card:nth-child(5) { animation-delay: 0.2s; }
+    .glass-student-card:nth-child(6) { animation-delay: 0.25s; }
+    .glass-student-card:nth-child(7) { animation-delay: 0.3s; }
+    .glass-student-card:nth-child(8) { animation-delay: 0.35s; }
+    .glass-student-card:nth-child(9) { animation-delay: 0.4s; }
+    .glass-student-card:nth-child(10) { animation-delay: 0.45s; }
+    .glass-student-card:nth-child(11) { animation-delay: 0.5s; }
+    .glass-student-card:nth-child(12) { animation-delay: 0.55s; }
+    
+    @media (max-width: 768px) {
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-student-card {
+            animation-delay: 0s !important;
+        }
+    }
+</style>
+{% endblock %}
 
-    <!-- Search and Filter -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-search me-1"></i>Search & Filter
-            </h6>
+{% block content %}
+<div class="glass-directory-container">
+    <div class="container-fluid">
+        <!-- Page Heading - Glass Style -->
+        <div class="glass-header d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-address-book me-2"></i>Student Directory
+                </h1>
+                <p class="glass-text-muted mt-2">Connect with fellow medical laboratory science students</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <span class="glass-badge-primary me-2">
+                    <i class="fas fa-users me-1"></i>Total: {{ students.paginator.count }}
+                </span>
+                <button class="btn glass-btn-success btn-sm" onclick="exportDirectory()">
+                    <i class="fas fa-download me-1"></i>Export
+                </button>
+            </div>
         </div>
-        <div class="card-body">
-            <form method="GET" action="{% url 'directory:student_list' %}" id="filterForm">
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label fw-bold">Search</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            <input type="text" name="q" class="form-control" 
-                                   placeholder="Name, ID, or email..." value="{{ request.GET.q|default:'' }}">
+
+        <!-- Search and Filter - Glass Card -->
+        <div class="glass-filter-card mb-4">
+            <div class="glass-card-header">
+                <h6 class="m-0 fw-bold text-white">
+                    <i class="fas fa-search me-1"></i>Search & Filter Students
+                </h6>
+            </div>
+            <div class="glass-card-body">
+                <form method="GET" action="{% url 'directory:student_list' %}" id="filterForm">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="glass-label">
+                                <i class="fas fa-search me-1"></i>Search
+                            </label>
+                            <div class="glass-input-group">
+                                <i class="fas fa-search glass-input-icon"></i>
+                                <input type="text" name="q" class="glass-input" 
+                                       placeholder="Name, ID, or email..." value="{{ request.GET.q|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="glass-label">
+                                <i class="fas fa-layer-group me-1"></i>Level
+                            </label>
+                            <select name="level" class="glass-select">
+                                <option value="">All Levels</option>
+                                {% for level_code, level_name in levels %}
+                                    <option value="{{ level_code }}" {% if request.GET.level == level_code|stringformat:"s" %}selected{% endif %}>
+                                        {{ level_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="glass-label">
+                                <i class="fas fa-graduation-cap me-1"></i>Program
+                            </label>
+                            <select name="program" class="glass-select">
+                                <option value="">All Programs</option>
+                                {% for prog_code, prog_name in programs %}
+                                    <option value="{{ prog_code }}" {% if request.GET.program == prog_code %}selected{% endif %}>
+                                        {{ prog_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn glass-btn-primary w-100">
+                                <i class="fas fa-filter me-1"></i>Apply
+                            </button>
                         </div>
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label fw-bold">Level</label>
-                        <select name="level" class="form-select">
-                            <option value="">All Levels</option>
-                            {% for level_code, level_name in levels %}
-                                <option value="{{ level_code }}" {% if request.GET.level == level_code|stringformat:"s" %}selected{% endif %}>
-                                    {{ level_name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label fw-bold">Program</label>
-                        <select name="program" class="form-select">
-                            <option value="">All Programs</option>
-                            {% for prog_code, prog_name in programs %}
-                                <option value="{{ prog_code }}" {% if request.GET.program == prog_code %}selected{% endif %}>
-                                    {{ prog_name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-2 mb-3">
-                        <label class="form-label fw-bold">&nbsp;</label>
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-filter me-1"></i>Apply
-                        </button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <!-- Directory Grid -->
-    <div class="row">
-        {% for student in students %}
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-            <div class="card shadow h-100 student-card">
-                <div class="card-body text-center">
-                    <!-- Profile Image -->
-                    <div class="mb-3">
-                        {% if student.profile_image %}
-                            <img src="{{ student.profile_image.url }}" class="rounded-circle" width="100" height="100" style="object-fit: cover;">
-                        {% else %}
-                            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" 
-                                 style="width: 100px; height: 100px;">
-                                <i class="fas fa-user-graduate fa-3x"></i>
+        <!-- Directory Grid - Glass Cards -->
+        <div class="row">
+            {% for student in students %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="glass-student-card">
+                    <div class="card-body text-center p-3">
+                        <!-- Profile Image -->
+                        <div class="glass-avatar-frame mb-3">
+                            {% if student.profile_image %}
+                                <img src="{{ student.profile_image.url }}" class="glass-avatar" width="100" height="100" style="object-fit: cover;">
+                            {% else %}
+                                <div class="glass-avatar-placeholder">
+                                    <i class="fas fa-user-graduate fa-3x text-white"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Student Info -->
+                        <h5 class="glass-student-name mb-1">{{ student.get_full_name }}</h5>
+                        <div class="glass-student-id">
+                            <i class="fas fa-id-card me-1"></i>{{ student.student_id }}
+                        </div>
+                        
+                        <div class="glass-student-details">
+                            <div class="glass-detail-item">
+                                <i class="fas fa-layer-group"></i>
+                                <span>Level {{ student.level }}</span>
                             </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Student Info -->
-                    <h5 class="card-title mb-1">{{ student.get_full_name }}</h5>
-                    <p class="text-primary mb-2">{{ student.student_id }}</p>
-                    
-                    <div class="student-details small">
-                        <p class="mb-1">
-                            <i class="fas fa-layer-group me-1 text-info"></i>Level {{ student.level }}
-                        </p>
-                        <p class="mb-1">
-                            <i class="fas fa-clock me-1 text-success"></i>{{ student.get_program_type_display }}
-                        </p>
-                        <p class="mb-1">
-                            <i class="fas fa-envelope me-1 text-warning"></i>{{ student.email|truncatechars:20 }}
-                        </p>
-                    </div>
-                    
-                    <!-- Action Buttons -->
-                    <div class="mt-3">
-                        <a href="{% url 'directory:student_detail' student.id %}" class="btn btn-sm btn-primary">
-                            <i class="fas fa-eye me-1"></i>View Profile
-                        </a>
-                        <button class="btn btn-sm btn-outline-primary" onclick="sendMessage({{ student.id }})">
-                            <i class="fas fa-envelope"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-footer bg-transparent text-center small text-muted">
-                    <i class="fas fa-calendar me-1"></i>Joined: {{ student.date_joined|date:"M Y" }}
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-users-slash fa-4x text-muted mb-3"></i>
-                    <h5 class="text-muted">No Students Found</h5>
-                    <p class="text-muted">Try adjusting your search filters.</p>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- Pagination -->
-    {% if students.has_other_pages %}
-    <div class="row mt-4">
-        <div class="col-12">
-            <nav aria-label="Directory pagination">
-                <ul class="pagination justify-content-center">
-                    {% if students.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ students.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                <i class="fas fa-chevron-left"></i>
+                            <div class="glass-detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>{{ student.get_program_type_display }}</span>
+                            </div>
+                            <div class="glass-detail-item">
+                                <i class="fas fa-envelope"></i>
+                                <span>{{ student.email|truncatechars:20 }}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="glass-action-buttons">
+                            <a href="{% url 'directory:student_detail' student.id %}" class="glass-btn-outline-primary">
+                                <i class="fas fa-eye me-1"></i>View Profile
                             </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
-                        </li>
-                    {% endif %}
+                            <button class="glass-btn-icon" onclick="sendMessage({{ student.id }})" title="Send Message">
+                                <i class="fas fa-envelope"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="glass-card-footer">
+                        <i class="fas fa-calendar-alt me-1"></i>Joined: {{ student.date_joined|date:"M Y" }}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="glass-empty-state">
+                    <div class="glass-empty-icon">
+                        <i class="fas fa-users-slash fa-4x"></i>
+                    </div>
+                    <h5 class="glass-text-muted mt-3">No Students Found</h5>
+                    <p class="glass-text-muted">Try adjusting your search filters or check back later.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
 
-                    {% for i in students.paginator.page_range %}
-                        {% if students.number == i %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ i }}</span>
-                            </li>
-                        {% elif i > students.number|add:'-3' and i < students.number|add:'3' %}
+        <!-- Pagination - Glass Style -->
+        {% if students.has_other_pages %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <nav aria-label="Directory pagination">
+                    <ul class="pagination glass-pagination justify-content-center">
+                        {% if students.has_previous %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                                <a class="page-link glass-page-link" href="?page={{ students.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link glass-page-link"><i class="fas fa-chevron-left"></i></span>
                             </li>
                         {% endif %}
-                    {% endfor %}
 
-                    {% if students.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ students.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                <i class="fas fa-chevron-right"></i>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
+                        {% for i in students.paginator.page_range %}
+                            {% if students.number == i %}
+                                <li class="page-item active">
+                                    <span class="page-link glass-page-link glass-page-active">{{ i }}</span>
+                                </li>
+                            {% elif i > students.number|add:'-3' and i < students.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link glass-page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if students.has_next %}
+                            <li class="page-item">
+                                <a class="page-link glass-page-link" href="?page={{ students.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link glass-page-link"><i class="fas fa-chevron-right"></i></span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
         </div>
+        {% endif %}
     </div>
-    {% endif %}
 </div>
 
-<!-- Quick Message Modal -->
+<!-- Quick Message Modal - Glass Style -->
 <div class="modal fade" id="messageModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-modal">
+            <div class="modal-header glass-modal-header">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-envelope me-2"></i>Send Message
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -195,24 +673,36 @@
             <form method="POST" action="{% url 'messaging:compose' %}" id="quickMessageForm">
                 {% csrf_token %}
                 <input type="hidden" name="recipient" id="modalRecipientId">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">To</label>
-                        <input type="text" class="form-control" id="modalRecipientName" readonly>
+                <div class="modal-body p-4">
+                    <div class="glass-form-group mb-3">
+                        <label class="glass-label">
+                            <i class="fas fa-user me-1"></i>To
+                        </label>
+                        <div class="glass-input-group">
+                            <i class="fas fa-user glass-input-icon"></i>
+                            <input type="text" class="glass-input" id="modalRecipientName" readonly>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Subject</label>
-                        <input type="text" name="subject" class="form-control" required>
+                    <div class="glass-form-group mb-3">
+                        <label class="glass-label">
+                            <i class="fas fa-tag me-1"></i>Subject
+                        </label>
+                        <div class="glass-input-group">
+                            <i class="fas fa-tag glass-input-icon"></i>
+                            <input type="text" name="subject" class="glass-input" placeholder="Enter subject..." required>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Message</label>
-                        <textarea name="body" class="form-control" rows="4" required></textarea>
+                    <div class="glass-form-group mb-3">
+                        <label class="glass-label">
+                            <i class="fas fa-comment me-1"></i>Message
+                        </label>
+                        <textarea name="body" class="glass-textarea" rows="4" placeholder="Type your message here..." required></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-paper-plane me-1"></i>Send
+                <div class="modal-footer glass-modal-footer">
+                    <button type="button" class="btn glass-btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn glass-btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i>Send Message
                     </button>
                 </div>
             </form>
@@ -221,16 +711,15 @@
 </div>
 
 <style>
-.student-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* Additional Styles for Dark Mode */
+[data-bs-theme="dark"] .glass-filter-card,
+[data-bs-theme="dark"] .glass-student-card,
+[data-bs-theme="dark"] .glass-empty-state {
+    background: rgba(0, 0, 0, 0.4);
 }
-.student-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-}
-.student-details p {
-    margin-bottom: 0.3rem;
-    font-size: 0.85rem;
+
+[data-bs-theme="dark"] .glass-student-details {
+    background: rgba(255, 255, 255, 0.05);
 }
 </style>
 
@@ -243,12 +732,57 @@ function sendMessage(studentId) {
             document.getElementById('modalRecipientId').value = studentId;
             document.getElementById('modalRecipientName').value = data.name + ' (' + data.student_id + ')';
             new bootstrap.Modal(document.getElementById('messageModal')).show();
+        })
+        .catch(error => {
+            console.error('Error fetching student data:', error);
+            showToast('Error loading student information', 'error');
         });
 }
 
 function exportDirectory() {
     const params = new URLSearchParams(window.location.search);
     window.location.href = '{% url "directory:export_directory" %}?' + params.toString();
+}
+
+// Toast notification function (if not already defined)
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) {
+        const newContainer = document.createElement('div');
+        newContainer.id = 'toast-container';
+        newContainer.className = 'position-fixed bottom-0 end-0 p-3';
+        newContainer.style.zIndex = '1050';
+        document.body.appendChild(newContainer);
+    }
+    
+    const toastContainer = document.getElementById('toast-container');
+    const toastId = 'toast-' + Date.now();
+    const bgColor = type === 'success' ? '#1cc88a' : (type === 'error' ? '#e74a3b' : '#4e73df');
+    
+    const toast = document.createElement('div');
+    toast.id = toastId;
+    toast.className = 'toast align-items-center text-white border-0 show';
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('data-bs-autohide', 'true');
+    toast.setAttribute('data-bs-delay', '5000');
+    toast.style.background = bgColor;
+    toast.style.borderRadius = '12px';
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle')} me-2"></i>
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('fade');
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
 }
 </script>
 {% endblock %}

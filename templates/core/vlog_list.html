@@ -1,388 +1,959 @@
 <!-- templates/core/vlog_list.html -->
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 {% load core_tags %}
 
 {% block title %}Video Vlogs - MELTSA-TaTU{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Vlog List */
+    .glass-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.03), rgba(28, 200, 138, 0.02));
+        min-height: calc(100vh - 200px);
+    }
+    
+    /* Glass Card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Hero Section - Glass */
+    .glass-hero {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.95), rgba(34, 66, 190, 0.95));
+        backdrop-filter: blur(10px);
+        border-radius: 0 0 30px 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .glass-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+        animation: heroShimmer 20s infinite linear;
+    }
+    
+    @keyframes heroShimmer {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Glass Stat Cards */
+    .glass-stat-primary, .glass-stat-success, .glass-stat-info, .glass-stat-warning {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .glass-stat-primary { background: linear-gradient(135deg, rgba(78, 115, 223, 0.9), rgba(34, 66, 190, 0.9)); }
+    .glass-stat-success { background: linear-gradient(135deg, rgba(28, 200, 138, 0.9), rgba(19, 133, 92, 0.9)); }
+    .glass-stat-info { background: linear-gradient(135deg, rgba(54, 185, 204, 0.9), rgba(37, 131, 145, 0.9)); }
+    .glass-stat-warning { background: linear-gradient(135deg, rgba(246, 194, 62, 0.9), rgba(218, 165, 32, 0.9)); }
+    
+    .glass-stat-primary:hover, .glass-stat-success:hover, .glass-stat-info:hover, .glass-stat-warning:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .glass-stat-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-stat-card:hover .glass-stat-icon {
+        transform: scale(1.1);
+    }
+    
+    /* Glass Filter Card */
+    .glass-filter-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+    }
+    
+    /* Glass Form Elements */
+    .glass-input-group {
+        position: relative;
+    }
+    
+    .glass-input-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--bs-gray-500);
+        z-index: 1;
+    }
+    
+    .glass-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem 0.6rem 2.5rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    .glass-select {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-select:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+    }
+    
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.6rem 1rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(78, 115, 223, 0.3);
+    }
+    
+    /* Glass Vlog Card */
+    .glass-vlog-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+    }
+    
+    .glass-vlog-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .glass-vlog-thumbnail {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .glass-vlog-thumbnail img {
+        width: 100%;
+        height: 190px;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .glass-vlog-card:hover .glass-vlog-thumbnail img {
+        transform: scale(1.05);
+    }
+    
+    .glass-vlog-placeholder {
+        height: 190px;
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.3), rgba(34, 66, 190, 0.2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .glass-play-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-vlog-card:hover .glass-play-overlay {
+        opacity: 1;
+    }
+    
+    .glass-play-btn {
+        width: 55px;
+        height: 55px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+        }
+        70% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        }
+    }
+    
+    .glass-play-btn i {
+        color: #4e73df;
+        font-size: 1.5rem;
+        margin-left: 4px;
+    }
+    
+    .glass-duration-badge {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: white;
+    }
+    
+    .glass-vlog-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+    
+    .glass-vlog-title a {
+        color: var(--bs-body-color);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .glass-vlog-title a:hover {
+        color: #4e73df;
+    }
+    
+    .glass-vlog-meta {
+        font-size: 0.7rem;
+        color: var(--bs-gray-500);
+    }
+    
+    .glass-badge-category {
+        background: rgba(54, 185, 204, 0.2);
+        border: 1px solid rgba(54, 185, 204, 0.4);
+        color: #36b9cc;
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 600;
+    }
+    
+    .glass-badge-tag {
+        background: rgba(108, 117, 125, 0.15);
+        border: 1px solid rgba(108, 117, 125, 0.3);
+        color: #adb5bd;
+        padding: 0.2rem 0.5rem;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 500;
+    }
+    
+    .glass-vlog-footer {
+        padding: 0.75rem 1rem;
+        background: rgba(0, 0, 0, 0.03);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-btn-outline-primary {
+        background: rgba(78, 115, 223, 0.1);
+        border: 1px solid rgba(78, 115, 223, 0.3);
+        color: #4e73df;
+        border-radius: 10px;
+        padding: 0.25rem 0.7rem;
+        font-size: 0.7rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-primary:hover {
+        background: rgba(78, 115, 223, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .glass-btn-outline-danger {
+        background: rgba(231, 74, 59, 0.1);
+        border: 1px solid rgba(231, 74, 59, 0.3);
+        color: #e74a3b;
+        border-radius: 10px;
+        padding: 0.25rem 0.6rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn-outline-danger:hover {
+        background: rgba(231, 74, 59, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    /* Glass Pagination */
+    .glass-pagination {
+        gap: 0.25rem;
+    }
+    
+    .glass-page-link {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--bs-body-color);
+        border-radius: 10px;
+        margin: 0 2px;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-page-link:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .glass-page-active {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border-color: transparent;
+        color: white;
+    }
+    
+    /* Sidebar Categories */
+    .glass-sidebar-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        width: 220px;
+    }
+    
+    .glass-sidebar-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 0.75rem 1rem;
+        border-radius: 20px 20px 0 0;
+    }
+    
+    .glass-category-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: var(--bs-body-color);
+    }
+    
+    .glass-category-item:hover {
+        background: rgba(78, 115, 223, 0.15);
+        transform: translateX(5px);
+    }
+    
+    .glass-category-item.active {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.2), rgba(34, 66, 190, 0.1));
+        color: #4e73df;
+        font-weight: 600;
+    }
+    
+    .glass-category-count {
+        background: rgba(78, 115, 223, 0.2);
+        border-radius: 20px;
+        padding: 0.1rem 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    @media (max-width: 768px) {
+        .glass-vlog-thumbnail img,
+        .glass-vlog-placeholder {
+            height: 160px;
+        }
+        
+        .glass-play-btn {
+            width: 45px;
+            height: 45px;
+        }
+        
+        .glass-play-btn i {
+            font-size: 1.2rem;
+        }
+        
+        .glass-sidebar-card {
+            display: none;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-filter-card,
+    [data-bs-theme="dark"] .glass-vlog-card,
+    [data-bs-theme="dark"] .glass-stat-primary,
+    [data-bs-theme="dark"] .glass-stat-success,
+    [data-bs-theme="dark"] .glass-stat-info,
+    [data-bs-theme="dark"] .glass-stat-warning,
+    [data-bs-theme="dark"] .glass-sidebar-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .glass-vlog-card {
+        animation: fadeInUp 0.5s ease-out;
+        animation-fill-mode: backwards;
+    }
+    
+    .glass-vlog-card:nth-child(1) { animation-delay: 0s; }
+    .glass-vlog-card:nth-child(2) { animation-delay: 0.05s; }
+    .glass-vlog-card:nth-child(3) { animation-delay: 0.1s; }
+    .glass-vlog-card:nth-child(4) { animation-delay: 0.15s; }
+    .glass-vlog-card:nth-child(5) { animation-delay: 0.2s; }
+    .glass-vlog-card:nth-child(6) { animation-delay: 0.25s; }
+    .glass-vlog-card:nth-child(7) { animation-delay: 0.3s; }
+    .glass-vlog-card:nth-child(8) { animation-delay: 0.35s; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <!-- Hero Section -->
-    <div class="row">
-        <div class="col-12">
-            <div class="hero-section position-relative overflow-hidden mb-5" 
-                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 250px; border-radius: 0 0 20px 20px;">
-                <div class="container h-100">
-                    <div class="row h-100 align-items-center">
-                        <div class="col-lg-8 text-white py-5" data-aos="fade-right">
-                            <h1 class="display-4 fw-bold mb-4">Video Vlogs</h1>
-                            <p class="lead mb-4">Watch and learn from our collection of educational and entertaining videos</p>
-                        </div>
-                        <div class="col-lg-4 d-none d-lg-block" data-aos="fade-left">
-                            <i class="fas fa-video fa-8x text-white opacity-50"></i>
+<div class="glass-container">
+    <div class="container-fluid">
+        <!-- Hero Section - Glass -->
+        <div class="glass-hero mb-5">
+            <div class="container py-5">
+                <div class="row align-items-center">
+                    <div class="col-lg-8 text-white py-4">
+                        <h1 class="display-4 fw-bold mb-3">Video Vlogs</h1>
+                        <p class="lead mb-0">Watch and learn from our collection of educational and entertaining videos</p>
+                    </div>
+                    <div class="col-lg-4 text-center d-none d-lg-block">
+                        <div class="glass-hero-icon">
+                            <i class="fas fa-video fa-6x text-white opacity-50"></i>
                         </div>
                     </div>
                 </div>
-                <!-- Wave SVG -->
-                <svg class="position-absolute bottom-0 w-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
-                    <path fill="#ffffff" fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
-                </svg>
+            </div>
+            <!-- Wave SVG -->
+            <svg class="position-absolute bottom-0 w-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" style="margin-bottom: -1px;">
+                <path fill="#f8f9fa" fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
+            </svg>
+        </div>
+
+        <!-- Page Header -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="glass-title">
+                    <i class="fas fa-video me-2"></i>All Video Vlogs
+                </h1>
+                <p class="glass-text-muted mt-2">Explore our collection of educational and entertaining videos</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <span class="glass-badge-primary me-2">
+                    <i class="fas fa-video me-1"></i>Total: {{ vlogs.paginator.count }}
+                </span>
+                {% if request.user.user_type in 'admin,staff' %}
+                    <a href="{% url 'core:vlog_create' %}" class="btn glass-btn-primary btn-sm">
+                        <i class="fas fa-plus me-1"></i>Upload New Vlog
+                    </a>
+                {% endif %}
             </div>
         </div>
-    </div>
 
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-video me-2"></i>All Video Vlogs
-        </h1>
-        <div>
-            <span class="badge bg-primary me-2">
-                <i class="fas fa-video me-1"></i>Total: {{ vlogs.paginator.count }}
-            </span>
-            {% if request.user.user_type in 'admin,staff,executive' %}
-                <a href="{% url 'core:vlog_create' %}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus me-1"></i>Upload New Vlog
-                </a>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Search and Filter Bar -->
-    <div class="card glass-card shadow mb-4">
-        <div class="card-body">
-            <form method="GET" action="{% url 'core:vlog_list' %}" id="filterForm">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            <input type="text" name="search" class="form-control" 
-                                   placeholder="Search vlogs..." value="{{ request.GET.search|default:'' }}">
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <select name="category" class="form-select">
-                            <option value="">All Categories</option>
-                            {% for category in categories %}
-                                <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>
-                                    {{ category.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select name="sort" class="form-select">
-                            <option value="-uploaded_at" {% if request.GET.sort == '-uploaded_at' or not request.GET.sort %}selected{% endif %}>Newest First</option>
-                            <option value="uploaded_at" {% if request.GET.sort == 'uploaded_at' %}selected{% endif %}>Oldest First</option>
-                            <option value="-views" {% if request.GET.sort == '-views' %}selected{% endif %}>Most Viewed</option>
-                            <option value="title" {% if request.GET.sort == 'title' %}selected{% endif %}>Title A-Z</option>
-                            <option value="-title" {% if request.GET.sort == '-title' %}selected{% endif %}>Title Z-A</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-filter me-1"></i>Apply
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Featured Vlog Section -->
-    {% if featured_vlog %}
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="h4 mb-4">
-                <i class="fas fa-star text-warning me-2"></i>Featured Vlog
-            </h2>
-            <div class="card glass-card border-0 shadow-lg overflow-hidden" data-aos="fade-up">
-                <div class="row g-0">
-                    <div class="col-lg-6">
-                        <div class="ratio ratio-16x9 bg-dark">
-                            {% if featured_vlog.thumbnail %}
-                                <img src="{{ featured_vlog.thumbnail.url }}" class="img-fluid h-100 w-100" style="object-fit: cover;" alt="{{ featured_vlog.title }}">
-                            {% else %}
-                                <div class="d-flex align-items-center justify-content-center bg-gradient-primary text-white">
-                                    <i class="fas fa-video fa-4x opacity-50"></i>
+        <!-- Statistics Cards - Glass -->
+        <div class="row mb-4 g-3">
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-stat-primary">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="glass-stat-value text-white">{{ total_vlogs }}</div>
+                                <div class="glass-stat-label text-white-50">Total Vlogs</div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="glass-stat-icon">
+                                    <i class="fas fa-video fa-2x"></i>
                                 </div>
-                            {% endif %}
+                            </div>
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h3 class="card-title fw-bold">{{ featured_vlog.title }}</h3>
-                                <span class="badge bg-warning">Featured</span>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-stat-success">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="glass-stat-value text-white">{{ total_views }}</div>
+                                <div class="glass-stat-label text-white-50">Total Views</div>
                             </div>
-                            <p class="text-muted small mb-3">
-                                <i class="fas fa-user me-1"></i>{{ featured_vlog.uploaded_by.get_full_name }} |
-                                <i class="fas fa-calendar me-1 ms-2"></i>{{ featured_vlog.uploaded_at|date:"M d, Y" }} |
-                                <i class="fas fa-eye me-1 ms-2"></i>{{ featured_vlog.views }} views
-                            </p>
-                            <p class="card-text">{{ featured_vlog.description|truncatechars:200 }}</p>
-                            
-                            {% if featured_vlog.tags.all %}
-                            <div class="mb-3">
-                                {% for tag in featured_vlog.tags.all %}
-                                <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+                            <div class="col-auto">
+                                <div class="glass-stat-icon">
+                                    <i class="fas fa-eye fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-stat-info">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="glass-stat-value text-white">{{ total_categories }}</div>
+                                <div class="glass-stat-label text-white-50">Categories</div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="glass-stat-icon">
+                                    <i class="fas fa-folder fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-stat-warning">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="glass-stat-value text-white">{{ total_comments }}</div>
+                                <div class="glass-stat-label text-white-50">Comments</div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="glass-stat-icon">
+                                    <i class="fas fa-comments fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter - Glass Card -->
+        <div class="glass-filter-card mb-4">
+            <div class="card-body">
+                <form method="GET" action="{% url 'core:vlog_list' %}" id="filterForm">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="glass-input-group">
+                                <i class="fas fa-search glass-input-icon"></i>
+                                <input type="text" name="search" class="glass-input" 
+                                       placeholder="Search vlogs..." value="{{ request.GET.search|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="category" class="glass-select">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
                                 {% endfor %}
-                            </div>
-                            {% endif %}
-                            
-                            <a href="{% url 'core:vlog_detail' featured_vlog.id %}" class="btn btn-primary">
-                                <i class="fas fa-play me-1"></i>Watch Now
-                            </a>
+                            </select>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-primary text-white shadow h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <div class="h5 mb-0">{{ total_vlogs }}</div>
-                            <div class="small">Total Vlogs</div>
+                        <div class="col-md-3">
+                            <select name="sort" class="glass-select">
+                                <option value="-uploaded_at" {% if request.GET.sort == '-uploaded_at' or not request.GET.sort %}selected{% endif %}>Newest First</option>
+                                <option value="uploaded_at" {% if request.GET.sort == 'uploaded_at' %}selected{% endif %}>Oldest First</option>
+                                <option value="-views" {% if request.GET.sort == '-views' %}selected{% endif %}>Most Viewed</option>
+                                <option value="title" {% if request.GET.sort == 'title' %}selected{% endif %}>Title A-Z</option>
+                                <option value="-title" {% if request.GET.sort == '-title' %}selected{% endif %}>Title Z-A</option>
+                            </select>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-video fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-success text-white shadow h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <div class="h5 mb-0">{{ total_views }}</div>
-                            <div class="small">Total Views</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-eye fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-info text-white shadow h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <div class="h5 mb-0">{{ total_categories }}</div>
-                            <div class="small">Categories</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-folder fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-warning text-white shadow h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <div class="h5 mb-0">{{ total_comments }}</div>
-                            <div class="small">Comments</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-comments fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Vlogs Grid -->
-    <div class="row">
-        {% for vlog in vlogs %}
-        <div class="col-xl-3 col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:'50' }}">
-            <div class="card h-100 glass-card border-0 shadow-sm hover-card">
-                <!-- Thumbnail -->
-                <div class="position-relative">
-                    {% if vlog.thumbnail %}
-                        <img src="{{ vlog.thumbnail.url }}" class="card-img-top" alt="{{ vlog.title }}" 
-                             style="height: 180px; object-fit: cover; border-radius: 12px 12px 0 0;">
-                    {% else %}
-                        <div class="bg-gradient-primary d-flex align-items-center justify-content-center" 
-                             style="height: 180px; border-radius: 12px 12px 0 0;">
-                            <i class="fas fa-video fa-4x text-white opacity-50"></i>
-                        </div>
-                    {% endif %}
-                    
-                    <!-- Duration Badge -->
-                    {% if vlog.duration %}
-                    <span class="position-absolute bottom-0 end-0 m-2 badge bg-dark">
-                        <i class="fas fa-clock me-1"></i>{{ vlog.duration }}
-                    </span>
-                    {% endif %}
-                    
-                    <!-- Play Button Overlay -->
-                    <div class="position-absolute top-50 start-50 translate-middle opacity-0 hover-play">
-                        <a href="{% url 'core:vlog_detail' vlog.id %}" class="btn btn-light btn-lg rounded-circle">
-                            <i class="fas fa-play text-primary"></i>
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="card-body">
-                    <!-- Title -->
-                    <h6 class="card-title fw-bold mb-2">
-                        <a href="{% url 'core:vlog_detail' vlog.id %}" class="text-decoration-none text-dark">
-                            {{ vlog.title|truncatechars:50 }}
-                        </a>
-                    </h6>
-                    
-                    <!-- Meta Info -->
-                    <div class="small text-muted mb-2">
-                        <i class="fas fa-user me-1"></i>{{ vlog.uploaded_by.get_full_name|truncatechars:15 }}
-                        <span class="mx-1">•</span>
-                        <i class="fas fa-eye me-1"></i>{{ vlog.views }}
-                    </div>
-                    
-                    <!-- Category -->
-                    {% if vlog.category %}
-                    <span class="badge bg-info mb-2">
-                        <i class="fas fa-folder me-1"></i>{{ vlog.category.name }}
-                    </span>
-                    {% endif %}
-                    
-                    <!-- Description Preview -->
-                    <p class="card-text small text-muted">{{ vlog.description|truncatechars:80 }}</p>
-                    
-                    <!-- Tags -->
-                    {% if vlog.tags.all %}
-                    <div class="mb-2">
-                        {% for tag in vlog.tags.all|slice:":2" %}
-                        <span class="badge bg-light text-dark me-1">#{{ tag.name }}</span>
-                        {% endfor %}
-                        {% if vlog.tags.count > 2 %}
-                        <span class="badge bg-light text-dark">+{{ vlog.tags.count|add:"-2" }}</span>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                </div>
-                
-                <!-- Card Footer -->
-                <div class="card-footer bg-transparent border-0">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">
-                            <i class="far fa-calendar me-1"></i>{{ vlog.uploaded_at|date:"M d, Y" }}
-                        </small>
-                        <div>
-                            <a href="{% url 'core:vlog_detail' vlog.id %}" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-eye me-1"></i>Watch
-                            </a>
-                            <button class="btn btn-sm btn-outline-danger" onclick="saveVlog({{ vlog.id }})">
-                                <i class="fas fa-heart"></i>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn glass-btn-primary w-100">
+                                <i class="fas fa-filter me-1"></i>Apply
                             </button>
                         </div>
                     </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Featured Vlog Section -->
+        {% if featured_vlog %}
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="h4 mb-3 glass-text-primary">
+                    <i class="fas fa-star text-warning me-2"></i>Featured Vlog
+                </h2>
+                <div class="glass-vlog-card">
+                    <div class="row g-0">
+                        <div class="col-lg-6">
+                            <div class="glass-vlog-thumbnail ratio ratio-16x9">
+                                {% if featured_vlog.thumbnail %}
+                                    <img src="{{ featured_vlog.thumbnail.url }}" alt="{{ featured_vlog.title }}">
+                                {% else %}
+                                    <div class="glass-vlog-placeholder">
+                                        <i class="fas fa-video fa-4x glass-text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h3 class="h4 glass-text mb-0">{{ featured_vlog.title }}</h3>
+                                    <span class="glass-badge-warning">Featured</span>
+                                </div>
+                                <p class="glass-text-muted small mb-3">
+                                    <i class="fas fa-user me-1"></i>{{ featured_vlog.uploaded_by.get_full_name }} |
+                                    <i class="fas fa-calendar me-1 ms-2"></i>{{ featured_vlog.uploaded_at|date:"M d, Y" }} |
+                                    <i class="fas fa-eye me-1 ms-2"></i>{{ featured_vlog.views }} views
+                                </p>
+                                <p class="glass-text-muted">{{ featured_vlog.description|truncatechars:200 }}</p>
+                                
+                                {% if featured_vlog.tags.all %}
+                                    <div class="mb-3">
+                                        {% for tag in featured_vlog.tags.all %}
+                                            <span class="glass-badge-tag me-1">#{{ tag.name }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                
+                                <a href="{% url 'core:vlog_detail' featured_vlog.id %}" class="btn glass-btn-primary">
+                                    <i class="fas fa-play me-1"></i>Watch Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        {% empty %}
-        <div class="col-12">
-            <div class="card glass-card">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-video fa-4x text-muted mb-3"></i>
-                    <h5 class="text-muted">No Vlogs Found</h5>
-                    <p class="text-muted mb-3">There are no video vlogs matching your criteria.</p>
+        {% endif %}
+
+        <!-- Vlogs Grid - Glass Cards -->
+        <div class="row">
+            {% for vlog in vlogs %}
+            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                <div class="glass-vlog-card">
+                    <div class="glass-vlog-thumbnail position-relative">
+                        {% if vlog.thumbnail %}
+                            <img src="{{ vlog.thumbnail.url }}" alt="{{ vlog.title }}">
+                        {% else %}
+                            <div class="glass-vlog-placeholder">
+                                <i class="fas fa-video fa-4x glass-text-muted"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Duration Badge -->
+                        {% if vlog.duration %}
+                            <span class="glass-duration-badge">
+                                <i class="fas fa-clock me-1"></i>{{ vlog.duration }}
+                            </span>
+                        {% endif %}
+                        
+                        <!-- Play Button Overlay -->
+                        <div class="glass-play-overlay">
+                            <a href="{% url 'core:vlog_detail' vlog.id %}" class="glass-play-btn">
+                                <i class="fas fa-play"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-3">
+                        <h6 class="glass-vlog-title">
+                            <a href="{% url 'core:vlog_detail' vlog.id %}">{{ vlog.title|truncatechars:50 }}</a>
+                        </h6>
+                        
+                        <div class="glass-vlog-meta mb-2">
+                            <i class="fas fa-user me-1"></i>{{ vlog.uploaded_by.get_full_name|truncatechars:15 }}
+                            <span class="mx-1">•</span>
+                            <i class="fas fa-eye me-1"></i>{{ vlog.views }}
+                        </div>
+                        
+                        {% if vlog.category %}
+                            <span class="glass-badge-category mb-2 d-inline-block">
+                                <i class="fas fa-folder me-1"></i>{{ vlog.category.name }}
+                            </span>
+                        {% endif %}
+                        
+                        <p class="glass-text-muted small mb-2">{{ vlog.description|truncatechars:70 }}</p>
+                        
+                        {% if vlog.tags.all %}
+                            <div class="mb-2">
+                                {% for tag in vlog.tags.all|slice:":2" %}
+                                    <span class="glass-badge-tag me-1">#{{ tag.name }}</span>
+                                {% endfor %}
+                                {% if vlog.tags.count > 2 %}
+                                    <span class="glass-badge-tag">+{{ vlog.tags.count|add:"-2" }}</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="glass-vlog-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="glass-text-muted">
+                                <i class="far fa-calendar me-1"></i>{{ vlog.uploaded_at|date:"M d, Y" }}
+                            </small>
+                            <div class="d-flex gap-1">
+                                <a href="{% url 'core:vlog_detail' vlog.id %}" class="btn glass-btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>Watch
+                                </a>
+                                <button class="btn glass-btn-outline-danger btn-sm" onclick="saveVlog({{ vlog.id }})">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="glass-empty-state">
+                    <div class="glass-empty-icon">
+                        <i class="fas fa-video fa-4x"></i>
+                    </div>
+                    <h5 class="glass-text-muted mt-3">No Vlogs Found</h5>
+                    <p class="glass-text-muted mb-3">There are no video vlogs matching your criteria.</p>
                     {% if request.user.user_type in 'admin,staff,executive' %}
-                        <a href="{% url 'core:vlog_create' %}" class="btn btn-primary">
+                        <a href="{% url 'core:vlog_create' %}" class="btn glass-btn-primary">
                             <i class="fas fa-plus me-2"></i>Upload First Vlog
                         </a>
                     {% endif %}
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
 
-    <!-- Pagination -->
-    {% if vlogs.has_other_pages %}
-    <div class="row mt-4">
-        <div class="col-12">
-            <nav aria-label="Vlogs pagination">
-                <ul class="pagination justify-content-center">
-                    {% if vlogs.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ vlogs.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                <i class="fas fa-chevron-left"></i>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
-                        </li>
-                    {% endif %}
-
-                    {% for i in vlogs.paginator.page_range %}
-                        {% if vlogs.number == i %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ i }}</span>
-                            </li>
-                        {% elif i > vlogs.number|add:'-3' and i < vlogs.number|add:'3' %}
+        <!-- Pagination - Glass -->
+        {% if vlogs.has_other_pages %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <nav aria-label="Vlogs pagination">
+                    <ul class="pagination glass-pagination justify-content-center">
+                        {% if vlogs.has_previous %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                                <a class="page-link glass-page-link" href="?page={{ vlogs.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link glass-page-link"><i class="fas fa-chevron-left"></i></span>
                             </li>
                         {% endif %}
-                    {% endfor %}
 
-                    {% if vlogs.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ vlogs.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                <i class="fas fa-chevron-right"></i>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-    </div>
-    {% endif %}
-</div>
+                        {% for i in vlogs.paginator.page_range %}
+                            {% if vlogs.number == i %}
+                                <li class="page-item active">
+                                    <span class="page-link glass-page-link glass-page-active">{{ i }}</span>
+                                </li>
+                            {% elif i > vlogs.number|add:'-3' and i < vlogs.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link glass-page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
 
-<!-- Categories Sidebar (optional floating) -->
-<div class="position-fixed start-0 top-50 translate-middle-y ms-4 d-none d-xl-block" style="z-index: 100;">
-    <div class="card glass-card shadow" style="width: 200px;">
-        <div class="card-header bg-gradient-primary text-white py-2">
-            <h6 class="m-0"><i class="fas fa-filter me-1"></i>Categories</h6>
-        </div>
-        <div class="card-body p-2">
-            <div class="list-group list-group-flush">
-                <a href="{% url 'core:vlog_list' %}" class="list-group-item list-group-item-action bg-transparent {% if not request.GET.category %}active{% endif %}">
-                    <i class="fas fa-th me-2"></i>All
-                </a>
-                {% for category in categories %}
-                <a href="?category={{ category.id }}" class="list-group-item list-group-item-action bg-transparent {% if request.GET.category == category.id|stringformat:'s' %}active{% endif %}">
-                    <i class="fas fa-folder me-2"></i>{{ category.name }}
-                    <span class="badge bg-primary float-end">{{ category.vlog_count }}</span>
-                </a>
-                {% endfor %}
+                        {% if vlogs.has_next %}
+                            <li class="page-item">
+                                <a class="page-link glass-page-link" href="?page={{ vlogs.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link glass-page-link"><i class="fas fa-chevron-right"></i></span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 
-<!-- Success Toast -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+<!-- Categories Sidebar (Floating) -->
+<div class="position-fixed start-0 top-50 translate-middle-y ms-4 d-none d-xl-block" style="z-index: 100;">
+    <div class="glass-sidebar-card">
+        <div class="glass-sidebar-header">
+            <h6 class="m-0 text-white"><i class="fas fa-filter me-1"></i>Categories</h6>
+        </div>
+        <div class="list-group list-group-flush">
+            <a href="{% url 'core:vlog_list' %}" class="glass-category-item {% if not request.GET.category %}active{% endif %}">
+                <span><i class="fas fa-th me-2"></i>All</span>
+                <span class="glass-category-count">{{ total_vlogs }}</span>
+            </a>
+            {% for category in categories %}
+            <a href="?category={{ category.id }}" class="glass-category-item {% if request.GET.category == category.id|stringformat:'s' %}active{% endif %}">
+                <span><i class="fas fa-folder me-2"></i>{{ category.name }}</span>
+                <span class="glass-category-count">{{ category.vlog_count }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+/* Additional Styles */
+.glass-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glass-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #4e73df, #224abe);
+    border-radius: 3px;
+}
+
+.glass-badge-primary {
+    background: rgba(78, 115, 223, 0.2);
+    border: 1px solid rgba(78, 115, 223, 0.5);
+    color: #4e73df;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.glass-badge-warning {
+    background: rgba(246, 194, 62, 0.2);
+    border: 1px solid rgba(246, 194, 62, 0.4);
+    color: #f6c23e;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.glass-stat-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+}
+
+.glass-stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.glass-empty-state {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+    padding: 3rem;
+}
+
+.glass-empty-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: var(--bs-gray-500);
+}
+
+@media (max-width: 768px) {
+    .glass-title {
+        font-size: 1.25rem;
+    }
+    
+    .glass-stat-value {
+        font-size: 1.25rem;
+    }
+    
+    .glass-stat-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .glass-stat-icon i {
+        font-size: 1rem;
+    }
+}
+
+/* Dark Theme Wave Fix */
+[data-bs-theme="dark"] .glass-hero svg path {
+    fill: #1a1a2e;
+}
+</style>
+
+<!-- Toast Container -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
     <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
             <div class="toast-body" id="toastMessage"></div>
@@ -391,168 +962,76 @@
     </div>
 </div>
 
-<style>
-.glass-card {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
+<script>
+// Initialize AOS
+AOS.init({
+    duration: 800,
+    once: true,
+    disable: window.innerWidth < 768
+});
+
+// Save vlog function
+function saveVlog(vlogId) {
+    fetch(`/core/vlog/${vlogId}/save/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Video saved to your playlist!', 'success');
+        } else {
+            showToast('Error saving video', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Network error occurred', 'error');
+    });
 }
 
-[data-bs-theme="dark"] .glass-card {
-    background: rgba(30, 30, 47, 0.7);
-}
-
-.hover-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.hover-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
-}
-
-.hover-card .hover-play {
-    transition: opacity 0.3s ease;
-    opacity: 0;
-}
-
-.hover-card:hover .hover-play {
-    opacity: 1;
-}
-
-.hover-play .btn {
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
-    }
-    70% {
-        transform: scale(1.05);
-        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
-    }
-    100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
-    }
-}
-
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-}
-
-.hero-section svg {
-    pointer-events: none;
-}
-
-.list-group-item.active {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border-color: transparent;
-    color: white;
-}
-
-[data-bs-theme="dark"] .list-group-item.active {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-}
-
-.list-group-item-action:hover {
-    background: rgba(102, 126, 234, 0.1);
-}
-
-@media (max-width: 768px) {
-    .hero-section {
-        min-height: 200px !important;
+// Toast notification function
+function showToast(message, type = 'success') {
+    const toastEl = document.getElementById('successToast');
+    const toastMessage = document.getElementById('toastMessage');
+    
+    if (type === 'success') {
+        toastEl.classList.remove('bg-danger');
+        toastEl.classList.add('bg-success');
+    } else {
+        toastEl.classList.remove('bg-success');
+        toastEl.classList.add('bg-danger');
     }
     
-    .hero-section h1 {
-        font-size: 2rem;
-    }
+    toastMessage.textContent = message;
+    
+    const toast = new bootstrap.Toast(toastEl, {
+        animation: true,
+        autohide: true,
+        delay: 3000
+    });
+    toast.show();
 }
-</style>
 
-<!-- AOS Animation -->
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-<script>
-    // Initialize AOS
-    AOS.init({
-        duration: 800,
-        once: true,
-        disable: window.innerWidth < 768
+// Auto-submit filter when dropdown changes
+document.querySelectorAll('select[name="category"], select[name="sort"]').forEach(select => {
+    select.addEventListener('change', function() {
+        document.getElementById('filterForm').submit();
     });
+});
 
-    // Save vlog function
-    function saveVlog(vlogId) {
-        fetch(`/core/vlog/${vlogId}/save/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showToast('Video saved to your playlist!', 'success');
-            } else {
-                showToast('Error saving video', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('Network error occurred', 'error');
-        });
-    }
-
-    // Toast notification function
-    function showToast(message, type = 'success') {
-        const toastEl = document.getElementById('successToast');
-        const toastMessage = document.getElementById('toastMessage');
-        
-        if (type === 'success') {
-            toastEl.classList.remove('bg-danger');
-            toastEl.classList.add('bg-success');
-        } else {
-            toastEl.classList.remove('bg-success');
-            toastEl.classList.add('bg-danger');
-        }
-        
-        toastMessage.textContent = message;
-        
-        const toast = new bootstrap.Toast(toastEl, {
-            animation: true,
-            autohide: true,
-            delay: 3000
-        });
-        toast.show();
-    }
-
-    // Auto-submit filter when dropdown changes
-    document.querySelectorAll('select[name="category"], select[name="sort"]').forEach(select => {
-        select.addEventListener('change', function() {
-            document.getElementById('filterForm').submit();
-        });
-    });
-
-    // Debounced search
-    let searchTimeout;
-    document.querySelector('input[name="search"]')?.addEventListener('input', function() {
+// Debounced search
+let searchTimeout;
+const searchInput = document.querySelector('input[name="search"]');
+if (searchInput) {
+    searchInput.addEventListener('input', function() {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
             document.getElementById('filterForm').submit();
         }, 500);
     });
+}
 </script>
 {% endblock %}

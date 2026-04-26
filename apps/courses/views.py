@@ -15,6 +15,7 @@ from apps.accounts.models import User, ActivityLog
 from apps.core.models import AcademicSetting
 from .forms import CourseForm, CourseMaterialForm, CourseRegistrationForm, MaterialCommentForm
 
+@login_required
 def course_list(request):
     """List all courses"""
     courses = Course.objects.filter(is_active=True)
@@ -45,7 +46,7 @@ def course_list(request):
         'semesters': Course.SEMESTER_CHOICES,
     }
     return render(request, 'courses/course_list.html', context)
-
+@login_required
 def course_detail(request, pk):
     """View course details"""
     course = get_object_or_404(Course, pk=pk, is_active=True)
@@ -191,6 +192,7 @@ def registered_course_detail(request, pk):
     }
     return render(request, 'courses/registered_course_detail.html', context)
 
+@login_required
 def material_list(request):
     """List all course materials"""
     materials = CourseMaterial.objects.select_related(
@@ -228,7 +230,7 @@ def material_list(request):
         'material_types': CourseMaterial.MATERIAL_TYPES,
     }
     return render(request, 'courses/material_list.html', context)
-
+@login_required
 def material_detail(request, pk):
     """View material details"""
     material = get_object_or_404(CourseMaterial, pk=pk)

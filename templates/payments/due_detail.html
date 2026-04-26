@@ -1,22 +1,23 @@
 <!-- templates/payments/due_detail.html -->
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}{{ due.title }} - Payment Due - MELTSA-TaTU{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Page Heading -->
+    <!-- Page Heading - Glass Style -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
+        <h1 class="glass-title-due">
             <i class="fas fa-credit-card me-2"></i>{{ due.title }}
         </h1>
-        <div>
-            <a href="{% url 'payments:due_list' %}" class="btn btn-secondary btn-sm">
+        <div class="glass-action-group">
+            <a href="{% url 'payments:due_list' %}" class="btn glass-btn-secondary btn-sm">
                 <i class="fas fa-arrow-left me-1"></i>Back to Dues
             </a>
             {% if request.user.user_type in 'admin,staff' %}
-                <a href="{% url 'payments:due_edit' due.id %}" class="btn btn-warning btn-sm">
+                <a href="{% url 'payments:due_edit' due.id %}" class="btn glass-btn-warning btn-sm">
                     <i class="fas fa-edit me-1"></i>Edit
                 </a>
             {% endif %}
@@ -24,141 +25,141 @@
     </div>
 
     <div class="row">
-        <!-- Due Details -->
+        <!-- Due Details Column -->
         <div class="col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
+            <!-- Due Information Card - Glass -->
+            <div class="glass-info-card mb-4">
+                <div class="card-header glass-card-header-primary">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-info-circle me-1"></i>Due Information
                     </h6>
                 </div>
-                <div class="card-body">
-                    <div class="row mb-4">
-                        <div class="col-md-3">
-                            <div class="text-center p-3 bg-light rounded">
-                                <span class="d-block h4 mb-0">GHS {{ due.amount|floatformat:2 }}</span>
-                                <small class="text-muted">Amount</small>
-                            </div>
+                <div class="card-body glass-card-body">
+                    <!-- Stats Grid -->
+                    <div class="glass-stats-grid">
+                        <div class="glass-stat-badge">
+                            <div class="glass-stat-badge-value">GHS {{ due.amount|floatformat:2 }}</div>
+                            <div class="glass-stat-badge-label">Amount</div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="text-center p-3 bg-light rounded">
-                                <span class="d-block h4 mb-0">{{ due.get_due_type_display }}</span>
-                                <small class="text-muted">Due Type</small>
-                            </div>
+                        <div class="glass-stat-badge">
+                            <div class="glass-stat-badge-value">{{ due.get_due_type_display }}</div>
+                            <div class="glass-stat-badge-label">Due Type</div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="text-center p-3 bg-light rounded">
-                                <span class="d-block h4 mb-0">{{ due.deadline|date:"M d, Y" }}</span>
-                                <small class="text-muted">Deadline</small>
-                            </div>
+                        <div class="glass-stat-badge">
+                            <div class="glass-stat-badge-value">{{ due.deadline|date:"M d, Y" }}</div>
+                            <div class="glass-stat-badge-label">Deadline</div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="text-center p-3 bg-light rounded">
-                                <span class="d-block h4 mb-0">
-                                    {% if due.is_active %}
-                                        <span class="text-success">Active</span>
-                                    {% else %}
-                                        <span class="text-danger">Inactive</span>
-                                    {% endif %}
-                                </span>
-                                <small class="text-muted">Status</small>
+                        <div class="glass-stat-badge">
+                            <div class="glass-stat-badge-value">
+                                {% if due.is_active %}
+                                    <span class="text-success">Active</span>
+                                {% else %}
+                                    <span class="text-danger">Inactive</span>
+                                {% endif %}
                             </div>
+                            <div class="glass-stat-badge-label">Status</div>
                         </div>
                     </div>
 
-                    <h6 class="fw-bold">Description</h6>
-                    <p class="mb-4">{{ due.description|linebreaks }}</p>
-
-                    <h6 class="fw-bold">Target Levels</h6>
-                    <div class="mb-4">
-                        {% for level in due.target_levels %}
-                            <span class="badge bg-info p-2 me-1">Level {{ level }}</span>
-                        {% endfor %}
+                    <div class="glass-section">
+                        <h6 class="glass-section-title">
+                            <i class="fas fa-align-left me-2"></i>Description
+                        </h6>
+                        <div class="glass-text-content">
+                            {{ due.description|linebreaks }}
+                        </div>
                     </div>
 
-                    <h6 class="fw-bold">Academic Year</h6>
-                    <p>{{ due.academic_setting.academic_year }} - Semester {{ due.academic_setting.current_semester }}</p>
+                    <div class="glass-section">
+                        <h6 class="glass-section-title">
+                            <i class="fas fa-layer-group me-2"></i>Target Levels
+                        </h6>
+                        <div class="glass-badge-group">
+                            {% for level in due.target_levels %}
+                                <span class="glass-badge-info-sm">Level {{ level }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="glass-section">
+                        <h6 class="glass-section-title">
+                            <i class="fas fa-calendar-alt me-2"></i>Academic Year
+                        </h6>
+                        <div class="glass-text-content">
+                            {{ due.academic_setting.academic_year }} - Semester {{ due.academic_setting.current_semester }}
+                        </div>
+                    </div>
 
                     {% if due.created_by %}
-                        <p class="text-muted small mb-0">
-                            <i class="fas fa-user me-1"></i>Created by: {{ due.created_by.get_full_name }} on {{ due.created_at|date:"M d, Y H:i" }}
-                        </p>
+                        <div class="glass-meta-info">
+                            <i class="fas fa-user me-1"></i>
+                            Created by: {{ due.created_by.get_full_name }} on {{ due.created_at|date:"M d, Y H:i" }}
+                        </div>
                     {% endif %}
                 </div>
             </div>
 
-            <!-- Payment Statistics (for admin/staff) -->
+            <!-- Payment Statistics (for admin/staff) - Glass Card -->
             {% if request.user.user_type in 'admin,staff' %}
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
+            <div class="glass-stats-card mb-4">
+                <div class="card-header glass-card-header-primary">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-chart-bar me-1"></i>Payment Statistics
                     </h6>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="card bg-primary text-white">
-                                <div class="card-body text-center">
-                                    <h3 class="mb-0">{{ total_students }}</h3>
-                                    <small>Target Students</small>
-                                </div>
-                            </div>
+                <div class="card-body glass-card-body">
+                    <div class="glass-stats-row-small">
+                        <div class="glass-stat-mini-primary">
+                            <div class="glass-stat-mini-value">{{ total_students }}</div>
+                            <div class="glass-stat-mini-label">Target Students</div>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card bg-success text-white">
-                                <div class="card-body text-center">
-                                    <h3 class="mb-0">{{ paid_count }}</h3>
-                                    <small>Paid</small>
-                                </div>
-                            </div>
+                        <div class="glass-stat-mini-success">
+                            <div class="glass-stat-mini-value">{{ paid_count }}</div>
+                            <div class="glass-stat-mini-label">Paid</div>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card bg-info text-white">
-                                <div class="card-body text-center">
-                                    <h3 class="mb-0">GHS {{ total_collected|floatformat:2 }}</h3>
-                                    <small>Collected</small>
-                                </div>
-                            </div>
+                        <div class="glass-stat-mini-info">
+                            <div class="glass-stat-mini-value">GHS {{ total_collected|floatformat:2 }}</div>
+                            <div class="glass-stat-mini-label">Collected</div>
                         </div>
                     </div>
                     
-                    <div class="mt-3">
-                        <h6 class="fw-bold">Collection Rate</h6>
-                        <div class="progress mb-2" style="height: 20px;">
-                            <div class="progress-bar bg-success" style="width: {{ collection_rate }}%">
-                                {{ collection_rate|floatformat:1 }}%
-                            </div>
+                    <div class="glass-progress-section mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="glass-text-muted">Collection Rate</span>
+                            <span class="glass-text-success fw-bold">{{ collection_rate|floatformat:1 }}%</span>
                         </div>
-                        <div class="d-flex justify-content-between text-muted small">
+                        <div class="glass-progress-bar-container">
+                            <div class="glass-progress-fill" style="width: {{ collection_rate }}%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted small mt-1">
                             <span>{{ paid_count }} students paid</span>
-                            <span>{{ total_students|add:paid_count }} students total</span>
+                            <span>{{ total_students }} students total</span>
                         </div>
                     </div>
 
                     <!-- Export Buttons -->
-                    <div class="mt-4">
-                        <a href="{% url 'payments:export_payments' %}?due={{ due.id }}" class="btn btn-sm btn-success">
+                    <div class="glass-export-buttons mt-4">
+                        <a href="{% url 'payments:export_payments' %}?due={{ due.id }}" class="btn glass-btn-success btn-sm">
                             <i class="fas fa-file-excel me-1"></i>Export Payments
                         </a>
-                        <a href="{% url 'payments:export_unpaid' %}?due={{ due.id }}" class="btn btn-sm btn-warning">
+                        <a href="{% url 'payments:export_unpaid' %}?due={{ due.id }}" class="btn glass-btn-warning btn-sm">
                             <i class="fas fa-file-excel me-1"></i>Export Unpaid Students
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Recent Payments -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
+            <!-- Recent Payments - Glass Card -->
+            <div class="glass-table-card">
+                <div class="card-header glass-card-header-primary">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-history me-1"></i>Recent Payments
                     </h6>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="bg-light">
+                        <table class="glass-table">
+                            <thead class="glass-table-header">
                                 <tr>
                                     <th>Student</th>
                                     <th>Amount</th>
@@ -169,32 +170,39 @@
                             </thead>
                             <tbody>
                                 {% for payment in recent_payments|slice:":10" %}
-                                <tr>
+                                <tr class="glass-table-row">
                                     <td>
                                         <div class="d-flex align-items-center">
                                             {% if payment.student.profile_image %}
-                                                <img src="{{ payment.student.profile_image.url }}" class="rounded-circle me-2" width="30" height="30">
+                                                <img src="{{ payment.student.profile_image.url }}" class="rounded-circle me-2 glass-avatar-sm" width="30" height="30">
                                             {% else %}
-                                                <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:30px;height:30px;">
-                                                    <i class="fas fa-user text-white"></i>
+                                                <div class="glass-avatar-placeholder-sm me-2">
+                                                    <i class="fas fa-user text-white fa-sm"></i>
                                                 </div>
                                             {% endif %}
                                             {{ payment.student.get_full_name }}
                                         </div>
                                     </td>
-                                    <td>GHS {{ payment.amount|floatformat:2 }}</td>
-                                    <td>{{ payment.created_at|date:"M d, Y H:i" }}</td>
-                                    <td><small class="text-muted">{{ payment.reference|truncatechars:12 }}</small></td>
+                                    <td><strong class="glass-text-primary">GHS {{ payment.amount|floatformat:2 }}</strong></td>
+                                    <td class="glass-text-muted">{{ payment.created_at|date:"M d, Y H:i" }}</td>
+                                    <td><code class="glass-code">{{ payment.reference|truncatechars:12 }}</code></td>
                                     <td>
-                                        <span class="badge bg-{% if payment.status == 'success' %}success{% elif payment.status == 'pending' %}warning{% else %}danger{% endif %}">
-                                            {{ payment.get_status_display }}
-                                        </span>
-                                    </td>
+                                        {% if payment.status == 'success' %}
+                                            <span class="glass-badge-success-sm"><i class="fas fa-check-circle me-1"></i>Success</span>
+                                        {% elif payment.status == 'pending' %}
+                                            <span class="glass-badge-warning-sm"><i class="fas fa-clock me-1"></i>Pending</span>
+                                        {% else %}
+                                            <span class="glass-badge-danger-sm"><i class="fas fa-times-circle me-1"></i>Failed</span>
+                                        {% endif %}
+                                    </tr>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="5" class="text-center py-4">
-                                        <p class="text-muted mb-0">No payments yet</p>
+                                    <td colspan="5" class="glass-empty-table">
+                                        <div class="glass-empty-state-small">
+                                            <i class="fas fa-credit-card fa-3x glass-text-muted mb-2"></i>
+                                            <p class="glass-text-muted mb-0">No payments yet</p>
+                                        </div>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -206,188 +214,752 @@
             {% endif %}
         </div>
 
-        <!-- Sidebar -->
+        <!-- Sidebar - Glass Cards -->
         <div class="col-lg-4">
             <!-- Payment Status Card -->
-            <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-credit-card me-1"></i>Your Payment Status
-            </h6>
-        </div>
- 
-    <div class="card-body">
-
-        {% if request.user.is_authenticated %}
-
-            {% if request.user.user_type == 'executive' %}
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    Executives are exempted from paying dues.
+            <div class="glass-payment-status-card mb-4">
+                <div class="card-header glass-card-header-primary">
+                    <h6 class="m-0 fw-bold text-white">
+                        <i class="fas fa-credit-card me-1"></i>Your Payment Status
+                    </h6>
                 </div>
-
-            {% elif request.user.user_type == 'student' %}
-
-                {% if paid %}
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle me-2"></i>
-                        You have successfully paid this due.
-                    </div>
-
-                    <div class="text-center">
-                        <button class="btn btn-success mb-3" disabled>
-                            <i class="fas fa-check-circle me-1"></i>Paid
-                        </button>
-
-                        {% if payment %}
-                        <a href="{% url 'payments:payment_receipt' payment.id %}" class="btn btn-outline-primary">
-                            <i class="fas fa-receipt me-1"></i>View Receipt
-                        </a>
+                <div class="card-body glass-card-body">
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.user_type == 'executive' %}
+                            <div class="glass-alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Executives are exempted from paying dues.
+                            </div>
+                        {% elif request.user.user_type == 'student' %}
+                            {% if paid %}
+                                <div class="glass-alert-success">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    You have successfully paid this due.
+                                </div>
+                                <div class="text-center mt-3">
+                                    <button class="btn glass-btn-success mb-2" disabled>
+                                        <i class="fas fa-check-circle me-1"></i>Paid
+                                    </button>
+                                    {% if payment %}
+                                        <a href="{% url 'payments:payment_receipt' payment.id %}" class="btn glass-btn-outline-primary">
+                                            <i class="fas fa-receipt me-1"></i>View Receipt
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            {% elif due.deadline < current_date %}
+                                <div class="glass-alert-danger">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Payment deadline has passed.
+                                </div>
+                            {% else %}
+                                <div class="glass-alert-warning">
+                                    <i class="fas fa-clock me-2"></i>
+                                    Payment deadline: {{ due.deadline|date:"F d, Y" }}
+                                </div>
+                                <div class="glass-payment-details mb-4">
+                                    <div class="glass-payment-row">
+                                        <span class="glass-payment-label">Amount Due:</span>
+                                        <span class="glass-payment-value">GHS {{ due.amount|floatformat:2 }}</span>
+                                    </div>
+                                </div>
+                                <form method="POST" action="{% url 'payments:make_payment' due.id %}" id="paymentForm">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn glass-btn-success btn-lg w-100 mb-3">
+                                        <i class="fas fa-credit-card me-2"></i>Pay Now
+                                    </button>
+                                </form>
+                                <p class="glass-text-muted small text-center">
+                                    <i class="fas fa-lock me-1"></i>
+                                    Secured by Paystack
+                                </p>
+                            {% endif %}
+                        {% else %}
+                            <p class="glass-text-muted text-center mb-0">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Login as a student to make payment.
+                            </p>
                         {% endif %}
-                    </div>
+                    {% else %}
+                        <p class="glass-text-muted text-center mb-0">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Login as a student to make payment.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
 
-                {% elif due.deadline < current_date %}
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Payment deadline has passed.
-                    </div>
-
-                {% else %}
-
-                    <div class="alert alert-warning">
-                        <i class="fas fa-clock me-2"></i>
-                        Payment deadline: {{ due.deadline|date:"F d, Y" }}
-                    </div>
-
-                    <!-- Payment Details -->
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Amount Due:</span>
-                            <span class="fw-bold text-primary">
-                                GHS {{ due.amount|floatformat:2 }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Pay Now Button -->
-                    <form method="POST" action="{% url 'payments:make_payment' due.id %}" id="paymentForm">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success btn-lg w-100 mb-3">
-                            <i class="fas fa-credit-card me-2"></i>Pay Now
-                        </button>
-                    </form>
-
-                    <p class="text-muted small text-center">
-                        <i class="fas fa-lock me-1"></i>
-                        Secured by Paystack
-                    </p>
-
-                {% endif %}
-
-            {% endif %}
-
-        {% else %}
-            <p class="text-muted text-center mb-0">
-                <i class="fas fa-info-circle me-1"></i>
-                Login as a student to make payment.
-            </p>
-        {% endif %}
-
-      </div>
-   </div>
-
-            <!-- Payment Methods -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
+            <!-- Payment Methods Card -->
+            <div class="glass-payment-methods-card mb-4">
+                <div class="card-header glass-card-header-primary">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-credit-card me-1"></i>Payment Methods
                     </h6>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-credit-card fa-2x text-primary me-3"></i>
-                            <div>
-                                <h6 class="mb-0">Card Payment</h6>
-                                <small class="text-muted">Visa, Mastercard, Verve</small>
-                            </div>
+                <div class="card-body glass-card-body">
+                    <div class="glass-method-item">
+                        <div class="glass-method-icon bg-primary">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="glass-method-info">
+                            <h6 class="mb-0">Card Payment</h6>
+                            <small class="glass-text-muted">Visa, Mastercard, Verve</small>
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-mobile-alt fa-2x text-success me-3"></i>
-                            <div>
-                                <h6 class="mb-0">Mobile Money</h6>
-                                <small class="text-muted">MTN, Vodafone, AirtelTigo</small>
-                            </div>
+                    <div class="glass-method-item">
+                        <div class="glass-method-icon bg-success">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="glass-method-info">
+                            <h6 class="mb-0">Mobile Money</h6>
+                            <small class="glass-text-muted">MTN, Vodafone, AirtelTigo</small>
                         </div>
                     </div>
 
-                    <hr>
+                    <hr class="glass-divider">
 
                     <div class="text-center">
                         <img src="{% static 'img/paystack-2.svg' %}" alt="Paystack" height="30">
-                        <p class="text-muted small mt-2">
+                        <p class="glass-text-muted small mt-2">
                             Payments are processed securely by Paystack
                         </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Need Help? -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
+            <!-- Need Help? Card -->
+            <div class="glass-help-card">
+                <div class="card-header glass-card-header-primary">
+                    <h6 class="m-0 fw-bold text-white">
                         <i class="fas fa-question-circle me-1"></i>Need Help?
                     </h6>
                 </div>
-                <div class="card-body">
-                    <p class="small">If you're having trouble with your payment:</p>
-                    <ul class="list-unstyled small">
-                        <li class="mb-2">
-                            <i class="fas fa-envelope text-primary me-2"></i>
-                            <a href="mailto:finance@meltsa.edu">finance@meltsa.edu</a>
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-phone text-success me-2"></i>
-                            +233 (0) 59 1907870
-                        </li>
-                        <li>
-                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
-                            Finance Office, Lab | Patron Office
-                        </li>
-                    </ul>
+                <div class="card-body glass-card-body">
+                    <p class="small glass-text-muted">If you're having trouble with your payment:</p>
+                    <div class="glass-contact-list">
+                        <div class="glass-contact-item">
+                            <i class="fas fa-envelope text-primary"></i>
+                            <a href="mailto:finance@meltsa.edu" class="glass-link">finance@meltsa.edu</a>
+                        </div>
+                        <div class="glass-contact-item">
+                            <i class="fas fa-phone text-success"></i>
+                            <span class="glass-text">+233 (0) 59 1907870</span>
+                        </div>
+                        <div class="glass-contact-item">
+                            <i class="fas fa-map-marker-alt text-danger"></i>
+                            <span class="glass-text-muted">Finance Office, Lab | Patron Office</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Payment Confirmation Modal -->
+<!-- Payment Confirmation Modal - Glass Style -->
 <div class="modal fade" id="paymentConfirmModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-modal">
+            <div class="modal-header glass-modal-header-success">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-check-circle me-2"></i>Confirm Payment
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>You are about to make a payment of <strong class="text-primary">GHS {{ due.amount|floatformat:2 }}</strong> for:</p>
-                <p class="fw-bold">{{ due.title }}</p>
-                <p class="small text-muted">You will be redirected to Paystack's secure payment page.</p>
+            <div class="modal-body glass-modal-body text-center">
+                <div class="glass-icon-success mx-auto mb-3">
+                    <i class="fas fa-credit-card fa-3x"></i>
+                </div>
+                <p class="mb-2">You are about to make a payment of <strong class="glass-text-success">GHS {{ due.amount|floatformat:2 }}</strong> for:</p>
+                <p class="fw-bold glass-text">{{ due.title }}</p>
+                <p class="small glass-text-muted">You will be redirected to Paystack's secure payment page.</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" onclick="document.getElementById('paymentForm').submit();">
+            <div class="modal-footer glass-modal-footer">
+                <button type="button" class="btn glass-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn glass-btn-success" onclick="document.getElementById('paymentForm').submit();">
                     <i class="fas fa-credit-card me-1"></i>Proceed to Payment
                 </button>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+/* Glass Morphism Styles for Due Detail */
+
+/* Glass Title */
+.glass-title-due {
+    font-size: 1.75rem;
+    font-weight: 800;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glass-title-due::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #4e73df, #224abe);
+    border-radius: 3px;
+}
+
+/* Glass Action Group */
+.glass-action-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Glass Buttons */
+.glass-btn-secondary {
+    background: rgba(108, 117, 125, 0.2);
+    border: 1px solid rgba(108, 117, 125, 0.5);
+    color: #6c757d;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-secondary:hover {
+    background: rgba(108, 117, 125, 0.3);
+    transform: translateY(-2px);
+}
+
+.glass-btn-warning {
+    background: linear-gradient(135deg, #f6c23e, #dda20a);
+    border: none;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(246, 194, 62, 0.3);
+}
+
+.glass-btn-success {
+    background: linear-gradient(135deg, #1cc88a, #13855c);
+    border: none;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(28, 200, 138, 0.3);
+}
+
+.glass-btn-outline-primary {
+    background: rgba(78, 115, 223, 0.1);
+    border: 1px solid rgba(78, 115, 223, 0.5);
+    color: #4e73df;
+    border-radius: 10px;
+    padding: 0.35rem 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.glass-btn-outline-primary:hover {
+    background: rgba(78, 115, 223, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Glass Info Card */
+.glass-info-card,
+.glass-stats-card,
+.glass-table-card,
+.glass-payment-status-card,
+.glass-payment-methods-card,
+.glass-help-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.glass-info-card:hover,
+.glass-stats-card:hover,
+.glass-table-card:hover,
+.glass-payment-status-card:hover,
+.glass-payment-methods-card:hover,
+.glass-help-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Glass Card Header */
+.glass-card-header-primary {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card-body {
+    padding: 1.25rem;
+}
+
+/* Glass Stats Grid */
+.glass-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.glass-stat-badge {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.glass-stat-badge-value {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #4e73df;
+    margin-bottom: 0.25rem;
+}
+
+.glass-stat-badge-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--bs-gray-600);
+}
+
+/* Glass Section */
+.glass-section {
+    margin-bottom: 1.5rem;
+}
+
+.glass-section-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    color: #4e73df;
+}
+
+.glass-text-content {
+    color: var(--bs-body-color);
+    line-height: 1.6;
+}
+
+/* Glass Badge Group */
+.glass-badge-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.glass-badge-info-sm {
+    background: rgba(54, 185, 204, 0.15);
+    padding: 0.35rem 0.85rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #36b9cc;
+}
+
+/* Glass Meta Info */
+.glass-meta-info {
+    font-size: 0.75rem;
+    color: var(--bs-gray-500);
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Glass Stats Row Small */
+.glass-stats-row-small {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.glass-stat-mini-primary,
+.glass-stat-mini-success,
+.glass-stat-mini-info {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.glass-stat-mini-primary { background: rgba(78, 115, 223, 0.15); }
+.glass-stat-mini-success { background: rgba(28, 200, 138, 0.15); }
+.glass-stat-mini-info { background: rgba(54, 185, 204, 0.15); }
+
+.glass-stat-mini-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.glass-stat-mini-primary .glass-stat-mini-value { color: #4e73df; }
+.glass-stat-mini-success .glass-stat-mini-value { color: #1cc88a; }
+.glass-stat-mini-info .glass-stat-mini-value { color: #36b9cc; }
+
+.glass-stat-mini-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--bs-gray-500);
+}
+
+/* Glass Progress Section */
+.glass-progress-section {
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+}
+
+.glass-progress-bar-container {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.glass-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #1cc88a, #13855c);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+/* Glass Export Buttons */
+.glass-export-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Glass Table */
+.glass-table {
+    width: 100%;
+}
+
+.glass-table-header {
+    background: rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-table-header th {
+    padding: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.glass-table-row {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-table-row td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.glass-table-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(3px);
+}
+
+/* Glass Avatar */
+.glass-avatar-sm {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-avatar-placeholder-sm {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Glass Code */
+.glass-code {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-family: monospace;
+}
+
+/* Glass Badges */
+.glass-badge-success-sm,
+.glass-badge-warning-sm,
+.glass-badge-danger-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.glass-badge-success-sm { background: rgba(28, 200, 138, 0.15); color: #1cc88a; }
+.glass-badge-warning-sm { background: rgba(246, 194, 62, 0.15); color: #f6c23e; }
+.glass-badge-danger-sm { background: rgba(231, 74, 59, 0.15); color: #e74a3b; }
+
+/* Glass Empty Table */
+.glass-empty-table {
+    text-align: center;
+    padding: 2rem;
+}
+
+.glass-empty-state-small {
+    text-align: center;
+    padding: 1rem;
+}
+
+/* Glass Payment Status Card */
+.glass-alert-success {
+    background: rgba(28, 200, 138, 0.15);
+    border: 1px solid rgba(28, 200, 138, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem;
+    color: #1cc88a;
+    margin-bottom: 1rem;
+}
+
+.glass-alert-warning {
+    background: rgba(246, 194, 62, 0.15);
+    border: 1px solid rgba(246, 194, 62, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem;
+    color: #f6c23e;
+    margin-bottom: 1rem;
+}
+
+.glass-alert-danger {
+    background: rgba(231, 74, 59, 0.15);
+    border: 1px solid rgba(231, 74, 59, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem;
+    color: #e74a3b;
+    margin-bottom: 1rem;
+}
+
+.glass-alert-info {
+    background: rgba(54, 185, 204, 0.15);
+    border: 1px solid rgba(54, 185, 204, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem;
+    color: #36b9cc;
+    margin-bottom: 1rem;
+}
+
+/* Glass Payment Details */
+.glass-payment-details {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.glass-payment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.glass-payment-label {
+    font-size: 0.85rem;
+    color: var(--bs-gray-600);
+}
+
+.glass-payment-value {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #4e73df;
+}
+
+/* Glass Method Items */
+.glass-method-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.glass-method-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.glass-method-icon.bg-primary { background: linear-gradient(135deg, #4e73df, #224abe); }
+.glass-method-icon.bg-success { background: linear-gradient(135deg, #1cc88a, #13855c); }
+
+.glass-method-info {
+    flex: 1;
+}
+
+/* Glass Divider */
+.glass-divider {
+    margin: 1rem 0;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Glass Contact List */
+.glass-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.glass-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.glass-contact-item i {
+    width: 25px;
+}
+
+/* Glass Text */
+.glass-text {
+    color: var(--bs-body-color);
+}
+
+.glass-text-muted {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.glass-text-success {
+    color: #1cc88a;
+}
+
+[data-bs-theme="dark"] .glass-text-muted {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Glass Link */
+.glass-link {
+    color: var(--bs-primary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.glass-link:hover {
+    color: #224abe;
+    text-decoration: underline;
+}
+
+/* Glass Modal */
+.glass-modal {
+    background: rgba(30, 30, 47, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+.glass-modal-header-success {
+    background: linear-gradient(135deg, #1cc88a, #13855c);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-icon-success {
+    width: 70px;
+    height: 70px;
+    background: rgba(28, 200, 138, 0.2);
+    border-radius: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1cc88a;
+}
+
+.glass-modal-body {
+    padding: 1.5rem;
+}
+
+.glass-modal-footer {
+    padding: 1rem 1.25rem;
+    background: rgba(0, 0, 0, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .glass-title-due {
+        font-size: 1.25rem;
+    }
+    
+    .glass-action-group {
+        flex-wrap: wrap;
+    }
+    
+    .glass-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .glass-stats-row-small {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .glass-stat-mini-value {
+        font-size: 1rem;
+    }
+    
+    .glass-export-buttons {
+        flex-direction: column;
+    }
+    
+    .glass-method-item {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* Dark Theme Adjustments */
+[data-bs-theme="dark"] .glass-info-card,
+[data-bs-theme="dark"] .glass-stats-card,
+[data-bs-theme="dark"] .glass-table-card,
+[data-bs-theme="dark"] .glass-payment-status-card,
+[data-bs-theme="dark"] .glass-payment-methods-card,
+[data-bs-theme="dark"] .glass-help-card {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+[data-bs-theme="dark"] .glass-stat-badge {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .glass-code {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .glass-payment-details {
+    background: rgba(255, 255, 255, 0.05);
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

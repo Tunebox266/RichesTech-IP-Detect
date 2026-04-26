@@ -14,6 +14,7 @@ urlpatterns = [
     path("announcements/<int:pk>/delete/", views.announcement_delete, name="announcement_delete"),
     
     path('announcements/<int:pk>/unpin/', views.announcement_unpin, name='announcement_unpin'),
+    path('announcements/<int:pk>/view/', views.announcement_view, name='announcement_view'),
     
     path('announcements/<int:pk>/archive/', views.announcement_archive, name='announcement_archive'),
     path('announcements/<int:pk>/comment/', views.announcement_comment, name='announcement_comment'),
@@ -89,13 +90,16 @@ urlpatterns = [
     # Vlogs
     path('vlogs/', views.vlog_list, name='vlog_list'),
     path('vlogs/<int:pk>/', views.vlog_detail, name='vlog_detail'),
-    path('vlogs/<int:pk>/comment/', views.videovlog_add_comment, name='vlog_add_comment'
-    ),
-    path("vlog/reply-comment/", views.videovlog_reply_comment, name="vlog_reply_comment"
-    ),
+    path('vlogs/<int:pk>/comment/', views.videovlog_add_comment, name='vlog_add_comment'),
+    path("vlog/reply-comment/", views.videovlog_reply_comment, name="vlog_reply_comment"),
+    path("vlog/<int:pk>/report/", views.videovlog_report, name="vlog_report"),
     
-    path("vlog/<int:pk>/report/", views.videovlog_report, name="vlog_report"
-    ),
+    # Vlog Like URLs
+    path('vlog/<int:pk>/like/', views.vlog_post_like, name='vlog_post_like'),
+    path('vlog/comment/<int:pk>/like/', views.vlog_comment_like, name='vlog_comment_like'),
+    
+    # Vlog Save URL
+    path('vlog/<int:pk>/save/', views.vlog_save, name='vlog_save'),
     
     
     

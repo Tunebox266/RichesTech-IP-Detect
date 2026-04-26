@@ -4,115 +4,500 @@
 
 {% block title %}Login - MELTSA-TaTU{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Glass Morphism Styles for Login Page */
+    .glass-container {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.05), rgba(28, 200, 138, 0.03));
+        min-height: calc(100vh - 100px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+    
+    .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .glass-header {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .glass-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+        animation: headerShimmer 20s infinite linear;
+    }
+    
+    @keyframes headerShimmer {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .glass-logo {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .glass-logo i {
+        font-size: 2.5rem;
+        color: white;
+    }
+    
+    .glass-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        margin-bottom: 0.25rem;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .glass-subtitle {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
+    
+    .glass-body {
+        padding: 2rem;
+    }
+    
+    /* Glass Form Elements */
+    .glass-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--bs-body-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .glass-label i {
+        margin-right: 0.5rem;
+        color: #4e73df;
+    }
+    
+    .glass-input-group {
+        position: relative;
+    }
+    
+    .glass-input-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--bs-gray-500);
+        z-index: 1;
+        font-size: 1rem;
+    }
+    
+    .glass-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+        color: var(--bs-body-color);
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+    
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #4e73df;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+    }
+    
+    /* Glass Checkbox */
+    .glass-checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+    
+    .glass-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #4e73df;
+    }
+    
+    .glass-checkbox-label {
+        font-size: 0.85rem;
+        color: var(--bs-body-color);
+        cursor: pointer;
+    }
+    
+    /* Glass Button */
+    .glass-btn-primary {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        color: white;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .glass-btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .glass-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(78, 115, 223, 0.4);
+    }
+    
+    .glass-btn-primary:active::before {
+        width: 300px;
+        height: 300px;
+    }
+    
+    /* Glass Link */
+    .glass-link {
+        color: #4e73df;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 0.85rem;
+    }
+    
+    .glass-link:hover {
+        color: #224abe;
+        text-decoration: underline;
+    }
+    
+    /* Glass Alert */
+    .glass-alert {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(8px);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: slideInDown 0.3s ease;
+    }
+    
+    .glass-alert-success {
+        background: rgba(28, 200, 138, 0.15);
+        border: 1px solid rgba(28, 200, 138, 0.3);
+        color: #1cc88a;
+    }
+    
+    .glass-alert-error {
+        background: rgba(231, 74, 59, 0.15);
+        border: 1px solid rgba(231, 74, 59, 0.3);
+        color: #e74a3b;
+    }
+    
+    .glass-alert-warning {
+        background: rgba(246, 194, 62, 0.15);
+        border: 1px solid rgba(246, 194, 62, 0.3);
+        color: #f6c23e;
+    }
+    
+    .glass-alert-info {
+        background: rgba(54, 185, 204, 0.15);
+        border: 1px solid rgba(54, 185, 204, 0.3);
+        color: #36b9cc;
+    }
+    
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Glass Footer */
+    .glass-footer {
+        background: rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-footer p {
+        margin-bottom: 0;
+        font-size: 0.7rem;
+    }
+    
+    /* Form Text */
+    .glass-form-text {
+        font-size: 0.7rem;
+        margin-top: 0.25rem;
+        color: var(--bs-gray-500);
+    }
+    
+    .glass-text-muted {
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    [data-bs-theme="dark"] .glass-text-muted {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Demo Credentials Section */
+    .glass-demo-card {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 12px;
+        padding: 0.75rem;
+        margin-top: 1rem;
+        text-align: left;
+    }
+    
+    .demo-credential {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.25rem 0;
+        font-size: 0.7rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .demo-credential:last-child {
+        border-bottom: none;
+    }
+    
+    .demo-label {
+        font-weight: 600;
+        color: #4e73df;
+    }
+    
+    @media (max-width: 768px) {
+        .glass-body {
+            padding: 1.5rem;
+        }
+        
+        .glass-header {
+            padding: 1.5rem;
+        }
+        
+        .glass-logo {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .glass-logo i {
+            font-size: 2rem;
+        }
+        
+        .glass-title {
+            font-size: 1.25rem;
+        }
+        
+        .glass-btn-primary {
+            padding: 0.6rem 1.25rem;
+            font-size: 0.9rem;
+        }
+    }
+    
+    /* Dark Theme Adjustments */
+    [data-bs-theme="dark"] .glass-card {
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    [data-bs-theme="dark"] .glass-demo-card {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .glass-card {
+        animation: fadeIn 0.6s ease-out;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-lg border-0 rounded-lg mt-5 animate__animated animate__fadeIn">
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <h3 class="mb-0">
-                        <i class="fas fa-lock me-2"></i>Login to MELTSA-TaTU
-                    </h3>
-                </div>
-                
-                <div class="card-body p-4">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                <i class="fas 
-                                    {% if message.tags == 'success' %}fa-check-circle
-                                    {% elif message.tags == 'error' %}fa-exclamation-circle
-                                    {% elif message.tags == 'warning' %}fa-exclamation-triangle
-                                    {% else %}fa-info-circle{% endif %} 
-                                    me-2"></i>
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+<div class="glass-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <!-- Glass Card Login -->
+                <div class="glass-card">
+                    <div class="glass-header">
+                        <div class="glass-logo">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <h3 class="glass-title text-white mb-0">Welcome Back</h3>
+                        <p class="glass-subtitle text-white-50">Sign in to your account</p>
+                    </div>
                     
-                    <form method="POST" novalidate>
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {% for error in form.non_field_errors %}
-                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
-                                {% endfor %}
-                            </div>
+                    <div class="glass-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="glass-alert glass-alert-{{ message.tags }}">
+                                    <i class="fas 
+                                        {% if message.tags == 'success' %}fa-check-circle
+                                        {% elif message.tags == 'error' %}fa-exclamation-circle
+                                        {% elif message.tags == 'warning' %}fa-exclamation-triangle
+                                        {% else %}fa-info-circle{% endif %} 
+                                        me-2"></i>
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
                         {% endif %}
                         
-                        <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label fw-bold">
-                                <i class="fas fa-user me-2"></i>Username / Student ID / Staff ID
-                            </label>
-                            {{ form.username }}
-                            {% if form.username.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.username.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
+                        <form method="POST" novalidate>
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                                <div class="glass-alert glass-alert-error">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
                                 </div>
                             {% endif %}
-                            <div class="form-text text-muted">
+                            
+                            <div class="mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-user"></i>Username / Student ID / Staff ID
+                                </label>
+                                <div class="glass-input-group">
+                                    <i class="fas fa-user-circle glass-input-icon"></i>
+                                    {{ form.username }}
+                                </div>
+                                {% if form.username.errors %}
+                                    <div class="glass-form-text text-danger">
+                                        {% for error in form.username.errors %}
+                                            <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="glass-form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Enter your Student ID (e.g., BTML220001), Staff ID, or Username
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="glass-label">
+                                    <i class="fas fa-key"></i>Password
+                                </label>
+                                <div class="glass-input-group">
+                                    <i class="fas fa-lock glass-input-icon"></i>
+                                    {{ form.password }}
+                                </div>
+                                {% if form.password.errors %}
+                                    <div class="glass-form-text text-danger">
+                                        {% for error in form.password.errors %}
+                                            <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="glass-checkbox-wrapper">
+                                    {{ form.remember_me }}
+                                    <label class="glass-checkbox-label">
+                                        <i class="fas fa-clock me-1"></i>Remember Me
+                                    </label>
+                                </div>
+                                <div class="glass-form-text">
+                                    Keep me logged in on this device
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 mb-3">
+                                <button type="submit" class="btn glass-btn-primary">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                                </button>
+                            </div>
+                            
+                            <div class="text-center">
+                                <a href="{% url 'accounts:password_reset' %}" class="glass-link">
+                                    <i class="fas fa-question-circle me-1"></i>Forgot Password?
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="glass-footer">
+                        <div class="text-center mb-2">
+                            <span class="glass-text-muted small">
                                 <i class="fas fa-info-circle me-1"></i>
-                                Enter your Student ID (e.g., BTML220001), Staff ID, or Username
+                                New students: Your login credentials will be provided by the administration
+                            </span>
+                        </div>
+                        <hr class="glass-divider">
+                        <div class="glass-demo-card">
+                            <div class="demo-credential">
+                                <span class="demo-label"><i class="fas fa-user-graduate me-1"></i>Student:</span>
+                                <span><code class="glass-code">BTML220001</code> / <code class="glass-code">password123</code></span>
+                            </div>
+                            <div class="demo-credential">
+                                <span class="demo-label"><i class="fas fa-user-tie me-1"></i>Executive:</span>
+                                <span><code class="glass-code">BTML230001</code> / <code class="glass-code">password123</code></span>
+                            </div>
+                            <div class="demo-credential">
+                                <span class="demo-label"><i class="fas fa-chalkboard-user me-1"></i>Staff:</span>
+                                <span><code class="glass-code">STAFF001</code> / <code class="glass-code">password123</code></span>
                             </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="{{ form.password.id_for_label }}" class="form-label fw-bold">
-                                <i class="fas fa-key me-2"></i>Password
-                            </label>
-                            {{ form.password }}
-                            {% if form.password.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.password.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3 form-check">
-                            {{ form.remember_me }}
-                            <label class="form-check-label" for="{{ form.remember_me.id_for_label }}">
-                                <i class="fas fa-clock me-1"></i>Remember Me
-                            </label>
-                            <div class="form-text text-muted small">
-                                Keep me logged in on this device
-                            </div>
-                        </div>
-                        
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-sign-in-alt me-2"></i>Login
-                            </button>
-                        </div>
-                        
-                        <div class="text-center mt-3">
-                            <a href="{% url 'accounts:password_reset' %}" class="text-decoration-none">
-                                <i class="fas fa-question-circle me-1"></i>Forgot Password?
-                            </a>
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="card-footer text-center py-3 bg-light">
-                    <div class="small">
-                        <p class="mb-0 text-muted">
-                            <i class="fas fa-info-circle me-1"></i>
-                            New students: Your login credentials will be provided by the administration
-                        </p>
-                        <hr class="my-2">
-                        <p class="mb-0">
-                            <span class="text-muted">Demo Credentials:</span><br>
-                            <small class="text-muted">
-                                Student: BTML220001 / password123<br>
-                                Executive: BTML230001 / password123<br>
-                                Staff: STAFF001 / password123
-                            </small>
-                        </p>
                     </div>
                 </div>
             </div>
@@ -121,45 +506,34 @@
 </div>
 
 <style>
-    .animate__animated {
-        animation-duration: 0.5s;
-    }
-    
-    .card {
-        transition: transform 0.3s ease;
-    }
-    
-    .card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .form-control:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-    }
-    
-    .btn-primary {
-        transition: all 0.3s ease;
-    }
-    
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
-    }
+.glass-divider {
+    margin: 0.75rem 0;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.glass-code {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-family: monospace;
+}
+
+[data-bs-theme="dark"] .glass-code {
+    background: rgba(255, 255, 255, 0.1);
+}
 </style>
 
 {% block extra_js %}
 <script>
     // Auto-focus username field on page load
     document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('{{ form.username.id_for_label }}').focus();
+        const usernameField = document.getElementById('{{ form.username.id_for_label }}');
+        if (usernameField) {
+            usernameField.focus();
+        }
     });
-    
-    // Add Bootstrap classes to form fields
-    document.getElementById('{{ form.username.id_for_label }}').classList.add('form-control', 'form-control-lg');
-    document.getElementById('{{ form.password.id_for_label }}').classList.add('form-control', 'form-control-lg');
-    document.getElementById('{{ form.remember_me.id_for_label }}').classList.add('form-check-input');
 </script>
 {% endblock %}
 
-{% endblock %}  <!-- This was missing! -->
+{% endblock %}

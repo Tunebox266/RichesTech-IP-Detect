@@ -23,10 +23,10 @@ urlpatterns = [
     
 
     # App URLs
-    #path('', include('apps.core.urls')),
     # Core app
     path('', include(('apps.core.urls', 'core'), namespace='core')),
-
+    path('core/', include(('apps.core.urls', 'core'), namespace='core')),
+    
     #path('accounts/', include('apps.accounts.urls')),
     # Accounts app
     path('accounts/', include(('apps.accounts.urls', 'accounts'), namespace='accounts')),

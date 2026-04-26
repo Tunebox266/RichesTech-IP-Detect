@@ -8,7 +8,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.utils import timezone
 from django.template.loader import render_to_string
-from weasyprint import HTML
+#from weasyprint import HTML
 import csv
 import tempfile
 import os
@@ -202,7 +202,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from weasyprint import HTML
+#from weasyprint import HTML
 from .models import StudentIDCard
 from .forms import StudentIDCardForm
 from apps.accounts.models import User
@@ -499,7 +499,7 @@ from apps.accounts.models import User
 
 
 # ========== PAST QUESTIONS VIEWS ==========
-
+@login_required
 def past_question_list(request):
     """List all past questions"""
     past_questions = PastQuestion.objects.filter(is_approved=True, is_active=True)
@@ -547,7 +547,7 @@ def past_question_list(request):
     }
     return render(request, 'directory/past_question_list.html', context)
 
-
+@login_required
 def past_question_detail(request, pk):
     """View past question details"""
     past_question = get_object_or_404(PastQuestion, pk=pk, is_active=True)
@@ -635,7 +635,7 @@ def past_question_delete(request, pk):
 
 
 # ========== STUDENT HANDBOOK VIEWS ==========
-
+@login_required
 def student_handbook_list(request):
     """List all student handbooks"""
     handbooks = StudentHandbook.objects.all().order_by('-effective_date')
@@ -655,6 +655,7 @@ def student_handbook_list(request):
     return render(request, 'directory/student_handbook_list.html', context)
 
 
+@login_required
 def student_handbook_detail(request, pk):
     """View student handbook details"""
     handbook = get_object_or_404(StudentHandbook, pk=pk)
